@@ -47,6 +47,18 @@ export function UsersPage() {
     void loadUsers()
   }, [])
 
+  function handleSort(column: UserSortKey) {
+    if (column === sortKey) {
+      setSortDirection((current) =>
+        current === 'ascending' ? 'descending' : 'ascending',
+      )
+      return
+    }
+
+    setSortKey(column)
+    setSortDirection('ascending')
+  }
+
   const filteredUsers = useMemo(() => {
     const query = search.trim().toLowerCase()
 
@@ -68,13 +80,26 @@ export function UsersPage() {
     )
   }, [users, search])
 
+  const visibleUsers = useMemo(() => {
+    const copy = [...filteredUsers]
+
+    copy.sort((left, right) => {
+      const comparison = String(left[sortKey]).localeCompare(
+        String(right[sortKey]),
+        undefined,
+        { numeric: true, sensitivity: 'base' },
+      )
+
+      return sortDirection === 'ascending' ? comparison : -comparison
+    })
+
+    return copy
+  }, [filteredUsers, sortKey, sortDirection])
+
   // Later plan steps connect the remaining state to UI controls. Keep each
   // value and setter referenced while this page remains a placeholder.
-  void filteredUsers
-  void sortKey
-  void setSortKey
-  void sortDirection
-  void setSortDirection
+  void handleSort
+  void visibleUsers
   void loading
   void pageError
   void dialogMode
