@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { listUsers } from '../api/users'
+import { Input } from '../components/ui/Input'
 import type {
   SortDirection,
   User,
@@ -46,11 +47,30 @@ export function UsersPage() {
     void loadUsers()
   }, [])
 
+  const filteredUsers = useMemo(() => {
+    const query = search.trim().toLowerCase()
+
+    if (!query) {
+      return users
+    }
+
+    return users.filter((user) =>
+      [
+        user.id,
+        user.email,
+        user.language,
+        user.currency,
+        user.timezone,
+      ]
+        .join(' ')
+        .toLowerCase()
+        .includes(query),
+    )
+  }, [users, search])
+
   // Later plan steps connect the remaining state to UI controls. Keep each
   // value and setter referenced while this page remains a placeholder.
-  void users
-  void search
-  void setSearch
+  void filteredUsers
   void sortKey
   void setSortKey
   void sortDirection
@@ -72,6 +92,15 @@ export function UsersPage() {
       <p className="mt-2 text-sm text-gray-400">
         User management will be added in the next implementation steps.
       </p>
+
+      <Input
+        type="search"
+        value={search}
+        placeholder="Search users..."
+        aria-label="Search users"
+        onChange={(event) => setSearch(event.target.value)}
+        className="mt-6 w-full sm:max-w-sm"
+      />
     </section>
   )
 }
