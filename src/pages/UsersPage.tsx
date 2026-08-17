@@ -1,4 +1,71 @@
+import { useEffect, useState } from 'react'
+
+import { listUsers } from '../api/users'
+import type {
+  SortDirection,
+  User,
+  UserSortKey,
+} from '../types/user'
+
+type DialogMode = 'add' | 'edit' | null
+
 export function UsersPage() {
+  const [users, setUsers] = useState<User[]>([])
+  const [search, setSearch] = useState('')
+  const [sortKey, setSortKey] = useState<UserSortKey>('id')
+  const [sortDirection, setSortDirection] =
+    useState<SortDirection>('ascending')
+
+  const [loading, setLoading] = useState(true)
+  const [pageError, setPageError] = useState<string | null>(null)
+
+  const [dialogMode, setDialogMode] = useState<DialogMode>(null)
+  const [selectedUser, setSelectedUser] = useState<User | null>(null)
+  const [saving, setSaving] = useState(false)
+  const [formError, setFormError] = useState<string | null>(null)
+
+  async function loadUsers() {
+    setLoading(true)
+    setPageError(null)
+
+    try {
+      const result = await listUsers()
+      setUsers(result)
+    } catch (error) {
+      setPageError(
+        error instanceof Error
+          ? error.message
+          : 'Unable to load users',
+      )
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    void loadUsers()
+  }, [])
+
+  // Later plan steps connect the remaining state to UI controls. Keep each
+  // value and setter referenced while this page remains a placeholder.
+  void users
+  void search
+  void setSearch
+  void sortKey
+  void setSortKey
+  void sortDirection
+  void setSortDirection
+  void loading
+  void pageError
+  void dialogMode
+  void setDialogMode
+  void selectedUser
+  void setSelectedUser
+  void saving
+  void setSaving
+  void formError
+  void setFormError
+
   return (
     <section className="mx-auto max-w-7xl">
       <h1 className="text-2xl font-semibold text-white">Users</h1>
