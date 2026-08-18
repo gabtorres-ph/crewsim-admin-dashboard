@@ -6,7 +6,12 @@ import {
   RiEditLine,
 } from '@remixicon/react'
 
-import { createUser, listUsers, updateUser } from '../api/users'
+import {
+  createUser,
+  deleteUser,
+  listUsers,
+  updateUser,
+} from '../api/users'
 import { UserFormDialog } from '../components/UserFormDialog'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
@@ -107,6 +112,29 @@ export function UsersPage() {
       )
     } finally {
       setSaving(false)
+    }
+  }
+
+  async function handleDelete(user: User) {
+    const confirmed = window.confirm(
+      `Delete ${user.email}? This action cannot be undone.`,
+    )
+
+    if (!confirmed) {
+      return
+    }
+
+    setPageError(null)
+
+    try {
+      await deleteUser(user.id)
+      await loadUsers()
+    } catch (error) {
+      setPageError(
+        error instanceof Error
+          ? error.message
+          : 'Unable to delete user',
+      )
     }
   }
 
@@ -294,6 +322,7 @@ export function UsersPage() {
                         type="button"
                         variant="ghost"
                         className="text-red-400 hover:bg-red-950 hover:text-red-300"
+                        onClick={() => void handleDelete(user)}
                         aria-label={`Delete ${user.email}`}
                       >
                         <RiDeleteBinLine
