@@ -6,7 +6,8 @@ import {
   RiEditLine,
 } from '@remixicon/react'
 
-import { listUsers } from '../api/users'
+import { createUser, listUsers, updateUser } from '../api/users'
+import { UserFormDialog } from '../components/UserFormDialog'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
 import {
@@ -21,6 +22,7 @@ import {
 import type {
   SortDirection,
   User,
+  UserInput,
   UserSortKey,
 } from '../types/user'
 
@@ -62,6 +64,51 @@ export function UsersPage() {
   useEffect(() => {
     void loadUsers()
   }, [])
+
+  function openAddDialog() {
+    setSelectedUser(null)
+    setFormError(null)
+    setDialogMode('add')
+  }
+
+  function openEditDialog(user: User) {
+    setSelectedUser(user)
+    setFormError(null)
+    setDialogMode('edit')
+  }
+
+  function handleDialogOpenChange(open: boolean) {
+    if (!open && !saving) {
+      setDialogMode(null)
+      setSelectedUser(null)
+      setFormError(null)
+    }
+  }
+
+  async function handleSave(input: UserInput) {
+    setSaving(true)
+    setFormError(null)
+
+    try {
+      if (dialogMode === 'add') {
+        await createUser(input)
+      } else if (dialogMode === 'edit' && selectedUser) {
+        await updateUser(selectedUser.id, input)
+      }
+
+      await loadUsers()
+      setDialogMode(null)
+      setSelectedUser(null)
+    } catch (error) {
+      setFormError(
+        error instanceof Error
+          ? error.message
+          : 'Unable to save user',
+      )
+    } finally {
+      setSaving(false)
+    }
+  }
 
   function handleSort(column: UserSortKey) {
     if (column === sortKey) {
@@ -168,23 +215,20 @@ export function UsersPage() {
     )
   }
 
-  // Steps 20-23 connect the remaining dialog and mutation state. Keep each
-  // value and setter referenced until those controls are implemented.
-  void dialogMode
-  void setDialogMode
-  void selectedUser
-  void setSelectedUser
-  void saving
-  void setSaving
-  void formError
-  void setFormError
-
   return (
     <section className="mx-auto max-w-7xl">
-      <h1 className="text-2xl font-semibold text-white">Users</h1>
-      <p className="mt-2 text-sm text-gray-400">
-        User management will be added in the next implementation steps.
-      </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold text-white">Users</h1>
+          <p className="mt-2 text-sm text-gray-400">
+            Create, find, and update users.
+          </p>
+        </div>
+
+        <Button type="button" onClick={openAddDialog}>
+          Add user
+        </Button>
+      </div>
 
       <Input
         type="search"
@@ -236,6 +280,7 @@ export function UsersPage() {
                       <Button
                         type="button"
                         variant="ghost"
+                        onClick={() => openEditDialog(user)}
                         aria-label={`Edit ${user.email}`}
                       >
                         <RiEditLine
@@ -265,6 +310,19 @@ export function UsersPage() {
           </Table>
         </TableRoot>
       </div>
+
+      {dialogMode && (
+        <UserFormDialog
+          key={`${dialogMode}-${selectedUser?.id ?? 'new'}`}
+          mode={dialogMode}
+          user={selectedUser}
+          open={true}
+          saving={saving}
+          error={formError}
+          onOpenChange={handleDialogOpenChange}
+          onSubmit={handleSave}
+        />
+      )}
     </section>
   )
 }
