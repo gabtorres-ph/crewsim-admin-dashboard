@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import { expect, fn, userEvent, within } from 'storybook/test'
 
 import type { UserInput } from '../types/user'
 import { Button } from './ui/Button'
@@ -19,7 +20,7 @@ const meta = {
     saving: false,
     error: null,
     onOpenChange: () => undefined,
-    onSubmit: async (_input: UserInput) => undefined,
+    onSubmit: fn(async (_input: UserInput) => undefined),
   },
 } satisfies Meta<typeof UserFormDialog>
 
@@ -40,7 +41,10 @@ function InteractiveDialog(
         {...args}
         open={open}
         onOpenChange={setOpen}
-        onSubmit={async () => setOpen(false)}
+        onSubmit={async (input) => {
+          await args.onSubmit(input)
+          setOpen(false)
+        }}
       />
     </>
   )
@@ -48,6 +52,34 @@ function InteractiveDialog(
 
 export const Add: Story = {
   render: (args) => <InteractiveDialog {...args} />,
+  play: async ({ args, canvasElement }) => {
+    const screen = within(canvasElement.ownerDocument.body)
+
+    await userEvent.type(
+      screen.getByRole('textbox', { name: 'Email' }),
+      'new.user@example.com',
+    )
+    await userEvent.selectOptions(
+      screen.getByRole('combobox', { name: 'Language' }),
+      'de',
+    )
+    await userEvent.selectOptions(
+      screen.getByRole('combobox', { name: 'Currency' }),
+      'EUR',
+    )
+    await userEvent.type(
+      screen.getByRole('textbox', { name: 'Timezone' }),
+      'Europe/Berlin',
+    )
+    await userEvent.click(screen.getByRole('button', { name: 'Add user' }))
+
+    await expect(args.onSubmit).toHaveBeenCalledWith({
+      email: 'new.user@example.com',
+      language: 'de',
+      currency: 'EUR',
+      timezone: 'Europe/Berlin',
+    })
+  },
 }
 
 export const Edit: Story = {
@@ -62,6 +94,22 @@ export const Edit: Story = {
     },
   },
   render: (args) => <InteractiveDialog {...args} />,
+  play: async ({ canvasElement }) => {
+    const screen = within(canvasElement.ownerDocument.body)
+
+    await expect(
+      screen.getByRole('textbox', { name: 'Email' }),
+    ).toHaveValue('alex@example.com')
+    await expect(
+      screen.getByRole('combobox', { name: 'Language' }),
+    ).toHaveValue('en')
+    await expect(
+      screen.getByRole('combobox', { name: 'Currency' }),
+    ).toHaveValue('USD')
+    await expect(
+      screen.getByRole('textbox', { name: 'Timezone' }),
+    ).toHaveValue('Asia/Manila')
+  },
 }
 
 export const Saving: Story = {

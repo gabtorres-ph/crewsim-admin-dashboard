@@ -115,9 +115,11 @@ export function UserFormDialog({
                 Email
               </span>
               <Input
+                name="email"
                 type="email"
                 value={form.email}
                 placeholder="name@company.com"
+                autoComplete="email"
                 required
                 disabled={saving}
                 onChange={(event) =>
@@ -131,7 +133,9 @@ export function UserFormDialog({
                 Language
               </span>
               <SelectNative
+                name="language"
                 value={form.language}
+                autoComplete="language"
                 required
                 disabled={saving}
                 onChange={(event) =>
@@ -150,6 +154,7 @@ export function UserFormDialog({
                 Currency
               </span>
               <SelectNative
+                name="currency"
                 value={form.currency}
                 required
                 disabled={saving}
@@ -169,6 +174,7 @@ export function UserFormDialog({
                 Timezone
               </span>
               <Input
+                name="timezone"
                 type="text"
                 value={form.timezone}
                 placeholder="Asia/Manila"
