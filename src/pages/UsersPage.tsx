@@ -141,10 +141,35 @@ export function UsersPage() {
     )
   }
 
+  if (loading) {
+    return (
+      <div
+        className="rounded-lg border border-gray-800 bg-gray-950 p-12 text-center text-sm text-gray-400"
+        role="status"
+      >
+        Loading users...
+      </div>
+    )
+  }
+
+  if (pageError) {
+    return (
+      <div className="rounded-lg border border-red-900 bg-red-950/40 p-6 text-red-200">
+        <p>{pageError}</p>
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={() => void loadUsers()}
+          className="mt-4"
+        >
+          Try again
+        </Button>
+      </div>
+    )
+  }
+
   // Steps 20-23 connect the remaining dialog and mutation state. Keep each
   // value and setter referenced until those controls are implemented.
-  void loading
-  void pageError
   void dialogMode
   void setDialogMode
   void selectedUser
@@ -185,6 +210,19 @@ export function UsersPage() {
             </TableHead>
 
             <TableBody>
+              {visibleUsers.length === 0 && (
+                <TableRow>
+                  <TableCell
+                    colSpan={6}
+                    className="py-12 text-center text-gray-400"
+                  >
+                    {search
+                      ? 'No users match your search.'
+                      : 'No users have been added yet.'}
+                  </TableCell>
+                </TableRow>
+              )}
+
               {visibleUsers.map((user) => (
                 <TableRow key={user.id}>
                   <TableCell>{user.id}</TableCell>
