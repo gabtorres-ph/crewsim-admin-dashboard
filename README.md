@@ -31,24 +31,57 @@ Mock Service Worker API for a single run instead, use:
 VITE_USE_MOCK_API=true npm run dev
 ```
 
-`VITE_API_BASE_URL` is a development-only browser setting and defaults to
-`/api` in the supplied environment files. Production builds always use the
-same-origin `/api` path so API requests cannot bypass the deployment proxy or
-expose its credentials to the browser.
+`VITE_API_BASE_URL` is a build-time browser setting and defaults to `/api`.
+Keep that default when the deployment routes `/api/*` to the backend on the
+same origin. For a locked Nixpacks static deployment that cannot proxy API
+requests, set it to the backend's public API origin, for example
+`https://api.example.com/api`.
 
-In a Dokploy deployment, configure `CF_ACCESS_CLIENT_ID`,
+### Static Nixpacks test deployment
+
+When Dokploy uses Nixpacks with `dist` as the Publish Directory, configure
+these variables on the frontend application before rebuilding it:
+
+```dotenv
+VITE_API_BASE_URL=https://api.example.com/api
+CF_ACCESS_CLIENT_ID=<service-token-client-id>
+CF_ACCESS_CLIENT_SECRET=<service-token-client-secret>
+```
+
+This project's Vite configuration deliberately exposes the two `CF_ACCESS_*`
+variables to client code. During `npm run build`, Vite embeds their values in
+`dist`; the shared API client then sends `CF-Access-Client-Id` and
+`CF-Access-Client-Secret` on every backend request. Changing these variables in
+Dokploy requires a rebuild/redeploy because the static Nginx container cannot
+read them at runtime.
+
+This mode is only suitable for an isolated test environment: anyone who can
+load the application can recover and reuse the service token. Revoke or rotate
+the token before moving to a server-side proxy or production deployment.
+
+Direct browser requests are cross-origin and preflighted. The Cloudflare
+Access application must have a Service Auth policy for the service token and
+must either bypass OPTIONS requests to the API or answer preflight requests.
+The API/Access CORS response must allow the frontend origin, credentials,
+`GET`, `POST`, `PATCH`, `DELETE`, and `OPTIONS`, plus the `Content-Type`,
+`CF-Access-Client-Id`, and `CF-Access-Client-Secret` request headers.
+
+In a dynamic Dokploy deployment, configure `CF_ACCESS_CLIENT_ID`,
 `CF_ACCESS_CLIENT_SECRET`, and `CORE_API_URL` as runtime environment variables
 on the frontend container. Vite reads them when the container starts, proxies
 `/api/*` to `CORE_API_URL`, and attaches the corresponding Cloudflare Access
-service-token headers. The secret is not included in the browser bundle.
+service-token headers. The secret is not included in the browser bundle. These
+runtime proxy settings do not apply when Dokploy serves a Nixpacks Publish
+Directory with its static Nginx image.
 
 The container runs `npm start`, which serves the built application with Vite on
 port `8080`. Set `PORT` to change the container port if the deployment platform
 requires a different one.
 
-`VITE_USE_MOCK_API` is a build-time frontend setting. `NIXPACKS_NODE_VERSION`
-selects the Node.js major version used by Nixpacks and the Docker build; it
-defaults to `24` in the supplied configuration.
+`VITE_USE_MOCK_API`, `VITE_API_BASE_URL`, and the intentionally exposed
+`CF_ACCESS_*` values are build-time frontend settings.
+`NIXPACKS_NODE_VERSION` selects the Node.js major version used by Nixpacks and
+the Docker build; it defaults to `24` in the supplied configuration.
 
 ## Run the integrated Docker stack
 

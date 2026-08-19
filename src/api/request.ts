@@ -1,22 +1,37 @@
 const configuredApiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim()
+const accessClientId = import.meta.env.CF_ACCESS_CLIENT_ID?.trim()
+const accessClientSecret = import.meta.env.CF_ACCESS_CLIENT_SECRET?.trim()
 
-// Production API traffic must stay on the frontend origin. The preview server
-// proxies /api to CORE_API_URL and adds credentials that must not be exposed to
-// the browser. Keeping this relative also prevents cross-origin redirects from
-// surfacing as misleading browser CORS failures.
-const API_BASE_URL = (
-  import.meta.env.PROD ? '/api' : configuredApiBaseUrl || '/api'
-).replace(/\/+$/, '')
+if (Boolean(accessClientId) !== Boolean(accessClientSecret)) {
+  throw new Error(
+    'CF_ACCESS_CLIENT_ID and CF_ACCESS_CLIENT_SECRET must be configured together',
+  )
+}
+
+const accessHeaders: Record<string, string> =
+  accessClientId && accessClientSecret
+    ? {
+        'CF-Access-Client-Id': accessClientId,
+        'CF-Access-Client-Secret': accessClientSecret,
+      }
+    : {}
+
+// Same-origin /api remains the default for local and proxy-based deployments.
+// Static deployments can point directly at a separately hosted API by setting
+// VITE_API_BASE_URL at build time.
+const API_BASE_URL = (configuredApiBaseUrl || '/api').replace(/\/+$/, '')
 
 export async function request<ResponseType>(
   path: string,
   options: RequestInit = {},
 ): Promise<ResponseType> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
+    credentials: 'include',
     ...options,
     headers: {
       'Content-Type': 'application/json',
       ...options.headers,
+      ...accessHeaders,
     },
   })
 

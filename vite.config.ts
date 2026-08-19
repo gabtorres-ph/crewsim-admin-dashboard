@@ -13,6 +13,10 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
 
   return {
+    // The Nixpacks publish-directory deployment is static, so these values
+    // must be embedded while Vite builds the browser bundle. This intentionally
+    // exposes the test-environment Cloudflare Access service token.
+    envPrefix: ['VITE_', 'CF_ACCESS_'],
     plugins: [react(), tailwindcss()],
     server: {
       proxy: {
