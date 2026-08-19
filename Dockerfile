@@ -24,7 +24,9 @@ FROM ${NGINX_IMAGE} AS runtime
 COPY docker/nginx/default.conf.template /etc/nginx/templates/default.conf.template
 COPY --from=build /app/dist /usr/share/nginx/html
 
-ENV API_UPSTREAM=http://api:8000
+ENV API_UPSTREAM=http://api:8000 \
+    CF_ACCESS_CLIENT_ID= \
+    CF_ACCESS_CLIENT_SECREt=
 
 EXPOSE 8080
 

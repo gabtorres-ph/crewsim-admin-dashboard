@@ -12,6 +12,8 @@ services:
         VITE_USE_MOCK_API: "false"
     environment:
       API_UPSTREAM: http://api:8000
+      CF_ACCESS_CLIENT_ID: ${CF_ACCESS_CLIENT_ID:-}
+      CF_ACCESS_CLIENT_SECREt: ${CF_ACCESS_CLIENT_SECREt:-}
     ports:
       - "127.0.0.1:${FRONTEND_PORT:-5173}:8080"
     depends_on:
