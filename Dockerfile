@@ -1,9 +1,9 @@
 # syntax=docker/dockerfile:1
 
-ARG NODE_IMAGE=node:24-alpine
+ARG NIXPACKS_NODE_VERSION=24
 ARG NGINX_IMAGE=nginxinc/nginx-unprivileged:stable-alpine
 
-FROM ${NODE_IMAGE} AS build
+FROM node:${NIXPACKS_NODE_VERSION}-alpine AS build
 
 WORKDIR /app
 
@@ -24,7 +24,7 @@ FROM ${NGINX_IMAGE} AS runtime
 COPY docker/nginx/default.conf.template /etc/nginx/templates/default.conf.template
 COPY --from=build /app/dist /usr/share/nginx/html
 
-ENV API_UPSTREAM=http://api:8000 \
+ENV CORE_API_URL=http://api:8000 \
     CF_ACCESS_CLIENT_ID= \
     CF_ACCESS_CLIENT_SECRET=
 

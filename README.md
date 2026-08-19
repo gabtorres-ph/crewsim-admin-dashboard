@@ -22,7 +22,7 @@ npm run dev
 
 The frontend is available at `http://localhost:5173`. Development requests to
 `/api` are proxied to `http://localhost:8000`, avoiding cross-origin browser
-requests. `API_PROXY_TARGET` can override that development proxy target.
+requests. `CORE_API_URL` can override that development proxy target.
 
 The checked-in development environment uses the real API. To use the bundled
 Mock Service Worker API for a single run instead, use:
@@ -35,11 +35,15 @@ VITE_USE_MOCK_API=true npm run dev
 the supplied environment files. It should not be set to the Docker hostname
 `api`, because that name is only resolvable between containers.
 
-In a Dokploy deployment, set `CF_ACCESS_CLIENT_ID` and
-`CF_ACCESS_CLIENT_SECRET` as runtime environment variables on the frontend
-container. Nginx reads them when the container starts and attaches the
-corresponding Cloudflare Access service-token headers to proxied `/api/*`
-requests. The secret is not included in the browser bundle.
+In a Dokploy deployment, configure `CF_ACCESS_CLIENT_ID`,
+`CF_ACCESS_CLIENT_SECRET`, and `CORE_API_URL` as runtime environment variables
+on the frontend container. Nginx reads them when the container starts, proxies
+`/api/*` to `CORE_API_URL`, and attaches the corresponding Cloudflare Access
+service-token headers. The secret is not included in the browser bundle.
+
+`VITE_USE_MOCK_API` and `VITE_API_BASE_URL` are build-time frontend settings.
+`NIXPACKS_NODE_VERSION` selects the Node.js major version used by Nixpacks and
+the Docker build; it defaults to `24` in the supplied configuration.
 
 ## Run the integrated Docker stack
 
