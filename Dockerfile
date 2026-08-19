@@ -26,7 +26,7 @@ COPY --from=build /app/dist /usr/share/nginx/html
 
 ENV API_UPSTREAM=http://api:8000 \
     CF_ACCESS_CLIENT_ID= \
-    CF_ACCESS_CLIENT_SECREt=
+    CF_ACCESS_CLIENT_SECRET=
 
 EXPOSE 8080
 

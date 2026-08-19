@@ -36,7 +36,7 @@ the supplied environment files. It should not be set to the Docker hostname
 `api`, because that name is only resolvable between containers.
 
 In a Dokploy deployment, set `CF_ACCESS_CLIENT_ID` and
-`CF_ACCESS_CLIENT_SECREt` as runtime environment variables on the frontend
+`CF_ACCESS_CLIENT_SECRET` as runtime environment variables on the frontend
 container. Nginx reads them when the container starts and attaches the
 corresponding Cloudflare Access service-token headers to proxied `/api/*`
 requests. The secret is not included in the browser bundle.
