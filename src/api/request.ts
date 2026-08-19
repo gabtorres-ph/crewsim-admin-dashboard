@@ -1,7 +1,12 @@
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? '').replace(
-  /\/+$/,
-  '',
-)
+const configuredApiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim()
+
+// Production API traffic must stay on the frontend origin. The preview server
+// proxies /api to CORE_API_URL and adds credentials that must not be exposed to
+// the browser. Keeping this relative also prevents cross-origin redirects from
+// surfacing as misleading browser CORS failures.
+const API_BASE_URL = (
+  import.meta.env.PROD ? '/api' : configuredApiBaseUrl || '/api'
+).replace(/\/+$/, '')
 
 export async function request<ResponseType>(
   path: string,

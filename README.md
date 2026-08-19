@@ -31,9 +31,10 @@ Mock Service Worker API for a single run instead, use:
 VITE_USE_MOCK_API=true npm run dev
 ```
 
-`VITE_API_BASE_URL` is a build-time browser setting and defaults to `/api` in
-the supplied environment files. It should not be set to the Docker hostname
-`api`, because that name is only resolvable between containers.
+`VITE_API_BASE_URL` is a development-only browser setting and defaults to
+`/api` in the supplied environment files. Production builds always use the
+same-origin `/api` path so API requests cannot bypass the deployment proxy or
+expose its credentials to the browser.
 
 In a Dokploy deployment, configure `CF_ACCESS_CLIENT_ID`,
 `CF_ACCESS_CLIENT_SECRET`, and `CORE_API_URL` as runtime environment variables
@@ -45,9 +46,9 @@ The container runs `npm start`, which serves the built application with Vite on
 port `8080`. Set `PORT` to change the container port if the deployment platform
 requires a different one.
 
-`VITE_USE_MOCK_API` and `VITE_API_BASE_URL` are build-time frontend settings.
-`NIXPACKS_NODE_VERSION` selects the Node.js major version used by Nixpacks and
-the Docker build; it defaults to `24` in the supplied configuration.
+`VITE_USE_MOCK_API` is a build-time frontend setting. `NIXPACKS_NODE_VERSION`
+selects the Node.js major version used by Nixpacks and the Docker build; it
+defaults to `24` in the supplied configuration.
 
 ## Run the integrated Docker stack
 
