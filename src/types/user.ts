@@ -20,5 +20,3 @@ export type UserSortKey =
     | 'currency'
     | 'language'
     | 'timezone'
-
-export type SortDirection = 'ascending' | 'descending'

@@ -2,15 +2,18 @@ import type { Preview } from '@storybook/react-vite'
 import { mswLoader } from 'msw-storybook-addon/csf3'
 
 import '../src/index.css'
-import { resetMockUsers, userHandlers } from '../src/mocks/handlers/users'
+import { handlers } from '../src/mocks/handlers'
+import { resetMockEsims } from '../src/mocks/handlers/esims'
+import { resetMockUsers } from '../src/mocks/handlers/users'
 
 const preview: Preview = {
   loaders: [mswLoader()],
   beforeEach: () => {
     resetMockUsers()
+    resetMockEsims()
   },
   parameters: {
-    msw: userHandlers,
+    msw: handlers,
     controls: {
       matchers: {
         color: /(background|color)$/i,

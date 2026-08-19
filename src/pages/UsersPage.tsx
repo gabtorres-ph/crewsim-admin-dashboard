@@ -25,11 +25,11 @@ import {
   TableRow,
 } from '../components/ui/Table'
 import type {
-  SortDirection,
   User,
   UserInput,
   UserSortKey,
 } from '../types/user'
+import type { SortDirection } from '../types/sort'
 
 type DialogMode = 'add' | 'edit' | null
 
