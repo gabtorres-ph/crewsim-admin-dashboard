@@ -2,13 +2,26 @@ import { delay, http, HttpResponse } from 'msw'
 
 import type { Esim, EsimInput } from '../../types/esims'
 import { mockEsims } from '../data/esims'
-import { findMockUserEmail } from './users'
+import { hasMockUserId } from './users'
 
 const ESIMS_PATH = '*/esims'
 const ESIM_PATH = '*/esims/:id'
 const MOCK_DELAY_MS = 250
 
 let esims: Esim[] = []
+
+type EsimRequest = {
+  user_id: number
+  imsi: string
+}
+
+function toResponse(esim: Esim) {
+  return {
+    id: esim.id,
+    user_id: esim.userId,
+    imsi: esim.imsi,
+  }
+}
 
 export function resetMockEsims() {
   esims = mockEsims.map((esim) => ({ ...esim }))
@@ -42,30 +55,30 @@ async function readEsimInput(request: Request) {
     }
   }
 
-  const candidate = body as Partial<EsimInput>
-  const user = typeof candidate.user === 'string'
-    ? candidate.user.trim()
-    : ''
+  const candidate = body as Partial<EsimRequest>
+  const userId = candidate.user_id
   const imsi = typeof candidate.imsi === 'string'
     ? candidate.imsi.trim()
     : ''
 
-  if (!user) {
+  if (
+    typeof userId !== 'number' ||
+    !Number.isInteger(userId) ||
+    userId <= 0
+  ) {
     return {
       error: HttpResponse.json(
         { detail: 'User is required.' },
-        { status: 400 },
+        { status: 422 },
       ),
     }
   }
 
-  const matchedUserEmail = findMockUserEmail(user)
-
-  if (!matchedUserEmail) {
+  if (!hasMockUserId(userId)) {
     return {
       error: HttpResponse.json(
-        { detail: 'Select an existing user.' },
-        { status: 400 },
+        { detail: `User '${userId}' was not found` },
+        { status: 404 },
       ),
     }
   }
@@ -74,7 +87,7 @@ async function readEsimInput(request: Request) {
     return {
       error: HttpResponse.json(
         { detail: 'IMSI is required.' },
-        { status: 400 },
+        { status: 422 },
       ),
     }
   }
@@ -83,14 +96,14 @@ async function readEsimInput(request: Request) {
     return {
       error: HttpResponse.json(
         { detail: 'IMSI must contain digits only.' },
-        { status: 400 },
+        { status: 422 },
       ),
     }
   }
 
   return {
     input: {
-      user: matchedUserEmail,
+      userId,
       imsi,
     } satisfies EsimInput,
   }
@@ -107,7 +120,7 @@ resetMockEsims()
 export const esimHandlers = [
   http.get(ESIMS_PATH, async () => {
     await delay(MOCK_DELAY_MS)
-    return HttpResponse.json(esims.map((esim) => ({ ...esim })))
+    return HttpResponse.json(esims.map(toResponse))
   }),
 
   http.post(ESIMS_PATH, async ({ request }) => {
@@ -131,7 +144,7 @@ export const esimHandlers = [
     }
 
     esims.push(esim)
-    return HttpResponse.json({ ...esim }, { status: 201 })
+    return HttpResponse.json(toResponse(esim), { status: 201 })
   }),
 
   http.patch(ESIM_PATH, async ({ params, request }) => {
@@ -167,7 +180,7 @@ export const esimHandlers = [
     }
 
     esims[esimIndex] = updatedEsim
-    return HttpResponse.json({ ...updatedEsim })
+    return HttpResponse.json(toResponse(updatedEsim))
   }),
 
   http.delete(ESIM_PATH, async ({ params }) => {

@@ -1,12 +1,12 @@
 
 export type Esim = {
   id: number
-  user: string
+  userId: number
   imsi: string
 }
 
 export type EsimInput = {
-  user: string
+  userId: number
   imsi: string
 }
 

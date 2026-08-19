@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { RiAddLine } from '@remixicon/react'
 
 import {
@@ -33,6 +33,16 @@ export function EsimsPage() {
   const [saving, setSaving] = useState(false)
   const [deletingId, setDeletingId] = useState<number | null>(null)
   const [formError, setFormError] = useState<string | null>(null)
+
+  const userEmails = useMemo(
+    () => new Map(users.map((user) => [user.id, user.email])),
+    [users],
+  )
+
+  const getUserLabel = useCallback(
+    (userId: number) => userEmails.get(userId) ?? `User #${userId}`,
+    [userEmails],
+  )
 
   async function loadPageData() {
     setLoading(true)
@@ -152,19 +162,25 @@ export function EsimsPage() {
     }
 
     return esims.filter((esim) =>
-      [esim.id, esim.user, esim.imsi]
+      [esim.id, getUserLabel(esim.userId), esim.imsi]
         .join(' ')
         .toLowerCase()
         .includes(query),
     )
-  }, [esims, search])
+  }, [esims, search, getUserLabel])
 
   const visibleEsims = useMemo(() => {
     const copy = [...filteredEsims]
 
     copy.sort((left, right) => {
-      const comparison = String(left[sortKey]).localeCompare(
-        String(right[sortKey]),
+      const leftValue = sortKey === 'user'
+        ? getUserLabel(left.userId)
+        : left[sortKey]
+      const rightValue = sortKey === 'user'
+        ? getUserLabel(right.userId)
+        : right[sortKey]
+      const comparison = String(leftValue).localeCompare(
+        String(rightValue),
         undefined,
         { numeric: true, sensitivity: 'base' },
       )
@@ -173,7 +189,7 @@ export function EsimsPage() {
     })
 
     return copy
-  }, [filteredEsims, sortKey, sortDirection])
+  }, [filteredEsims, sortKey, sortDirection, getUserLabel])
 
   if (loading) {
     return (
@@ -238,6 +254,7 @@ export function EsimsPage() {
       <div className="mt-4">
         <EsimTable
           esims={visibleEsims}
+          users={users}
           hasSearch={search.trim().length > 0}
           sortKey={sortKey}
           sortDirection={sortDirection}

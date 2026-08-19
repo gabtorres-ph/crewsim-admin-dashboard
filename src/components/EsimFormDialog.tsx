@@ -27,18 +27,23 @@ type EsimFormDialogProps = {
   onSubmit: (input: EsimInput) => Promise<void>
 }
 
-const EMPTY_ESIM_FORM: EsimInput = {
-  user: '',
+type EsimFormValue = {
+  userId: string
+  imsi: string
+}
+
+const EMPTY_ESIM_FORM: EsimFormValue = {
+  userId: '',
   imsi: '',
 }
 
-function initialFormValue(esim: Esim | null): EsimInput {
+function initialFormValue(esim: Esim | null): EsimFormValue {
   if (!esim) {
     return { ...EMPTY_ESIM_FORM }
   }
 
   return {
-    user: esim.user,
+    userId: String(esim.userId),
     imsi: esim.imsi,
   }
 }
@@ -53,16 +58,16 @@ export function EsimFormDialog({
   onOpenChange,
   onSubmit,
 }: EsimFormDialogProps) {
-  const [form, setForm] = useState<EsimInput>(() =>
+  const [form, setForm] = useState<EsimFormValue>(() =>
     initialFormValue(esim),
   )
   const [fieldErrors, setFieldErrors] = useState<
-    Partial<Record<keyof EsimInput, string>>
+    Partial<Record<keyof EsimFormValue, string>>
   >({})
-  const userId = useId()
+  const userFieldId = useId()
   const imsiId = useId()
 
-  function updateField(field: keyof EsimInput, value: string) {
+  function updateField(field: keyof EsimFormValue, value: string) {
     setForm((current) => ({
       ...current,
       [field]: value,
@@ -76,12 +81,12 @@ export function EsimFormDialog({
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
-    const user = form.user.trim()
+    const userId = Number(form.userId)
     const imsi = form.imsi.trim()
-    const errors: Partial<Record<keyof EsimInput, string>> = {}
+    const errors: Partial<Record<keyof EsimFormValue, string>> = {}
 
-    if (!user) {
-      errors.user = 'Select a user.'
+    if (!Number.isInteger(userId) || userId <= 0) {
+      errors.userId = 'Select a user.'
     }
 
     if (!imsi) {
@@ -96,10 +101,12 @@ export function EsimFormDialog({
       return
     }
 
-    await onSubmit({ user, imsi })
+    await onSubmit({ userId, imsi })
   }
 
-  const userErrorId = fieldErrors.user ? `${userId}-error` : undefined
+  const userErrorId = fieldErrors.userId
+    ? `${userFieldId}-error`
+    : undefined
   const imsiErrorId = fieldErrors.imsi ? `${imsiId}-error` : undefined
 
   return (
@@ -139,22 +146,22 @@ export function EsimFormDialog({
           <div className="grid gap-5 py-6 sm:grid-cols-2">
             <div className="grid content-start gap-2">
               <label
-                htmlFor={userId}
+                htmlFor={userFieldId}
                 className="text-sm font-medium text-gray-900"
               >
                 User
               </label>
               <SelectNative
-                id={userId}
-                name="user"
-                value={form.user}
+                id={userFieldId}
+                name="userId"
+                value={form.userId}
                 required
                 disabled={saving}
-                hasError={Boolean(fieldErrors.user)}
-                aria-invalid={Boolean(fieldErrors.user)}
+                hasError={Boolean(fieldErrors.userId)}
+                aria-invalid={Boolean(fieldErrors.userId)}
                 aria-describedby={userErrorId}
                 onChange={(event) =>
-                  updateField('user', event.target.value)
+                  updateField('userId', event.target.value)
                 }
               >
                 <option value="">
@@ -163,14 +170,14 @@ export function EsimFormDialog({
                     : 'No users available'}
                 </option>
                 {users.map((user) => (
-                  <option key={user.id} value={user.email}>
+                  <option key={user.id} value={user.id}>
                     {user.email}
                   </option>
                 ))}
               </SelectNative>
-              {fieldErrors.user && (
+              {fieldErrors.userId && (
                 <span id={userErrorId} className="text-sm text-red-600">
-                  {fieldErrors.user}
+                  {fieldErrors.userId}
                 </span>
               )}
             </div>

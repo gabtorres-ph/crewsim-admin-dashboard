@@ -27,6 +27,37 @@ type Story = StoryObj<typeof meta>
 
 export const Populated: Story = {}
 
+export const CreateEsim: Story = {
+  play: async ({ canvasElement }) => {
+    const screen = within(canvasElement.ownerDocument.body)
+    const imsi = '310150111222333'
+
+    await screen.findByRole('heading', { name: 'eSIMs' })
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Add eSIM' }),
+    )
+
+    const dialog = await screen.findByRole('dialog')
+    const form = within(dialog)
+    await userEvent.selectOptions(
+      form.getByRole('combobox', { name: 'User' }),
+      '1001',
+    )
+    await userEvent.type(
+      form.getByRole('textbox', { name: 'IMSI' }),
+      imsi,
+    )
+    await userEvent.click(
+      form.getByRole('button', { name: 'Add eSIM' }),
+    )
+
+    await expect(screen.findByText(imsi)).resolves.toBeVisible()
+    await expect(
+      screen.getAllByText('alex.santos@example.com').at(-1),
+    ).toBeVisible()
+  },
+}
+
 export const Empty: Story = {
   parameters: {
     msw: [
@@ -103,7 +134,7 @@ export const SaveError: Story = {
     const form = within(dialog)
     await userEvent.selectOptions(
       form.getByRole('combobox', { name: 'User' }),
-      'alex.santos@example.com',
+      '1001',
     )
     await userEvent.type(
       form.getByRole('textbox', { name: 'IMSI' }),

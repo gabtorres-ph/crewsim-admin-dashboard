@@ -13,14 +13,8 @@ export function resetMockUsers() {
   users = mockUsers.map((user) => ({ ...user }))
 }
 
-export function findMockUserEmail(email: string) {
-  const normalizedEmail = email.trim().toLowerCase()
-
-  return (
-    users.find(
-      (user) => user.email.toLowerCase() === normalizedEmail,
-    )?.email ?? null
-  )
+export function hasMockUserId(id: number) {
+  return users.some((user) => user.id === id)
 }
 
 function parseUserId(value: string | readonly string[] | undefined) {

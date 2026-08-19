@@ -61,7 +61,7 @@ export const Add: Story = {
 
     await userEvent.selectOptions(
       screen.getByRole('combobox', { name: 'User' }),
-      'alex.santos@example.com',
+      '1001',
     )
     await userEvent.type(
       screen.getByRole('textbox', { name: 'IMSI' }),
@@ -72,7 +72,7 @@ export const Add: Story = {
     )
 
     await expect(args.onSubmit).toHaveBeenCalledWith({
-      user: 'alex.santos@example.com',
+      userId: 1001,
       imsi: '310150111222333',
     })
   },
@@ -83,7 +83,7 @@ export const Edit: Story = {
     mode: 'edit',
     esim: {
       id: 2001,
-      user: 'alex.santos@example.com',
+      userId: 1001,
       imsi: '310150123456789',
     },
   },
@@ -93,7 +93,7 @@ export const Edit: Story = {
 
     await expect(
       screen.getByRole('combobox', { name: 'User' }),
-    ).toHaveValue('alex.santos@example.com')
+    ).toHaveValue('1001')
     await expect(
       screen.getByRole('textbox', { name: 'IMSI' }),
     ).toHaveValue('310150123456789')

@@ -3,32 +3,32 @@ import type { Esim } from '../../types/esims'
 export const mockEsims = [
   {
     id: 2001,
-    user: 'alex.santos@example.com',
+    userId: 1001,
     imsi: '310150123456789',
   },
   {
     id: 2002,
-    user: 'mei.lin@example.com',
+    userId: 1002,
     imsi: '525010987654321',
   },
   {
     id: 2003,
-    user: 'haruto.tanaka@example.com',
+    userId: 1003,
     imsi: '440100123456789',
   },
   {
     id: 2004,
-    user: 'sofia.martinez@example.com',
+    userId: 1004,
     imsi: '214070987654321',
   },
   {
     id: 2005,
-    user: 'noah.williams@example.com',
+    userId: 1007,
     imsi: '310260246813579',
   },
   {
     id: 2006,
-    user: 'priya.sharma@example.com',
+    userId: 1013,
     imsi: '404450135792468',
   },
 ] satisfies readonly Esim[]

@@ -7,6 +7,7 @@ import {
 
 import type { Esim, EsimSortKey } from '../types/esims'
 import type { SortDirection } from '../types/sort'
+import type { User } from '../types/user'
 import { Button } from './ui/Button'
 import {
   Table,
@@ -20,6 +21,7 @@ import {
 
 type EsimTableProps = {
   esims: Esim[]
+  users: User[]
   hasSearch: boolean
   sortKey: EsimSortKey
   sortDirection: SortDirection
@@ -68,6 +70,7 @@ function SortableEsimHeader({
 
 export function EsimTable({
   esims,
+  users,
   hasSearch,
   sortKey,
   sortDirection,
@@ -76,6 +79,10 @@ export function EsimTable({
   onEdit,
   onDelete,
 }: EsimTableProps) {
+  const userEmails = new Map(
+    users.map((user) => [user.id, user.email]),
+  )
+
   return (
     <div className="overflow-hidden rounded-lg border border-gray-800 bg-gray-950">
       <TableRoot>
@@ -111,7 +118,9 @@ export function EsimTable({
             {esims.map((esim) => (
               <TableRow key={esim.id}>
                 <TableCell>{esim.id}</TableCell>
-                <TableCell>{esim.user}</TableCell>
+                <TableCell>
+                  {userEmails.get(esim.userId) ?? `User #${esim.userId}`}
+                </TableCell>
                 <TableCell className="font-mono">{esim.imsi}</TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
