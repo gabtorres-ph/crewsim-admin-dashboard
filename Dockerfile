@@ -1,7 +1,6 @@
 # syntax=docker/dockerfile:1
 
 ARG NIXPACKS_NODE_VERSION=24
-ARG NGINX_IMAGE=nginxinc/nginx-unprivileged:stable-alpine
 
 FROM node:${NIXPACKS_NODE_VERSION}-alpine AS build
 
@@ -19,16 +18,25 @@ ENV VITE_API_BASE_URL=${VITE_API_BASE_URL} \
 
 RUN npm run build
 
-FROM ${NGINX_IMAGE} AS runtime
+FROM node:${NIXPACKS_NODE_VERSION}-alpine AS runtime
 
-COPY docker/nginx/default.conf.template /etc/nginx/templates/default.conf.template
-COPY --from=build /app/dist /usr/share/nginx/html
+WORKDIR /app
 
-ENV CORE_API_URL=http://api:8000 \
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
+
+COPY vite.preview.config.ts ./
+COPY --from=build /app/dist ./dist
+
+ENV NODE_ENV=production \
+    PORT=8080 \
+    CORE_API_URL=http://api:8000 \
     CF_ACCESS_CLIENT_ID= \
     CF_ACCESS_CLIENT_SECRET=
 
 EXPOSE 8080
 
 HEALTHCHECK --interval=10s --timeout=3s --start-period=5s --retries=5 \
-  CMD ["wget", "--quiet", "--spider", "http://127.0.0.1:8080/healthz"]
+  CMD wget --quiet --spider "http://127.0.0.1:${PORT}/healthz"
+
+CMD ["npm", "start"]

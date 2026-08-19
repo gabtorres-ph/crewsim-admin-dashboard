@@ -37,9 +37,13 @@ the supplied environment files. It should not be set to the Docker hostname
 
 In a Dokploy deployment, configure `CF_ACCESS_CLIENT_ID`,
 `CF_ACCESS_CLIENT_SECRET`, and `CORE_API_URL` as runtime environment variables
-on the frontend container. Nginx reads them when the container starts, proxies
+on the frontend container. Vite reads them when the container starts, proxies
 `/api/*` to `CORE_API_URL`, and attaches the corresponding Cloudflare Access
 service-token headers. The secret is not included in the browser bundle.
+
+The container runs `npm start`, which serves the built application with Vite on
+port `8080`. Set `PORT` to change the container port if the deployment platform
+requires a different one.
 
 `VITE_USE_MOCK_API` and `VITE_API_BASE_URL` are build-time frontend settings.
 `NIXPACKS_NODE_VERSION` selects the Node.js major version used by Nixpacks and
@@ -48,14 +52,14 @@ the Docker build; it defaults to `24` in the supplied configuration.
 ## Run the integrated Docker stack
 
 The integration Compose file includes the backend stack from the sibling
-`core-crewsim` repository and adds this frontend as an Nginx container:
+`core-crewsim` repository and adds this frontend as a Vite container:
 
 ```bash
 docker compose -f compose.integration.yaml up --build --wait
 docker compose -f compose.integration.yaml exec api python -m app.seed
 ```
 
-Open `http://localhost:5173`. Nginx serves the frontend and proxies `/api/*` to
+Open `http://localhost:5173`. Vite serves the frontend and proxies `/api/*` to
 the FastAPI `api` service on the shared Compose network. Override the frontend
 host port with `FRONTEND_PORT`, if needed:
 

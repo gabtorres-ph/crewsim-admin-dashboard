@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview",
+    "preview": "vite preview --config vite.preview.config.ts",
+    "start": "vite preview --config vite.preview.config.ts",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
@@ -21,7 +22,8 @@
     "react-dom": "^19.2.8",
     "tailwind-merge": "^3.6.0",
     "tailwind-variants": "^3.3.1",
-    "tailwindcss": "^4.3.3"
+    "tailwindcss": "^4.3.3",
+    "vite": "^8.2.0"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.11",
@@ -33,7 +35,6 @@
     "msw-storybook-addon": "^3.0.0",
     "oxlint": "^1.75.0",
     "typescript": "~6.0.2",
-    "vite": "^8.2.0",
     "storybook": "^10.5.8",
     "@storybook/react-vite": "^10.5.8",
     "@chromatic-com/storybook": "latest",
