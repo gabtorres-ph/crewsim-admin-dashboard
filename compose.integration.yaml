@@ -1,0 +1,20 @@
+name: crewsim-local
+
+include:
+  - path: ../core-crewsim/compose.yaml
+
+services:
+  frontend:
+    build:
+      context: .
+      args:
+        VITE_API_BASE_URL: /api
+        VITE_USE_MOCK_API: "false"
+    environment:
+      API_UPSTREAM: http://api:8000
+    ports:
+      - "127.0.0.1:${FRONTEND_PORT:-5173}:8080"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
