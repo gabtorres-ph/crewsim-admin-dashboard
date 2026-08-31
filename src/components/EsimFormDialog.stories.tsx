@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { expect, fn, userEvent, within } from 'storybook/test'
 
+import { mockEsims } from '../mocks/data/esims'
 import { mockUsers } from '../mocks/data/users'
 import type { EsimInput } from '../types/esims'
 import { EsimFormDialog } from './EsimFormDialog'
@@ -82,8 +83,10 @@ export const Edit: Story = {
   args: {
     mode: 'edit',
     esim: {
+      ...mockEsims[0],
       id: 2001,
       userId: 1001,
+      accountId: 3001,
       imsi: '310150123456789',
     },
   },

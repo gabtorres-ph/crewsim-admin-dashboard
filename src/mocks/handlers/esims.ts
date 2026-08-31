@@ -11,15 +11,67 @@ const MOCK_DELAY_MS = 250
 let esims: Esim[] = []
 
 type EsimRequest = {
-  user_id: number
-  imsi: string
+  user_id?: number
+  account_id?: number
+  imsi?: string
+  name?: string
+  isesim?: boolean
+  createdate?: string
+  token?: string
+  networkstatus?: string
+  balance?: number
+  use_account_for_charging?: boolean
+  smdpserver?: string
+  activationcode?: string
+  imei?: string
+  imei_device?: string
+  allow_data?: boolean
 }
 
 function toResponse(esim: Esim) {
   return {
     id: esim.id,
     user_id: esim.userId,
+    account_id: esim.accountId,
     imsi: esim.imsi,
+    name: esim.name,
+    isesim: esim.isesim,
+    createdate: esim.createdate,
+    token: esim.token,
+    networkstatus: esim.networkstatus,
+    balance: esim.balance,
+    use_account_for_charging: esim.useAccountForCharging,
+    smdpserver: esim.smdpserver,
+    activationcode: esim.activationcode,
+    imei: esim.imei,
+    imei_device: esim.imeiDevice,
+    allow_data: esim.allowData,
+  }
+}
+
+function fromInput(
+  input: EsimInput,
+  fallback: Esim | null = null,
+): Omit<Esim, 'id'> {
+  return {
+    userId: input.userId ?? fallback?.userId ?? null,
+    accountId: input.accountId ?? fallback?.accountId ?? 3001,
+    imsi: input.imsi,
+    name: input.name ?? fallback?.name ?? null,
+    isesim: input.isesim ?? fallback?.isesim ?? null,
+    createdate: input.createdate ?? fallback?.createdate ?? null,
+    token: input.token ?? fallback?.token ?? null,
+    networkstatus: input.networkstatus ?? fallback?.networkstatus ?? null,
+    balance: input.balance ?? fallback?.balance ?? null,
+    useAccountForCharging:
+      input.useAccountForCharging ??
+      fallback?.useAccountForCharging ??
+      false,
+    smdpserver: input.smdpserver ?? fallback?.smdpserver ?? null,
+    activationcode: input.activationcode ?? fallback?.activationcode ?? null,
+    imei: input.imei ?? fallback?.imei ?? null,
+    imeiDevice: input.imeiDevice ?? fallback?.imeiDevice ?? null,
+    allowData: input.allowData ?? fallback?.allowData ?? null,
   }
 }
 
@@ -57,28 +109,48 @@ async function readEsimInput(request: Request) {
 
   const candidate = body as Partial<EsimRequest>
   const userId = candidate.user_id
+  const accountId = candidate.account_id
   const imsi = typeof candidate.imsi === 'string'
     ? candidate.imsi.trim()
     : ''
 
   if (
-    typeof userId !== 'number' ||
-    !Number.isInteger(userId) ||
-    userId <= 0
+    userId !== undefined &&
+    (
+      typeof userId !== 'number' ||
+      !Number.isInteger(userId) ||
+      userId <= 0
+    )
   ) {
     return {
       error: HttpResponse.json(
-        { detail: 'User is required.' },
+        { detail: 'User must be a positive integer.' },
         { status: 422 },
       ),
     }
   }
 
-  if (!hasMockUserId(userId)) {
+  if (userId !== undefined && !hasMockUserId(userId)) {
     return {
       error: HttpResponse.json(
         { detail: `User '${userId}' was not found` },
         { status: 404 },
+      ),
+    }
+  }
+
+  if (
+    accountId !== undefined &&
+    (
+      typeof accountId !== 'number' ||
+      !Number.isInteger(accountId) ||
+      accountId <= 0
+    )
+  ) {
+    return {
+      error: HttpResponse.json(
+        { detail: 'Account must be a positive integer.' },
+        { status: 422 },
       ),
     }
   }
@@ -104,7 +176,20 @@ async function readEsimInput(request: Request) {
   return {
     input: {
       userId,
+      accountId,
       imsi,
+      name: candidate.name,
+      isesim: candidate.isesim,
+      createdate: candidate.createdate,
+      token: candidate.token,
+      networkstatus: candidate.networkstatus,
+      balance: candidate.balance,
+      useAccountForCharging: candidate.use_account_for_charging,
+      smdpserver: candidate.smdpserver,
+      activationcode: candidate.activationcode,
+      imei: candidate.imei,
+      imeiDevice: candidate.imei_device,
+      allowData: candidate.allow_data,
     } satisfies EsimInput,
   }
 }
@@ -118,9 +203,19 @@ function hasDuplicateImsi(imsi: string, ignoredEsimId?: number) {
 resetMockEsims()
 
 export const esimHandlers = [
-  http.get(ESIMS_PATH, async () => {
+  http.get(ESIMS_PATH, async ({ request }) => {
     await delay(MOCK_DELAY_MS)
-    return HttpResponse.json(esims.map(toResponse))
+    const url = new URL(request.url)
+    const userId = Number(url.searchParams.get('user_id'))
+    const offset = Number(url.searchParams.get('offset') ?? 0)
+    const limit = Number(url.searchParams.get('limit') ?? 100)
+    const filteredEsims = Number.isInteger(userId) && userId > 0
+      ? esims.filter((esim) => esim.userId === userId)
+      : esims
+
+    return HttpResponse.json(
+      filteredEsims.slice(offset, offset + limit).map(toResponse),
+    )
   }),
 
   http.post(ESIMS_PATH, async ({ request }) => {
@@ -139,7 +234,7 @@ export const esimHandlers = [
     }
 
     const esim: Esim = {
-      ...result.input,
+      ...fromInput(result.input),
       id: Math.max(0, ...esims.map(({ id }) => id)) + 1,
     }
 
@@ -175,7 +270,7 @@ export const esimHandlers = [
     }
 
     const updatedEsim: Esim = {
-      ...result.input,
+      ...fromInput(result.input, esims[esimIndex]),
       id,
     }
 

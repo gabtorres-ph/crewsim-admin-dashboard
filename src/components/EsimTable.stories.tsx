@@ -1,27 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { fn } from 'storybook/test'
 
+import { mockEsims } from '../mocks/data/esims'
 import { mockUsers } from '../mocks/data/users'
 import type { Esim } from '../types/esims'
 import { EsimTable } from './EsimTable'
 
-const esims: Esim[] = [
-  {
-    id: 2001,
-    userId: 1001,
-    imsi: '310150123456789',
-  },
-  {
-    id: 2002,
-    userId: 1002,
-    imsi: '525010987654321',
-  },
-  {
-    id: 2003,
-    userId: 1003,
-    imsi: '440100123456789',
-  },
-]
+const esims: Esim[] = mockEsims.slice(0, 3)
 
 const meta = {
   title: 'Components/EsimTable',
@@ -72,13 +57,16 @@ export const LongValues: Story = {
   args: {
     esims: [
       {
+        ...mockEsims[0],
         id: 987654321012345,
         userId: 9999,
+        accountId: 3999,
         imsi: '310150123456789012345678901234',
       },
     ],
     users: [
       {
+        ...mockUsers[0],
         id: 9999,
         email: 'operations.team+international-roaming@example.com',
         language: 'en',

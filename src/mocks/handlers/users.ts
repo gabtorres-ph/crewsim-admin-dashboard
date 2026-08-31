@@ -9,6 +9,21 @@ const MOCK_DELAY_MS = 250
 
 let users: User[] = []
 
+const defaultUserFields = {
+  firstname: null,
+  lastname: null,
+  airline: null,
+  position: null,
+  referralcode: null,
+  referredby: null,
+  stripeid: null,
+  logtoid: null,
+  createdate: null,
+  newsletter: null,
+  smsnotification: null,
+  rateus: null,
+}
+
 export function resetMockUsers() {
   users = mockUsers.map((user) => ({ ...user }))
 }
@@ -59,9 +74,15 @@ function hasDuplicateEmail(email: string, ignoredUserId?: number) {
 resetMockUsers()
 
 export const userHandlers = [
-  http.get(USERS_PATH, async () => {
+  http.get(USERS_PATH, async ({ request }) => {
     await delay(MOCK_DELAY_MS)
-    return HttpResponse.json(users.map((user) => ({ ...user })))
+    const url = new URL(request.url)
+    const offset = Number(url.searchParams.get('offset') ?? 0)
+    const limit = Number(url.searchParams.get('limit') ?? 100)
+
+    return HttpResponse.json(
+      users.slice(offset, offset + limit).map((user) => ({ ...user })),
+    )
   }),
 
   http.post(USERS_PATH, async ({ request }) => {
@@ -83,6 +104,7 @@ export const userHandlers = [
     }
 
     const user: User = {
+      ...defaultUserFields,
       ...input,
       email: input.email.trim(),
       id: Math.max(0, ...users.map(({ id }) => id)) + 1,
@@ -123,6 +145,7 @@ export const userHandlers = [
     }
 
     const updatedUser: User = {
+      ...users[userIndex],
       ...input,
       email: input.email.trim(),
       id,

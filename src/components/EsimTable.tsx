@@ -119,7 +119,9 @@ export function EsimTable({
               <TableRow key={esim.id}>
                 <TableCell>{esim.id}</TableCell>
                 <TableCell>
-                  {userEmails.get(esim.userId) ?? `User #${esim.userId}`}
+                  {esim.userId === null
+                    ? 'Unassigned'
+                    : userEmails.get(esim.userId) ?? `User #${esim.userId}`}
                 </TableCell>
                 <TableCell className="font-mono">{esim.imsi}</TableCell>
                 <TableCell>

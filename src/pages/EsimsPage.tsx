@@ -40,7 +40,10 @@ export function EsimsPage() {
   )
 
   const getUserLabel = useCallback(
-    (userId: number) => userEmails.get(userId) ?? `User #${userId}`,
+    (userId: number | null) =>
+      userId === null
+        ? 'Unassigned'
+        : userEmails.get(userId) ?? `User #${userId}`,
     [userEmails],
   )
 

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { expect, fn, userEvent, within } from 'storybook/test'
 
+import { mockUsers } from '../mocks/data/users'
 import type { UserInput } from '../types/user'
 import { Button } from './ui/Button'
 import { UserFormDialog } from './UserFormDialog'
@@ -86,6 +87,7 @@ export const Edit: Story = {
   args: {
     mode: 'edit',
     user: {
+      ...mockUsers[0],
       id: 42,
       email: 'alex@example.com',
       language: 'en',
