@@ -56,4 +56,11 @@ export type EsimInput = {
   allowData?: boolean | null
 }
 
-export type EsimSortKey = 'id' | 'user' | 'imsi'
+export type EsimSortKey =
+  | 'id'
+  | 'user'
+  | 'accountId'
+  | 'imsi'
+  | 'name'
+  | 'networkstatus'
+  | 'balance'

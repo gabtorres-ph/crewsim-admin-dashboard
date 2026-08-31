@@ -60,6 +60,10 @@ export const Add: Story = {
   play: async ({ args, canvasElement }) => {
     const screen = within(canvasElement.ownerDocument.body)
 
+    await userEvent.type(
+      screen.getByRole('spinbutton', { name: 'Account ID' }),
+      '3001',
+    )
     await userEvent.selectOptions(
       screen.getByRole('combobox', { name: 'User' }),
       '1001',
@@ -74,6 +78,7 @@ export const Add: Story = {
 
     await expect(args.onSubmit).toHaveBeenCalledWith({
       userId: 1001,
+      accountId: 3001,
       imsi: '310150111222333',
     })
   },
@@ -98,6 +103,9 @@ export const Edit: Story = {
       screen.getByRole('combobox', { name: 'User' }),
     ).toHaveValue('1001')
     await expect(
+      screen.getByRole('spinbutton', { name: 'Account ID' }),
+    ).toHaveValue(3001)
+    await expect(
       screen.getByRole('textbox', { name: 'IMSI' }),
     ).toHaveValue('310150123456789')
   },
@@ -118,7 +126,9 @@ export const InlineValidation: Story = {
       screen.getByRole('button', { name: 'Add eSIM' }),
     )
 
-    await expect(screen.getByText('Select a user.')).toBeVisible()
+    await expect(
+      screen.getByText('Account ID must be a positive integer.'),
+    ).toBeVisible()
     await expect(screen.getByText('IMSI is required.')).toBeVisible()
     await expect(args.onSubmit).not.toHaveBeenCalled()
   },

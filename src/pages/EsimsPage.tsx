@@ -165,7 +165,19 @@ export function EsimsPage() {
     }
 
     return esims.filter((esim) =>
-      [esim.id, getUserLabel(esim.userId), esim.imsi]
+      [
+        esim.id,
+        getUserLabel(esim.userId),
+        esim.accountId,
+        esim.imsi,
+        esim.name,
+        esim.networkstatus,
+        esim.balance,
+        esim.smdpserver,
+        esim.activationcode,
+        esim.imei,
+        esim.imeiDevice,
+      ]
         .join(' ')
         .toLowerCase()
         .includes(query),
@@ -244,7 +256,7 @@ export function EsimsPage() {
         <Input
           type="search"
           value={search}
-          placeholder="Search by ID, user, or IMSI..."
+          placeholder="Search by ID, user, account, or IMSI..."
           aria-label="Search eSIMs"
           onChange={(event) => setSearch(event.target.value)}
           className="w-full sm:max-w-md"

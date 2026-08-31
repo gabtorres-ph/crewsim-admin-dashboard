@@ -104,12 +104,34 @@ export function EsimTable({
                 onSort={onSort}
               />
               <SortableEsimHeader
+                column="accountId"
+                label="Account"
+                sortKey={sortKey}
+                sortDirection={sortDirection}
+                onSort={onSort}
+              />
+              <SortableEsimHeader
                 column="imsi"
                 label="IMSI"
                 sortKey={sortKey}
                 sortDirection={sortDirection}
                 onSort={onSort}
               />
+              <SortableEsimHeader
+                column="networkstatus"
+                label="Status"
+                sortKey={sortKey}
+                sortDirection={sortDirection}
+                onSort={onSort}
+              />
+              <SortableEsimHeader
+                column="balance"
+                label="Balance"
+                sortKey={sortKey}
+                sortDirection={sortDirection}
+                onSort={onSort}
+              />
+              <TableHeaderCell>Provisioning</TableHeaderCell>
               <TableHeaderCell>Actions</TableHeaderCell>
             </TableRow>
           </TableHead>
@@ -123,7 +145,22 @@ export function EsimTable({
                     ? 'Unassigned'
                     : userEmails.get(esim.userId) ?? `User #${esim.userId}`}
                 </TableCell>
+                <TableCell>{esim.accountId}</TableCell>
                 <TableCell className="font-mono">{esim.imsi}</TableCell>
+                <TableCell>{esim.networkstatus ?? '—'}</TableCell>
+                <TableCell>
+                  {esim.balance === null ? '—' : esim.balance.toLocaleString()}
+                </TableCell>
+                <TableCell>
+                  <div className="grid gap-0.5 text-xs">
+                    <span>{esim.smdpserver ?? 'No SMDP server'}</span>
+                    {esim.activationcode && (
+                      <span className="font-mono text-gray-500">
+                        {esim.activationcode}
+                      </span>
+                    )}
+                  </div>
+                </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <Button
@@ -162,7 +199,7 @@ export function EsimTable({
             {esims.length === 0 && (
               <TableRow>
                 <TableCell
-                  colSpan={4}
+                  colSpan={8}
                   className="py-12 text-center text-gray-400"
                 >
                   {hasSearch

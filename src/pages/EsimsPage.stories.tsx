@@ -39,6 +39,10 @@ export const CreateEsim: Story = {
 
     const dialog = await screen.findByRole('dialog')
     const form = within(dialog)
+    await userEvent.type(
+      form.getByRole('spinbutton', { name: 'Account ID' }),
+      '3001',
+    )
     await userEvent.selectOptions(
       form.getByRole('combobox', { name: 'User' }),
       '1001',
@@ -132,6 +136,10 @@ export const SaveError: Story = {
 
     const dialog = await screen.findByRole('dialog')
     const form = within(dialog)
+    await userEvent.type(
+      form.getByRole('spinbutton', { name: 'Account ID' }),
+      '3001',
+    )
     await userEvent.selectOptions(
       form.getByRole('combobox', { name: 'User' }),
       '1001',
