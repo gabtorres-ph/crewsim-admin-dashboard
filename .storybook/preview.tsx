@@ -3,12 +3,14 @@ import { mswLoader } from 'msw-storybook-addon/csf3'
 
 import '../src/index.css'
 import { handlers } from '../src/mocks/handlers'
+import { resetMockAccounts } from '../src/mocks/handlers/accounts'
 import { resetMockEsims } from '../src/mocks/handlers/esims'
 import { resetMockUsers } from '../src/mocks/handlers/users'
 
 const preview: Preview = {
   loaders: [mswLoader()],
   beforeEach: () => {
+    resetMockAccounts()
     resetMockUsers()
     resetMockEsims()
   },

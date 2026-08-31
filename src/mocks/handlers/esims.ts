@@ -2,6 +2,7 @@ import { delay, http, HttpResponse } from 'msw'
 
 import type { Esim, EsimInput } from '../../types/esims'
 import { mockEsims } from '../data/esims'
+import { hasMockAccountId } from './accounts'
 import { hasMockUserId } from './users'
 
 const ESIMS_PATH = '*/esims'
@@ -28,7 +29,7 @@ type EsimRequest = {
   allow_data?: boolean
 }
 
-function toResponse(esim: Esim) {
+export function toEsimResponse(esim: Esim) {
   return {
     id: esim.id,
     user_id: esim.userId,
@@ -79,6 +80,10 @@ export function resetMockEsims() {
   esims = mockEsims.map((esim) => ({ ...esim }))
 }
 
+export function listMockEsimsForAccount(accountId: number) {
+  return esims.filter((esim) => esim.accountId === accountId)
+}
+
 function parseEsimId(value: string | readonly string[] | undefined) {
   const id = Number(value)
   return Number.isInteger(id) ? id : null
@@ -126,6 +131,15 @@ async function readEsimInput(request: Request) {
       error: HttpResponse.json(
         { detail: 'User must be a positive integer.' },
         { status: 422 },
+      ),
+    }
+  }
+
+  if (accountId !== undefined && !hasMockAccountId(accountId)) {
+    return {
+      error: HttpResponse.json(
+        { detail: `Account '${accountId}' was not found` },
+        { status: 404 },
       ),
     }
   }
@@ -214,7 +228,7 @@ export const esimHandlers = [
       : esims
 
     return HttpResponse.json(
-      filteredEsims.slice(offset, offset + limit).map(toResponse),
+      filteredEsims.slice(offset, offset + limit).map(toEsimResponse),
     )
   }),
 
@@ -239,7 +253,7 @@ export const esimHandlers = [
     }
 
     esims.push(esim)
-    return HttpResponse.json(toResponse(esim), { status: 201 })
+    return HttpResponse.json(toEsimResponse(esim), { status: 201 })
   }),
 
   http.patch(ESIM_PATH, async ({ params, request }) => {
@@ -275,7 +289,7 @@ export const esimHandlers = [
     }
 
     esims[esimIndex] = updatedEsim
-    return HttpResponse.json(toResponse(updatedEsim))
+    return HttpResponse.json(toEsimResponse(updatedEsim))
   }),
 
   http.delete(ESIM_PATH, async ({ params }) => {
