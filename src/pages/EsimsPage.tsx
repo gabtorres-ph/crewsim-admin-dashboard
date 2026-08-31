@@ -7,11 +7,13 @@ import {
   listEsims,
   updateEsim,
 } from '../api/esims'
+import { listAccounts } from '../api/accounts'
 import { listUsers } from '../api/users'
 import { EsimFormDialog } from '../components/EsimFormDialog'
 import { EsimTable } from '../components/EsimTable'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
+import type { Account } from '../types/accounts'
 import type { Esim, EsimInput, EsimSortKey } from '../types/esims'
 import type { SortDirection } from '../types/sort'
 import type { User } from '../types/user'
@@ -20,6 +22,7 @@ type DialogMode = 'add' | 'edit' | null
 
 export function EsimsPage() {
   const [esims, setEsims] = useState<Esim[]>([])
+  const [accounts, setAccounts] = useState<Account[]>([])
   const [users, setUsers] = useState<User[]>([])
   const [search, setSearch] = useState('')
   const [sortKey, setSortKey] = useState<EsimSortKey>('imsi')
@@ -47,17 +50,35 @@ export function EsimsPage() {
     [userEmails],
   )
 
+  const accountNames = useMemo(
+    () => new Map(accounts.map((account) => [account.id, account.name])),
+    [accounts],
+  )
+
+  const getAccountLabel = useCallback(
+    (accountId: number) => {
+      const accountName = accountNames.get(accountId)
+
+      return accountName
+        ? `${accountName} (ID: ${accountId})`
+        : `Account #${accountId}`
+    },
+    [accountNames],
+  )
+
   async function loadPageData() {
     setLoading(true)
     setPageError(null)
 
     try {
-      const [esimResult, userResult] = await Promise.all([
+      const [esimResult, accountResult, userResult] = await Promise.all([
         listEsims(),
+        listAccounts(),
         listUsers(),
       ])
 
       setEsims(esimResult)
+      setAccounts(accountResult)
       setUsers(userResult)
     } catch (error) {
       setPageError(
@@ -168,6 +189,7 @@ export function EsimsPage() {
       [
         esim.id,
         getUserLabel(esim.userId),
+        getAccountLabel(esim.accountId),
         esim.accountId,
         esim.imsi,
         esim.name,
@@ -182,7 +204,7 @@ export function EsimsPage() {
         .toLowerCase()
         .includes(query),
     )
-  }, [esims, search, getUserLabel])
+  }, [esims, search, getAccountLabel, getUserLabel])
 
   const visibleEsims = useMemo(() => {
     const copy = [...filteredEsims]
@@ -190,10 +212,14 @@ export function EsimsPage() {
     copy.sort((left, right) => {
       const leftValue = sortKey === 'user'
         ? getUserLabel(left.userId)
-        : left[sortKey]
+        : sortKey === 'accountId'
+          ? getAccountLabel(left.accountId)
+          : left[sortKey]
       const rightValue = sortKey === 'user'
         ? getUserLabel(right.userId)
-        : right[sortKey]
+        : sortKey === 'accountId'
+          ? getAccountLabel(right.accountId)
+          : right[sortKey]
       const comparison = String(leftValue).localeCompare(
         String(rightValue),
         undefined,
@@ -204,7 +230,13 @@ export function EsimsPage() {
     })
 
     return copy
-  }, [filteredEsims, sortKey, sortDirection, getUserLabel])
+  }, [
+    filteredEsims,
+    sortKey,
+    sortDirection,
+    getAccountLabel,
+    getUserLabel,
+  ])
 
   if (loading) {
     return (
@@ -269,6 +301,7 @@ export function EsimsPage() {
       <div className="mt-4">
         <EsimTable
           esims={visibleEsims}
+          accounts={accounts}
           users={users}
           hasSearch={search.trim().length > 0}
           sortKey={sortKey}
@@ -285,6 +318,7 @@ export function EsimsPage() {
           key={`${dialogMode}-${selectedEsim?.id ?? 'new'}`}
           mode={dialogMode}
           esim={selectedEsim}
+          accounts={accounts}
           users={users}
           open={true}
           saving={saving}

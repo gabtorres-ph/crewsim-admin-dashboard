@@ -1,10 +1,11 @@
 import { useState } from 'react'
 
 import { Sidebar } from './components/Sidebar'
+import { AccountsPage } from './pages/AccountsPage'
 import { EsimsPage } from './pages/EsimsPage'
 import { UsersPage } from './pages/UsersPage'
 
-type Section = 'users' | 'esims'
+type Section = 'users' | 'accounts' | 'esims'
 
 function App() {
   const [activeSection, setActiveSection] = useState<Section>('users')
@@ -18,6 +19,8 @@ function App() {
 
       <main className="min-w-0 bg-[#050914] p-5 md:p-10">
         {activeSection === 'users' && <UsersPage />}
+
+        {activeSection === 'accounts' && <AccountsPage />}
 
         {activeSection === 'esims' && <EsimsPage />}
       </main>

@@ -1,9 +1,9 @@
-import { RiSimCardLine, RiUserLine } from '@remixicon/react'
+import { RiBankLine, RiSimCardLine, RiUserLine } from '@remixicon/react'
 
 import { cx } from '../lib/utils'
 import { Button } from './ui/Button'
 
-type Section = 'users' | 'esims'
+type Section = 'users' | 'accounts' | 'esims'
 
 type SidebarProps = {
   activeSection: Section
@@ -12,6 +12,7 @@ type SidebarProps = {
 
 const navigationItems = [
   { id: 'users', label: 'Users', icon: RiUserLine },
+  { id: 'accounts', label: 'Accounts', icon: RiBankLine },
   { id: 'esims', label: 'eSIMs', icon: RiSimCardLine },
 ] as const
 

@@ -28,6 +28,12 @@ type Story = StoryObj<typeof meta>
 
 export const UsersActive: Story = {}
 
+export const AccountsActive: Story = {
+  args: {
+    activeSection: 'accounts',
+  },
+}
+
 export const EsimsActive: Story = {
   args: {
     activeSection: 'esims',

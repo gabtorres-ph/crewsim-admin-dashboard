@@ -1,6 +1,7 @@
 import { useState, type FormEvent, type ReactNode } from 'react'
 import { RiCloseLine } from '@remixicon/react'
 
+import type { Account } from '../types/accounts'
 import type { Esim, EsimInput } from '../types/esims'
 import type { User } from '../types/user'
 import { Button } from './ui/Button'
@@ -8,7 +9,7 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, Di
 import { Input } from './ui/Input'
 import { SelectNative } from './ui/SelectNative'
 
-type EsimFormDialogProps = { mode: 'add' | 'edit'; esim: Esim | null; users: User[]; open: boolean; saving: boolean; error: string | null; onOpenChange: (open: boolean) => void; onSubmit: (input: EsimInput) => Promise<void> }
+type EsimFormDialogProps = { mode: 'add' | 'edit'; esim: Esim | null; accounts?: Account[]; users: User[]; open: boolean; saving: boolean; error: string | null; onOpenChange: (open: boolean) => void; onSubmit: (input: EsimInput) => Promise<void> }
 type OptionalBoolean = '' | 'true' | 'false'
 type EsimFormValue = { userId: string; accountId: string; imsi: string; name: string; token: string; networkstatus: string; smdpserver: string; activationcode: string; imei: string; imeiDevice: string; balance: string; isesim: OptionalBoolean; useAccountForCharging: OptionalBoolean; allowData: OptionalBoolean; createdate: string }
 
@@ -24,7 +25,7 @@ function optionalDateTime(value: string): string | undefined { if (!value) retur
 function isPositiveInteger(value: string) { return /^\d+$/.test(value) && Number.isSafeInteger(Number(value)) && Number(value) > 0 }
 
 export function EsimFormDialog(props: EsimFormDialogProps) {
-  const { mode, esim, users, open, saving, error, onOpenChange, onSubmit } = props
+  const { mode, esim, accounts = [], users, open, saving, error, onOpenChange, onSubmit } = props
   const [form, setForm] = useState<EsimFormValue>(() => initialFormValue(esim))
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof EsimFormValue, string>>>({})
   function updateField<Field extends keyof EsimFormValue>(field: Field, value: EsimFormValue[Field]) { setForm((current) => ({ ...current, [field]: value })); setFieldErrors((current) => ({ ...current, [field]: undefined })) }
@@ -32,7 +33,7 @@ export function EsimFormDialog(props: EsimFormDialogProps) {
     event.preventDefault()
     const accountId = form.accountId.trim(), userId = form.userId.trim(), imsi = form.imsi.trim(), token = optionalText(form.token), balance = form.balance.trim()
     const errors: Partial<Record<keyof EsimFormValue, string>> = {}
-    if (!isPositiveInteger(accountId)) errors.accountId = 'Account ID must be a positive integer.'
+    if (!isPositiveInteger(accountId)) errors.accountId = 'Account is required.'
     if (userId && !isPositiveInteger(userId)) errors.userId = 'User ID must be a positive integer.'
     if (!imsi) errors.imsi = 'IMSI is required.'
     else if (imsi.length > 255) errors.imsi = 'IMSI must be 255 characters or fewer.'
@@ -51,7 +52,7 @@ export function EsimFormDialog(props: EsimFormDialogProps) {
     await onSubmit(input)
   }
   return <Dialog open={open} onOpenChange={(nextOpen) => { if (!saving) onOpenChange(nextOpen) }}><DialogContent className="max-w-3xl bg-white text-gray-950 dark:bg-white"><DialogHeader className="flex-row items-start justify-between gap-x-4"><div><DialogTitle className="text-2xl text-gray-950">{mode === 'add' ? 'Add eSIM' : 'Edit eSIM'}</DialogTitle><DialogDescription className="mt-2 text-gray-500">Configure account, provisioning, and charging details.</DialogDescription></div><DialogClose asChild><Button type="button" variant="ghost" disabled={saving} aria-label="Close dialog" className="shrink-0 text-gray-600"><RiCloseLine className="size-5" aria-hidden="true" /></Button></DialogClose></DialogHeader><form onSubmit={handleSubmit} noValidate><div className="grid gap-5 py-6 sm:grid-cols-2">
-    <FormInput label="Account ID" name="accountId" type="number" min="1" step="1" value={form.accountId} required saving={saving} error={fieldErrors.accountId} onChange={(value) => updateField('accountId', value)} />
+    <FormSelect label="Account" name="accountId" value={form.accountId} required saving={saving} error={fieldErrors.accountId} onChange={(value) => updateField('accountId', value)}><option value="" disabled>Select an account</option>{accounts.map((account) => <option key={account.id} value={account.id}>{account.name} (ID: {account.id})</option>)}{esim && !accounts.some((account) => account.id === esim.accountId) && <option value={esim.accountId}>Account #{esim.accountId}</option>}</FormSelect>
     <FormSelect label="User" name="userId" value={form.userId} saving={saving} error={fieldErrors.userId} onChange={(value) => updateField('userId', value)}><option value="">Unassigned</option>{users.map((user) => <option key={user.id} value={user.id}>{user.email}</option>)}</FormSelect>
     <FormInput label="IMSI" name="imsi" value={form.imsi} maxLength={255} required saving={saving} error={fieldErrors.imsi} onChange={(value) => updateField('imsi', value)} />
     <FormInput label="Name" name="name" value={form.name} saving={saving} onChange={(value) => updateField('name', value)} />
@@ -71,5 +72,5 @@ export function EsimFormDialog(props: EsimFormDialogProps) {
 
 type FormInputProps = { label: string; name: string; type?: string; value: string; required?: boolean; saving: boolean; error?: string; min?: string; step?: string; maxLength?: number; onChange: (value: string) => void }
 function FormInput({ label, name, type = 'text', value, required, saving, error, min, step, maxLength, onChange }: FormInputProps) { const errorId = error ? `${name}-error` : undefined; return <label className="grid gap-2"><span className="text-sm font-medium text-gray-900">{label}</span><Input name={name} type={type} value={value} required={required} disabled={saving} min={min} step={step} maxLength={maxLength} hasError={Boolean(error)} aria-invalid={Boolean(error)} aria-describedby={errorId} onChange={(event) => onChange(event.target.value)} />{error && <span id={errorId} className="text-sm text-red-600">{error}</span>}</label> }
-type FormSelectProps = { label: string; name: string; value: string; saving: boolean; error?: string; onChange: (value: string) => void; children: ReactNode }
-function FormSelect({ label, name, value, saving, error, onChange, children }: FormSelectProps) { const errorId = error ? `${name}-error` : undefined; return <label className="grid gap-2"><span className="text-sm font-medium text-gray-900">{label}</span><SelectNative name={name} value={value} disabled={saving} hasError={Boolean(error)} aria-invalid={Boolean(error)} aria-describedby={errorId} onChange={(event) => onChange(event.target.value)}>{children}</SelectNative>{error && <span id={errorId} className="text-sm text-red-600">{error}</span>}</label> }
+type FormSelectProps = { label: string; name: string; value: string; required?: boolean; saving: boolean; error?: string; onChange: (value: string) => void; children: ReactNode }
+function FormSelect({ label, name, value, required, saving, error, onChange, children }: FormSelectProps) { const errorId = error ? `${name}-error` : undefined; return <label className="grid gap-2"><span className="text-sm font-medium text-gray-900">{label}</span><SelectNative name={name} value={value} required={required} disabled={saving} hasError={Boolean(error)} aria-invalid={Boolean(error)} aria-describedby={errorId} onChange={(event) => onChange(event.target.value)}>{children}</SelectNative>{error && <span id={errorId} className="text-sm text-red-600">{error}</span>}</label> }

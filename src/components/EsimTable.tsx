@@ -5,6 +5,7 @@ import {
   RiEditLine,
 } from '@remixicon/react'
 
+import type { Account } from '../types/accounts'
 import type { Esim, EsimSortKey } from '../types/esims'
 import type { SortDirection } from '../types/sort'
 import type { User } from '../types/user'
@@ -21,6 +22,7 @@ import {
 
 type EsimTableProps = {
   esims: Esim[]
+  accounts?: Account[]
   users: User[]
   hasSearch: boolean
   sortKey: EsimSortKey
@@ -70,6 +72,7 @@ function SortableEsimHeader({
 
 export function EsimTable({
   esims,
+  accounts = [],
   users,
   hasSearch,
   sortKey,
@@ -81,6 +84,9 @@ export function EsimTable({
 }: EsimTableProps) {
   const userEmails = new Map(
     users.map((user) => [user.id, user.email]),
+  )
+  const accountNames = new Map(
+    accounts.map((account) => [account.id, account.name]),
   )
 
   return (
@@ -145,7 +151,11 @@ export function EsimTable({
                     ? 'Unassigned'
                     : userEmails.get(esim.userId) ?? `User #${esim.userId}`}
                 </TableCell>
-                <TableCell>{esim.accountId}</TableCell>
+                <TableCell>
+                  {accountNames.get(esim.accountId)
+                    ? `${accountNames.get(esim.accountId)} (ID: ${esim.accountId})`
+                    : `Account #${esim.accountId}`}
+                </TableCell>
                 <TableCell className="font-mono">{esim.imsi}</TableCell>
                 <TableCell>{esim.networkstatus ?? '—'}</TableCell>
                 <TableCell>

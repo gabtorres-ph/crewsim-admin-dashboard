@@ -33,3 +33,20 @@ export const EsimsNavigation: Story = {
     ).resolves.toBeVisible()
   },
 }
+
+export const AccountsNavigation: Story = {
+  play: async ({ canvasElement }) => {
+    const screen = within(canvasElement)
+
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Accounts' }),
+    )
+
+    await expect(
+      screen.findByRole('heading', { name: 'Accounts' }),
+    ).resolves.toBeVisible()
+    await expect(
+      screen.findByRole('columnheader', { name: 'Balance' }),
+    ).resolves.toBeVisible()
+  },
+}
