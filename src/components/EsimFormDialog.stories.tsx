@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { expect, fn, userEvent, within } from 'storybook/test'
 
+import { mockAccounts } from '../mocks/data/accounts'
 import { mockEsims } from '../mocks/data/esims'
 import { mockUsers } from '../mocks/data/users'
 import type { EsimInput } from '../types/esims'
@@ -9,6 +10,7 @@ import { EsimFormDialog } from './EsimFormDialog'
 import { Button } from './ui/Button'
 
 const users = mockUsers.slice(0, 4)
+const accounts = mockAccounts.slice(0, 4)
 
 const meta = {
   title: 'Components/EsimFormDialog',
@@ -20,6 +22,7 @@ const meta = {
   args: {
     mode: 'add',
     esim: null,
+    accounts,
     users,
     open: true,
     saving: false,
@@ -60,8 +63,8 @@ export const Add: Story = {
   play: async ({ args, canvasElement }) => {
     const screen = within(canvasElement.ownerDocument.body)
 
-    await userEvent.type(
-      screen.getByRole('spinbutton', { name: 'Account ID' }),
+    await userEvent.selectOptions(
+      screen.getByRole('combobox', { name: 'Account' }),
       '3001',
     )
     await userEvent.selectOptions(
@@ -103,8 +106,8 @@ export const Edit: Story = {
       screen.getByRole('combobox', { name: 'User' }),
     ).toHaveValue('1001')
     await expect(
-      screen.getByRole('spinbutton', { name: 'Account ID' }),
-    ).toHaveValue(3001)
+      screen.getByRole('combobox', { name: 'Account' }),
+    ).toHaveValue('3001')
     await expect(
       screen.getByRole('textbox', { name: 'IMSI' }),
     ).toHaveValue('310150123456789')
@@ -127,7 +130,7 @@ export const InlineValidation: Story = {
     )
 
     await expect(
-      screen.getByText('Account ID must be a positive integer.'),
+      screen.getByText('Account is required.'),
     ).toBeVisible()
     await expect(screen.getByText('IMSI is required.')).toBeVisible()
     await expect(args.onSubmit).not.toHaveBeenCalled()

@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { delay, http, HttpResponse } from 'msw'
 import { expect, userEvent, within } from 'storybook/test'
 
+import { accountHandlers } from '../mocks/handlers/accounts'
 import { esimHandlers } from '../mocks/handlers/esims'
 import { userHandlers } from '../mocks/handlers/users'
 import { EsimsPage } from './EsimsPage'
@@ -39,8 +40,8 @@ export const CreateEsim: Story = {
 
     const dialog = await screen.findByRole('dialog')
     const form = within(dialog)
-    await userEvent.type(
-      form.getByRole('spinbutton', { name: 'Account ID' }),
+    await userEvent.selectOptions(
+      form.getByRole('combobox', { name: 'Account' }),
       '3001',
     )
     await userEvent.selectOptions(
@@ -66,6 +67,7 @@ export const Empty: Story = {
   parameters: {
     msw: [
       http.get('*/esims', () => HttpResponse.json([])),
+      ...accountHandlers,
       ...userHandlers,
     ],
   },
@@ -78,6 +80,7 @@ export const Loading: Story = {
         await delay('infinite')
         return HttpResponse.json([])
       }),
+      ...accountHandlers,
       ...userHandlers,
     ],
   },
@@ -92,6 +95,7 @@ export const Error: Story = {
           { status: 503 },
         ),
       ),
+      ...accountHandlers,
       ...userHandlers,
     ],
   },
@@ -122,6 +126,7 @@ export const SaveError: Story = {
           { status: 409 },
         ),
       ),
+      ...accountHandlers,
       ...userHandlers,
       ...esimHandlers,
     ],
@@ -136,8 +141,8 @@ export const SaveError: Story = {
 
     const dialog = await screen.findByRole('dialog')
     const form = within(dialog)
-    await userEvent.type(
-      form.getByRole('spinbutton', { name: 'Account ID' }),
+    await userEvent.selectOptions(
+      form.getByRole('combobox', { name: 'Account' }),
       '3001',
     )
     await userEvent.selectOptions(
@@ -168,6 +173,7 @@ export const DeleteError: Story = {
           { status: 503 },
         ),
       ),
+      ...accountHandlers,
       ...userHandlers,
       ...esimHandlers,
     ],
