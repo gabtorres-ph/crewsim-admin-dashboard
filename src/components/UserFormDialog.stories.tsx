@@ -60,12 +60,12 @@ export const Add: Story = {
       screen.getByRole('textbox', { name: 'Email' }),
       'new.user@example.com',
     )
-    await userEvent.selectOptions(
-      screen.getByRole('combobox', { name: 'Language' }),
+    await userEvent.type(
+      screen.getByRole('textbox', { name: 'Language' }),
       'de',
     )
-    await userEvent.selectOptions(
-      screen.getByRole('combobox', { name: 'Currency' }),
+    await userEvent.type(
+      screen.getByRole('textbox', { name: 'Currency' }),
       'EUR',
     )
     await userEvent.type(
@@ -103,10 +103,10 @@ export const Edit: Story = {
       screen.getByRole('textbox', { name: 'Email' }),
     ).toHaveValue('alex@example.com')
     await expect(
-      screen.getByRole('combobox', { name: 'Language' }),
+      screen.getByRole('textbox', { name: 'Language' }),
     ).toHaveValue('en')
     await expect(
-      screen.getByRole('combobox', { name: 'Currency' }),
+      screen.getByRole('textbox', { name: 'Currency' }),
     ).toHaveValue('USD')
     await expect(
       screen.getByRole('textbox', { name: 'Timezone' }),

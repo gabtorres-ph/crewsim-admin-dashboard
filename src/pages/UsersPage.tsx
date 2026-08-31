@@ -164,6 +164,10 @@ export function UsersPage() {
         user.language,
         user.currency,
         user.timezone,
+        user.firstname,
+        user.lastname,
+        user.airline,
+        user.position,
       ]
         .join(' ')
         .toLowerCase()
@@ -274,6 +278,7 @@ export function UsersPage() {
               <TableRow>
                 <SortableHeader column="id" label="ID" />
                 <SortableHeader column="email" label="Email" />
+                <TableHeaderCell>Profile</TableHeaderCell>
                 <SortableHeader column="language" label="Language" />
                 <SortableHeader column="currency" label="Currency" />
                 <SortableHeader column="timezone" label="Timezone" />
@@ -285,7 +290,7 @@ export function UsersPage() {
               {visibleUsers.length === 0 && (
                 <TableRow>
                   <TableCell
-                    colSpan={6}
+                    colSpan={7}
                     className="py-12 text-center text-gray-400"
                   >
                     {search
@@ -298,7 +303,32 @@ export function UsersPage() {
               {visibleUsers.map((user) => (
                 <TableRow key={user.id}>
                   <TableCell>{user.id}</TableCell>
-                  <TableCell>{user.email}</TableCell>
+                  <TableCell>
+                    {user.firstname || user.lastname ? (
+                      <div>
+                        <div className="font-medium text-white">
+                          {[user.firstname, user.lastname]
+                            .filter(Boolean)
+                            .join(' ')}
+                        </div>
+                        <div className="text-sm text-gray-400">
+                          {user.email}
+                        </div>
+                      </div>
+                    ) : user.email}
+                  </TableCell>
+                  <TableCell>
+                    {user.airline || user.position ? (
+                      <div>
+                        {user.position && <div>{user.position}</div>}
+                        {user.airline && (
+                          <div className="text-sm text-gray-400">
+                            {user.airline}
+                          </div>
+                        )}
+                      </div>
+                    ) : '—'}
+                  </TableCell>
                   <TableCell>{user.language}</TableCell>
                   <TableCell>{user.currency}</TableCell>
                   <TableCell>{user.timezone}</TableCell>
