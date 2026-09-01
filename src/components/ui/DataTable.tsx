@@ -6,8 +6,9 @@ import type {
 } from '@tanstack/react-table'
 
 /**
- * A domain-provided select filter that targets a column by its explicit ID.
- * An empty value represents the unfiltered "All" option.
+ * A domain-provided select filter that targets a TanStack column by its
+ * explicit ID. An empty value represents the unfiltered "All" option; the
+ * component deliberately does not infer domain values or labels.
  */
 export type DataTableSelectFilter = {
   columnId: string
@@ -18,9 +19,29 @@ export type DataTableSelectFilter = {
 /**
  * The generic, client-side data-table contract.
  *
- * `data` is the complete already-loaded record collection. Consumers provide
- * all domain presentation through TanStack column definitions and must supply
- * a persisted row ID rather than relying on an array index.
+ * `data` is the complete, already-loaded client-side record collection; this
+ * component never fetches data or calls an API. Consumers provide all domain
+ * presentation, accessors, sorting rules, and action cells through TanStack
+ * column definitions. Action columns must opt out of sorting and column
+ * filtering with `enableSorting: false` and `enableColumnFilter: false`.
+ *
+ * A persisted row ID is required so both React and TanStack avoid array-index
+ * identity. `search.filterFn` is domain-defined to preserve search coverage
+ * for values that may not be rendered in a column. It returns whether a row
+ * matches the normalized search value supplied by the table.
+ *
+ * Initial table-state policy (implemented in Step 2): state is uncontrolled
+ * within `DataTable`; pages supply only data and column definitions. Exactly
+ * one column can be sorted at a time, using TanStack's normal ascending then
+ * descending header-click cycle, while non-sortable headers remain plain text.
+ * The default page size is 10, and the only available page sizes are 10, 25,
+ * and 50. A search, select-filter, sort, page-size, or source-data change
+ * resets pagination to page 1. Result counts are calculated after search and
+ * column filters but before pagination.
+ *
+ * This initial client-side version intentionally excludes URL synchronization,
+ * persisted preferences, server-side pagination, multi-sort, row selection,
+ * column visibility, and virtualization.
  */
 export type DataTableProps<TData extends RowData> = {
   data: TData[]
