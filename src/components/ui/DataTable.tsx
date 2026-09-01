@@ -107,7 +107,7 @@ export type DataTableProps<TData extends RowData> = {
 
 /**
  * Owns the shared client-side row-model pipeline, search/filter toolbar, and
- * pagination controls. Empty-state rendering is added in a subsequent step.
+ * pagination controls, including source-empty and filtered-empty states.
  */
 export function DataTable<TData extends RowData>(
   {
@@ -116,6 +116,7 @@ export function DataTable<TData extends RowData>(
     getRowId,
     search,
     filters = [],
+    emptyState,
     className,
   }: DataTableProps<TData>,
 ) {
@@ -165,6 +166,13 @@ export function DataTable<TData extends RowData>(
 
   const filteredRowCount = table.getFilteredRowModel().rows.length
   const pageCount = table.getPageCount()
+  const emptyMessage =
+    data.length === 0
+      ? emptyState.noData
+      : filteredRowCount === 0
+        ? emptyState.noResults
+        : null
+  const visibleColumnCount = Math.max(table.getVisibleLeafColumns().length, 1)
 
   return (
     <div
@@ -272,18 +280,29 @@ export function DataTable<TData extends RowData>(
             ))}
           </TableHead>
           <TableBody>
-            {table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(
-                      cell.column.columnDef.cell,
-                      cell.getContext(),
-                    )}
-                  </TableCell>
-                ))}
+            {emptyMessage ? (
+              <TableRow>
+                <TableCell
+                  colSpan={visibleColumnCount}
+                  className="py-12 text-center text-gray-400"
+                >
+                  {emptyMessage}
+                </TableCell>
               </TableRow>
-            ))}
+            ) : (
+              table.getRowModel().rows.map((row) => (
+                <TableRow key={row.id}>
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </TableRoot>
