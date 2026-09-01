@@ -1,9 +1,37 @@
+import { useState } from 'react'
 import type {
+  ColumnFiltersState,
   ColumnDef,
   FilterFn,
+  PaginationState,
   RowData,
+  SortingState,
   TableFeatures,
 } from '@tanstack/react-table'
+import {
+  columnFilteringFeature,
+  createFilteredRowModel,
+  createPaginatedRowModel,
+  createSortedRowModel,
+  globalFilteringFeature,
+  rowPaginationFeature,
+  rowSortingFeature,
+  tableFeatures,
+  useTable,
+} from '@tanstack/react-table'
+
+// TanStack Table v9 registers state capabilities and row-model factories as
+// features rather than passing v8-style `get*RowModel` options to the hook.
+// Keep this stable at module scope so the table instance is not recreated.
+const dataTableFeatures = tableFeatures({
+  columnFilteringFeature,
+  globalFilteringFeature,
+  filteredRowModel: createFilteredRowModel(),
+  rowSortingFeature,
+  sortedRowModel: createSortedRowModel(),
+  rowPaginationFeature,
+  paginatedRowModel: createPaginatedRowModel(),
+})
 
 /**
  * A domain-provided select filter that targets a TanStack column by its
@@ -62,12 +90,47 @@ export type DataTableProps<TData extends RowData> = {
 }
 
 /**
- * Placeholder for the shared table behavior introduced in the next plan step.
- * The interface is intentionally established before any rendering or state is
- * implemented, so current page tables remain unchanged.
+ * Owns the shared client-side row-model pipeline. Rendering the toolbar,
+ * headers, body, pagination, and empty states is added in subsequent steps.
  */
 export function DataTable<TData extends RowData>(
-  _props: DataTableProps<TData>,
+  {
+    data,
+    columns,
+    getRowId,
+    search,
+  }: DataTableProps<TData>,
 ) {
+  const [globalFilter, setGlobalFilter] = useState('')
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  const [sorting, setSorting] = useState<SortingState>([])
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  })
+
+  const table = useTable({
+    features: dataTableFeatures,
+    data,
+    columns,
+    getRowId,
+    state: {
+      globalFilter,
+      columnFilters,
+      sorting,
+      pagination,
+    },
+    onGlobalFilterChange: setGlobalFilter,
+    onColumnFiltersChange: setColumnFilters,
+    onSortingChange: setSorting,
+    onPaginationChange: setPagination,
+    globalFilterFn: search.filterFn,
+    enableMultiSort: false,
+  })
+
+  // Step 2.3 renders this instance. Keep the constructed pipeline in place
+  // while this incremental step intentionally preserves the placeholder UI.
+  void table
+
   return null
 }
