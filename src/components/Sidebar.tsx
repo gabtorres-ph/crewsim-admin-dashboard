@@ -11,8 +11,8 @@ type SidebarProps = {
 }
 
 const navigationItems = [
-  { id: 'users', label: 'Users', icon: RiUserLine },
   { id: 'accounts', label: 'Accounts', icon: RiBankLine },
+  { id: 'users', label: 'Users', icon: RiUserLine },
   { id: 'esims', label: 'eSIMs', icon: RiSimCardLine },
 ] as const
 

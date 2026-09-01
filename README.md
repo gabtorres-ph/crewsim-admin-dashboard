@@ -114,16 +114,20 @@ The frontend currently expects array responses, numeric IDs, and these routes:
 | Resource | List | Create | Update | Delete |
 | --- | --- | --- | --- | --- |
 | Users | `GET /api/users` | `POST /api/users` | `PATCH /api/users/{id}` | `DELETE /api/users/{id}` |
+| Accounts | `GET /api/accounts` | `POST /api/accounts` | `PATCH /api/accounts/{id}` | `DELETE /api/accounts/{id}` |
 | eSIMs | `GET /api/esims` | `POST /api/esims` | `PATCH /api/esims/{id}` | `DELETE /api/esims/{id}` |
 
 User create/update bodies contain `email`, `language`, `currency`, and
-`timezone`. eSIM create/update bodies contain `user_id` (the user's numeric
-ID) and `imsi` (a digit-only string). The backend remains responsible for
-authorization, relationship validation, and uniqueness.
+`timezone`. Account create/update bodies contain `name` and numeric `balance`.
+eSIM create/update bodies contain numeric `account_id`, optional numeric
+`user_id`, and `imsi` (a non-empty string). All list routes accept `offset` and
+`limit`; eSIMs can be filtered with `user_id`, and
+`GET /api/accounts/{id}/esims` returns an account's assigned eSIMs. The backend
+remains responsible for authorization and relationship validation.
 
-The mock API supplies deterministic Users and eSIM records and supports all
-four CRUD operations for both resources. Its eSIM handlers reject missing or
-unknown users, missing or non-digit IMSIs, duplicate IMSIs, and unknown IDs.
+The mock API supplies deterministic Users, Accounts, and eSIM records and
+supports CRUD operations for each resource. It rejects unknown eSIM user or
+account relationships and prevents deletion of accounts referenced by eSIMs.
 Mock state resets on page refresh and before each Storybook story.
 
 ## Commands
@@ -136,7 +140,7 @@ npm run build-storybook
 ```
 
 Storybook includes populated, empty, loading, validation, mutation-error, and
-service-error states for the eSIM page and its reusable table and form dialog.
+service-error states for Users, Accounts, and eSIM management.
 
 ## TODO
 

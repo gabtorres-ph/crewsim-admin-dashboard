@@ -18,9 +18,9 @@ function App() {
       />
 
       <main className="min-w-0 bg-[#050914] p-5 md:p-10">
-        {activeSection === 'users' && <UsersPage />}
-
         {activeSection === 'accounts' && <AccountsPage />}
+
+        {activeSection === 'users' && <UsersPage />}
 
         {activeSection === 'esims' && <EsimsPage />}
       </main>
