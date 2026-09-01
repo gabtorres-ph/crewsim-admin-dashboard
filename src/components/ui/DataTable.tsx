@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { RiArrowDownSLine, RiArrowUpSLine } from '@remixicon/react'
 import type {
   ColumnFiltersState,
   ColumnDef,
@@ -17,8 +18,22 @@ import {
   rowPaginationFeature,
   rowSortingFeature,
   tableFeatures,
+  flexRender,
   useTable,
 } from '@tanstack/react-table'
+
+import { cx } from '../../lib/utils'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeaderCell,
+  TableRoot,
+  TableRow,
+} from './Table'
+import { Input } from './Input'
+import { SelectNative } from './SelectNative'
 
 // TanStack Table v9 registers state capabilities and row-model factories as
 // features rather than passing v8-style `get*RowModel` options to the hook.
@@ -90,8 +105,8 @@ export type DataTableProps<TData extends RowData> = {
 }
 
 /**
- * Owns the shared client-side row-model pipeline. Rendering the toolbar,
- * headers, body, pagination, and empty states is added in subsequent steps.
+ * Owns the shared client-side row-model pipeline and search/filter toolbar.
+ * Pagination and empty states are added in subsequent steps.
  */
 export function DataTable<TData extends RowData>(
   {
@@ -99,6 +114,8 @@ export function DataTable<TData extends RowData>(
     columns,
     getRowId,
     search,
+    filters = [],
+    className,
   }: DataTableProps<TData>,
 ) {
   const [globalFilter, setGlobalFilter] = useState('')
@@ -128,9 +145,127 @@ export function DataTable<TData extends RowData>(
     enableMultiSort: false,
   })
 
-  // Step 2.3 renders this instance. Keep the constructed pipeline in place
-  // while this incremental step intentionally preserves the placeholder UI.
-  void table
+  return (
+    <div
+      className={cx(
+        'overflow-hidden rounded-lg border border-gray-800 bg-gray-950',
+        className,
+      )}
+    >
+      <div className="flex flex-col gap-3 p-4 sm:flex-row sm:flex-wrap sm:items-end">
+        <Input
+          type="search"
+          value={globalFilter}
+          placeholder={search.placeholder}
+          aria-label={search.label}
+          onChange={(event) => table.setGlobalFilter(event.target.value)}
+          className="w-full sm:max-w-sm"
+        />
+        {filters.map((filter) => {
+          const column = table.getColumn(filter.columnId)
 
-  return null
+          // A page may temporarily pass a filter before its matching column is
+          // added. Avoid presenting a control that cannot affect the table.
+          if (!column) {
+            return null
+          }
+
+          const selectId = `data-table-filter-${filter.columnId}`
+          const filterValue = column.getFilterValue()
+
+          return (
+            <label key={filter.columnId} htmlFor={selectId} className="grid gap-1">
+              <span className="text-sm font-medium text-gray-900 dark:text-gray-50">
+                {filter.label}
+              </span>
+              <SelectNative
+                id={selectId}
+                value={typeof filterValue === 'string' ? filterValue : ''}
+                onChange={(event) =>
+                  column.setFilterValue(event.target.value || undefined)
+                }
+              >
+                <option value="">All {filter.label}</option>
+                {filter.options.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </SelectNative>
+            </label>
+          )
+        })}
+      </div>
+      <TableRoot>
+        <Table>
+          <TableHead>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => {
+                  const canSort = header.column.getCanSort()
+                  const sortDirection = header.column.getIsSorted()
+                  const SortIcon =
+                    sortDirection === 'asc'
+                      ? RiArrowUpSLine
+                      : RiArrowDownSLine
+
+                  return (
+                    <TableHeaderCell
+                      key={header.id}
+                      colSpan={header.colSpan}
+                      aria-sort={
+                        canSort
+                          ? sortDirection === 'asc'
+                            ? 'ascending'
+                            : sortDirection === 'desc'
+                              ? 'descending'
+                              : 'none'
+                          : undefined
+                      }
+                    >
+                      {!header.isPlaceholder &&
+                        (canSort ? (
+                          <button
+                            type="button"
+                            className="inline-flex items-center gap-1 rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+                            onClick={header.column.getToggleSortingHandler()}
+                          >
+                            {flexRender(
+                              header.column.columnDef.header,
+                              header.getContext(),
+                            )}
+                            {sortDirection && (
+                              <SortIcon className="size-4" aria-hidden="true" />
+                            )}
+                          </button>
+                        ) : (
+                          flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )
+                        ))}
+                    </TableHeaderCell>
+                  )
+                })}
+              </TableRow>
+            ))}
+          </TableHead>
+          <TableBody>
+            {table.getRowModel().rows.map((row) => (
+              <TableRow key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>
+                    {flexRender(
+                      cell.column.columnDef.cell,
+                      cell.getContext(),
+                    )}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableRoot>
+    </div>
+  )
 }
