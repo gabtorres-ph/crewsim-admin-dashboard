@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { RiArrowDownSLine, RiArrowUpSLine } from '@remixicon/react'
 import type {
   ColumnFiltersState,
@@ -34,6 +34,7 @@ import {
 } from './Table'
 import { Input } from './Input'
 import { SelectNative } from './SelectNative'
+import { Button } from './Button'
 
 // TanStack Table v9 registers state capabilities and row-model factories as
 // features rather than passing v8-style `get*RowModel` options to the hook.
@@ -105,8 +106,8 @@ export type DataTableProps<TData extends RowData> = {
 }
 
 /**
- * Owns the shared client-side row-model pipeline and search/filter toolbar.
- * Pagination and empty states are added in subsequent steps.
+ * Owns the shared client-side row-model pipeline, search/filter toolbar, and
+ * pagination controls. Empty-state rendering is added in a subsequent step.
  */
 export function DataTable<TData extends RowData>(
   {
@@ -126,6 +127,14 @@ export function DataTable<TData extends RowData>(
     pageSize: 10,
   })
 
+  // Loaded collections can change after mutations. Starting at the first page
+  // prevents a now-invalid later page from rendering after a deletion.
+  useEffect(() => {
+    setPagination((current) =>
+      current.pageIndex === 0 ? current : { ...current, pageIndex: 0 },
+    )
+  }, [data])
+
   const table = useTable({
     features: dataTableFeatures,
     data,
@@ -137,13 +146,25 @@ export function DataTable<TData extends RowData>(
       sorting,
       pagination,
     },
-    onGlobalFilterChange: setGlobalFilter,
-    onColumnFiltersChange: setColumnFilters,
-    onSortingChange: setSorting,
+    onGlobalFilterChange: (updater) => {
+      setGlobalFilter(updater)
+      setPagination((current) => ({ ...current, pageIndex: 0 }))
+    },
+    onColumnFiltersChange: (updater) => {
+      setColumnFilters(updater)
+      setPagination((current) => ({ ...current, pageIndex: 0 }))
+    },
+    onSortingChange: (updater) => {
+      setSorting(updater)
+      setPagination((current) => ({ ...current, pageIndex: 0 }))
+    },
     onPaginationChange: setPagination,
     globalFilterFn: search.filterFn,
     enableMultiSort: false,
   })
+
+  const filteredRowCount = table.getFilteredRowModel().rows.length
+  const pageCount = table.getPageCount()
 
   return (
     <div
@@ -266,6 +287,50 @@ export function DataTable<TData extends RowData>(
           </TableBody>
         </Table>
       </TableRoot>
+      <div className="flex flex-col gap-3 border-t border-gray-800 p-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+        <p className="text-sm text-gray-600 dark:text-gray-400">
+          {filteredRowCount} {filteredRowCount === 1 ? 'result' : 'results'}
+        </p>
+        <div className="flex flex-wrap items-center gap-3">
+          <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+            <span>Rows per page</span>
+            <SelectNative
+              value={String(pagination.pageSize)}
+              onChange={(event) => {
+                table.setPageSize(Number(event.target.value))
+                table.setPageIndex(0)
+              }}
+            >
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+            </SelectNative>
+          </label>
+          <span className="text-sm text-gray-600 dark:text-gray-400" aria-live="polite">
+            {pageCount > 0
+              ? `Page ${pagination.pageIndex + 1} of ${pageCount}`
+              : 'No pages'}
+          </span>
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+            >
+              Previous
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
