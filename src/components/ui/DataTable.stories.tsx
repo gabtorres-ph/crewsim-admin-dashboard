@@ -5,15 +5,6 @@ import {
   DataTable,
   type DataTableProps,
 } from './DataTable'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeaderCell,
-  TableRoot,
-  TableRow,
-} from './Table'
 
 type DemoUser = {
   id: number
@@ -40,6 +31,60 @@ const demoUsers: DemoUser[] = [
     name: 'Charlie Dubois',
     email: 'charlie@example.com',
     language: 'French',
+  },
+  {
+    id: 1004,
+    name: 'Dana Kim',
+    email: 'dana@example.com',
+    language: 'Korean',
+  },
+  {
+    id: 1005,
+    name: 'Emilio Garcia',
+    email: 'emilio@example.com',
+    language: 'Spanish',
+  },
+  {
+    id: 1006,
+    name: 'Fatima Noor',
+    email: 'fatima@example.com',
+    language: 'Arabic',
+  },
+  {
+    id: 1007,
+    name: 'Grace Lee',
+    email: 'grace@example.com',
+    language: 'English',
+  },
+  {
+    id: 1008,
+    name: 'Hiro Tanaka',
+    email: 'hiro@example.com',
+    language: 'Japanese',
+  },
+  {
+    id: 1009,
+    name: 'Isabel Costa',
+    email: 'isabel@example.com',
+    language: 'Portuguese',
+  },
+  {
+    id: 1010,
+    name: 'Jon Bell',
+    email: 'jon@example.com',
+    language: 'English',
+  },
+  {
+    id: 1011,
+    name: 'Kira Patel',
+    email: 'kira@example.com',
+    language: 'Hindi',
+  },
+  {
+    id: 1012,
+    name: 'Luca Rossi',
+    email: 'luca@example.com',
+    language: 'Italian',
   },
 ]
 
@@ -84,9 +129,16 @@ const meta = {
         columnId: 'language',
         label: 'Language',
         options: [
+          { label: 'Arabic', value: 'Arabic' },
           { label: 'English', value: 'English' },
           { label: 'Filipino', value: 'Filipino' },
           { label: 'French', value: 'French' },
+          { label: 'Hindi', value: 'Hindi' },
+          { label: 'Italian', value: 'Italian' },
+          { label: 'Japanese', value: 'Japanese' },
+          { label: 'Korean', value: 'Korean' },
+          { label: 'Portuguese', value: 'Portuguese' },
+          { label: 'Spanish', value: 'Spanish' },
         ],
       },
     ],
@@ -95,43 +147,24 @@ const meta = {
       noResults: 'No users match the active search or filters.',
     },
   },
-  render: (args) => (
-    <>
-      <DataTable {...args} />
-      <TableRoot className="rounded-lg border border-gray-200 dark:border-gray-800">
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableHeaderCell>ID</TableHeaderCell>
-              <TableHeaderCell>User</TableHeaderCell>
-              <TableHeaderCell>Language</TableHeaderCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {args.data.map((user) => (
-              <TableRow key={args.getRowId(user, 0)}>
-                <TableCell>{user.id}</TableCell>
-                <TableCell className="font-medium text-gray-900 dark:text-gray-50">
-                  <div>{user.name}</div>
-                  <div className="font-normal text-gray-500 dark:text-gray-400">
-                    {user.email}
-                  </div>
-                </TableCell>
-                <TableCell>{user.language}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableRoot>
-    </>
-  ),
 } satisfies Meta<StoryProps>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
-/**
- * Static Step 1 contract preview. The table shell is rendered directly until
- * `DataTable` gains its behavior and rendering in Step 2.
- */
 export const Default: Story = {}
+
+export const NoData: Story = {
+  args: {
+    data: [],
+  },
+}
+
+export const NoResults: Story = {
+  args: {
+    search: {
+      ...search,
+      filterFn: () => false,
+    },
+  },
+}

@@ -11,6 +11,7 @@ import type {
 } from '@tanstack/react-table'
 import {
   columnFilteringFeature,
+  columnVisibilityFeature,
   createFilteredRowModel,
   createPaginatedRowModel,
   createSortedRowModel,
@@ -40,6 +41,9 @@ import { Button } from './Button'
 // features rather than passing v8-style `get*RowModel` options to the hook.
 // Keep this stable at module scope so the table instance is not recreated.
 const dataTableFeatures = tableFeatures({
+  // This supplies the visible-column APIs used by headers and row cells; it
+  // does not add a user-facing column-visibility control.
+  columnVisibilityFeature,
   columnFilteringFeature,
   globalFilteringFeature,
   filteredRowModel: createFilteredRowModel(),
