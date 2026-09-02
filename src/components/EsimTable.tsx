@@ -5,10 +5,8 @@ import {
   RiEditLine,
 } from '@remixicon/react'
 
-import type { Account } from '../types/accounts'
-import type { Esim, EsimSortKey } from '../types/esims'
+import type { Esim, EsimSortKey, EsimTableRow } from '../types/esims'
 import type { SortDirection } from '../types/sort'
-import type { User } from '../types/user'
 import { Button } from './ui/Button'
 import {
   Table,
@@ -21,9 +19,7 @@ import {
 } from './ui/Table'
 
 type EsimTableProps = {
-  esims: Esim[]
-  accounts?: Account[]
-  users: User[]
+  rows: EsimTableRow[]
   hasSearch: boolean
   sortKey: EsimSortKey
   sortDirection: SortDirection
@@ -71,9 +67,7 @@ function SortableEsimHeader({
 }
 
 export function EsimTable({
-  esims,
-  accounts = [],
-  users,
+  rows,
   hasSearch,
   sortKey,
   sortDirection,
@@ -82,13 +76,6 @@ export function EsimTable({
   onEdit,
   onDelete,
 }: EsimTableProps) {
-  const userEmails = new Map(
-    users.map((user) => [user.id, user.email]),
-  )
-  const accountNames = new Map(
-    accounts.map((account) => [account.id, account.name]),
-  )
-
   return (
     <div className="overflow-hidden rounded-lg border border-gray-800 bg-gray-950">
       <TableRoot>
@@ -143,30 +130,22 @@ export function EsimTable({
           </TableHead>
 
           <TableBody>
-            {esims.map((esim) => (
-              <TableRow key={esim.id}>
-                <TableCell>{esim.id}</TableCell>
+            {rows.map((row) => (
+              <TableRow key={row.id}>
+                <TableCell>{row.id}</TableCell>
+                <TableCell>{row.userLabel}</TableCell>
+                <TableCell>{row.accountLabel}</TableCell>
+                <TableCell className="font-mono">{row.imsi}</TableCell>
+                <TableCell>{row.networkstatus ?? '—'}</TableCell>
                 <TableCell>
-                  {esim.userId === null
-                    ? 'Unassigned'
-                    : userEmails.get(esim.userId) ?? `User #${esim.userId}`}
-                </TableCell>
-                <TableCell>
-                  {accountNames.get(esim.accountId)
-                    ? `${accountNames.get(esim.accountId)} (ID: ${esim.accountId})`
-                    : `Account #${esim.accountId}`}
-                </TableCell>
-                <TableCell className="font-mono">{esim.imsi}</TableCell>
-                <TableCell>{esim.networkstatus ?? '—'}</TableCell>
-                <TableCell>
-                  {esim.balance === null ? '—' : esim.balance.toLocaleString()}
+                  {row.balance === null ? '—' : row.balance.toLocaleString()}
                 </TableCell>
                 <TableCell>
                   <div className="grid gap-0.5 text-xs">
-                    <span>{esim.smdpserver ?? 'No SMDP server'}</span>
-                    {esim.activationcode && (
+                    <span>{row.smdpserver ?? 'No SMDP server'}</span>
+                    {row.activationcode && (
                       <span className="font-mono text-gray-500">
-                        {esim.activationcode}
+                        {row.activationcode}
                       </span>
                     )}
                   </div>
@@ -176,10 +155,10 @@ export function EsimTable({
                     <Button
                       type="button"
                       variant="ghost"
-                      disabled={deletingId === esim.id}
-                      onClick={() => onEdit(esim)}
+                      disabled={deletingId === row.id}
+                      onClick={() => onEdit(row.esim)}
                       className="gap-1.5"
-                      aria-label={`Edit eSIM ${esim.imsi}`}
+                      aria-label={`Edit eSIM ${row.imsi}`}
                     >
                       <RiEditLine className="size-4" aria-hidden="true" />
                       Edit
@@ -188,12 +167,12 @@ export function EsimTable({
                     <Button
                       type="button"
                       variant="ghost"
-                      isLoading={deletingId === esim.id}
+                      isLoading={deletingId === row.id}
                       loadingText="Deleting"
                       disabled={deletingId !== null}
-                      onClick={() => onDelete(esim)}
+                      onClick={() => onDelete(row.esim)}
                       className="gap-1.5 text-red-400 hover:bg-red-950 hover:text-red-300 dark:text-red-400 dark:hover:bg-red-950 dark:hover:text-red-300"
-                      aria-label={`Delete eSIM ${esim.imsi}`}
+                      aria-label={`Delete eSIM ${row.imsi}`}
                     >
                       <RiDeleteBinLine
                         className="size-4"
@@ -206,7 +185,7 @@ export function EsimTable({
               </TableRow>
             ))}
 
-            {esims.length === 0 && (
+            {rows.length === 0 && (
               <TableRow>
                 <TableCell
                   colSpan={8}

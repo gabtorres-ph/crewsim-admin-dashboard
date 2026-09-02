@@ -18,6 +18,12 @@ export type Esim = {
   allowData: boolean | null
 }
 
+export type EsimTableRow = Esim & {
+  esim: Esim
+  userLabel: string
+  accountLabel: string
+}
+
 export type EsimCreateInput = {
   userId?: number | null
   accountId: number

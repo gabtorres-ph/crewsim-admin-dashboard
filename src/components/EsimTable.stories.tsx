@@ -1,12 +1,44 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { fn } from 'storybook/test'
 
+import { mockAccounts } from '../mocks/data/accounts'
 import { mockEsims } from '../mocks/data/esims'
 import { mockUsers } from '../mocks/data/users'
-import type { Esim } from '../types/esims'
+import type { Account } from '../types/accounts'
+import type { Esim, EsimTableRow } from '../types/esims'
+import type { User } from '../types/user'
 import { EsimTable } from './EsimTable'
 
 const esims: Esim[] = mockEsims.slice(0, 3)
+const users = mockUsers.slice(0, 3)
+const accounts = mockAccounts.slice(0, 3)
+
+function createRows(
+  sourceEsims: Esim[],
+  sourceUsers: readonly User[],
+  sourceAccounts: readonly Account[],
+): EsimTableRow[] {
+  const usersById = new Map(sourceUsers.map((user) => [user.id, user]))
+  const accountsById = new Map(
+    sourceAccounts.map((account) => [account.id, account]),
+  )
+
+  return sourceEsims.map((esim) => {
+    const accountName = accountsById.get(esim.accountId)?.name
+
+    return {
+      ...esim,
+      esim,
+      userLabel:
+        esim.userId === null
+          ? 'Unassigned'
+          : usersById.get(esim.userId)?.email ?? `User #${esim.userId}`,
+      accountLabel: accountName
+        ? `${accountName} (ID: ${esim.accountId})`
+        : `Account #${esim.accountId}`,
+    }
+  })
+}
 
 const meta = {
   title: 'Components/EsimTable',
@@ -23,8 +55,7 @@ const meta = {
     ),
   ],
   args: {
-    esims,
-    users: mockUsers.slice(0, 3),
+    rows: createRows(esims, users, accounts),
     hasSearch: false,
     sortKey: 'imsi',
     sortDirection: 'ascending',
@@ -42,38 +73,41 @@ export const Populated: Story = {}
 
 export const Empty: Story = {
   args: {
-    esims: [],
+    rows: [],
   },
 }
 
 export const FilteredEmpty: Story = {
   args: {
-    esims: [],
+    rows: [],
     hasSearch: true,
   },
 }
 
 export const LongValues: Story = {
   args: {
-    esims: [
-      {
-        ...mockEsims[0],
-        id: 987654321012345,
-        userId: 9999,
-        accountId: 3999,
-        imsi: '310150123456789012345678901234',
-      },
-    ],
-    users: [
-      {
-        ...mockUsers[0],
-        id: 9999,
-        email: 'operations.team+international-roaming@example.com',
-        language: 'en',
-        currency: 'USD',
-        timezone: 'UTC',
-      },
-    ],
+    rows: createRows(
+      [
+        {
+          ...mockEsims[0],
+          id: 987654321012345,
+          userId: 9999,
+          accountId: 3999,
+          imsi: '310150123456789012345678901234',
+        },
+      ],
+      [
+        {
+          ...mockUsers[0],
+          id: 9999,
+          email: 'operations.team+international-roaming@example.com',
+          language: 'en',
+          currency: 'USD',
+          timezone: 'UTC',
+        },
+      ],
+      [],
+    ),
   },
 }
 
