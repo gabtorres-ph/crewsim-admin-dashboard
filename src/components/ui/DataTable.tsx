@@ -23,7 +23,7 @@ import {
   useTable,
 } from '@tanstack/react-table'
 
-import { cx } from '../../lib/utils'
+import { cx, focusRing } from '../../lib/utils'
 import {
   Table,
   TableBody,
@@ -184,11 +184,11 @@ export function DataTable<TData extends RowData>(
   return (
     <div
       className={cx(
-        'overflow-hidden rounded-lg border border-gray-800 bg-gray-950',
+        'overflow-hidden rounded-lg border border-gray-800 bg-gray-950 shadow-sm',
         className,
       )}
     >
-      <div className="flex flex-col gap-3 p-4 sm:flex-row sm:flex-wrap sm:items-end">
+      <div className="flex flex-col gap-3 border-b border-gray-800 p-4 sm:flex-row sm:flex-wrap sm:items-end">
         <Input
           type="search"
           value={globalFilter}
@@ -211,7 +211,7 @@ export function DataTable<TData extends RowData>(
 
           return (
             <label key={filter.columnId} htmlFor={selectId} className="grid gap-1">
-              <span className="text-sm font-medium text-gray-900 dark:text-gray-50">
+              <span className="text-sm font-medium text-gray-200">
                 {filter.label}
               </span>
               <SelectNative
@@ -233,7 +233,7 @@ export function DataTable<TData extends RowData>(
         })}
       </div>
       <TableRoot>
-        <Table>
+        <Table className="border-b-0">
           <TableHead>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -263,7 +263,10 @@ export function DataTable<TData extends RowData>(
                         (canSort ? (
                           <button
                             type="button"
-                            className="inline-flex items-center gap-1 rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+                            className={cx(
+                              '-m-1 inline-flex items-center gap-1 rounded-sm p-1 text-gray-400 transition-colors hover:text-gray-50',
+                              focusRing,
+                            )}
                             onClick={header.column.getToggleSortingHandler()}
                           >
                             {flexRender(
@@ -271,7 +274,10 @@ export function DataTable<TData extends RowData>(
                               header.getContext(),
                             )}
                             {sortDirection && (
-                              <SortIcon className="size-4" aria-hidden="true" />
+                              <SortIcon
+                                className="size-4 text-blue-400"
+                                aria-hidden="true"
+                              />
                             )}
                           </button>
                         ) : (
@@ -314,11 +320,11 @@ export function DataTable<TData extends RowData>(
         </Table>
       </TableRoot>
       <div className="flex flex-col gap-3 border-t border-gray-800 p-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-        <p className="text-sm text-gray-600 dark:text-gray-400">
+        <p className="text-sm text-gray-400">
           {filteredRowCount} {filteredRowCount === 1 ? 'result' : 'results'}
         </p>
         <div className="flex flex-wrap items-center gap-3">
-          <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+          <label className="flex items-center gap-2 text-sm text-gray-400">
             <span>Rows per page</span>
             <SelectNative
               value={String(pagination.pageSize)}
@@ -332,7 +338,7 @@ export function DataTable<TData extends RowData>(
               <option value="50">50</option>
             </SelectNative>
           </label>
-          <span className="text-sm text-gray-600 dark:text-gray-400" aria-live="polite">
+          <span className="text-sm text-gray-400" aria-live="polite">
             {pageCount > 0
               ? `Page ${pagination.pageIndex + 1} of ${pageCount}`
               : 'No pages'}

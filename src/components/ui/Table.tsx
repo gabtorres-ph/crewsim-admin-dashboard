@@ -44,7 +44,7 @@ const TableHead = React.forwardRef<
 >(({ className, ...props }, forwardedRef) => (
   <thead
     ref={forwardedRef}
-    className={cx('bg-gray-900/70', className)}
+    className={cx('bg-gray-950/70', className)}
     {...props}
   />
 ))
