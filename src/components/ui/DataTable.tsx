@@ -184,7 +184,7 @@ export function DataTable<TData extends RowData>(
   return (
     <div
       className={cx(
-        'overflow-hidden rounded-lg border border-gray-800 bg-gray-950 shadow-sm',
+        'overflow-hidden rounded-lg border border-gray-950 bg-gray-950 shadow-sm',
         className,
       )}
     >
@@ -319,7 +319,7 @@ export function DataTable<TData extends RowData>(
           </TableBody>
         </Table>
       </TableRoot>
-      <div className="flex flex-col gap-3 border-t border-gray-800 p-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 border-t border-gray-950 p-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <p className="text-sm text-gray-400">
           {filteredRowCount} {filteredRowCount === 1 ? 'result' : 'results'}
         </p>

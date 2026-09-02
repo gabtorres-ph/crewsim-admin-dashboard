@@ -17,6 +17,7 @@ import { AccountEsimsDialog } from '../components/AccountEsimsDialog'
 import { AccountFormDialog } from '../components/AccountFormDialog'
 import { Button } from '../components/ui/Button'
 import { DataTable } from '../components/ui/DataTable'
+import { StatusPanel } from '../components/ui/StatusPanel'
 import type { Account } from '../types/accounts'
 import type { User } from '../types/user'
 
@@ -193,31 +194,20 @@ export function AccountsPage() {
 
   if (loading) {
     return (
-      <div
-        className="rounded-lg border border-gray-800 bg-gray-950 p-12 text-center text-sm text-gray-400"
-        role="status"
-      >
+      <StatusPanel variant="loading">
         Loading accounts...
-      </div>
+      </StatusPanel>
     )
   }
 
   if (pageError) {
     return (
-      <div
-        role="alert"
-        className="rounded-lg border border-red-900 bg-red-950/40 p-6 text-red-200"
+      <StatusPanel
+        variant="error"
+        onRetry={() => void loadAccounts()}
       >
-        <p>{pageError}</p>
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={() => void loadAccounts()}
-          className="mt-4"
-        >
-          Try again
-        </Button>
-      </div>
+        {pageError}
+      </StatusPanel>
     )
   }
 
@@ -225,8 +215,10 @@ export function AccountsPage() {
     <section className="mx-auto max-w-7xl">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-white">Accounts</h1>
-          <p className="mt-2 text-sm text-gray-400">
+          <h1 className="text-2xl font-semibold tracking-tight text-gray-50">
+            Accounts
+          </h1>
+          <p className="mt-2 max-w-2xl text-sm text-gray-400">
             View and manage account balances.
           </p>
         </div>
@@ -256,7 +248,7 @@ export function AccountsPage() {
           noData: 'No accounts have been added yet.',
           noResults: 'No accounts match your search.',
         }}
-        className="mt-6"
+        className="mt-8"
       />
 
       {dialogMode && (

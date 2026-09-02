@@ -12,6 +12,7 @@ import { listUsers } from '../api/users'
 import { EsimFormDialog } from '../components/EsimFormDialog'
 import { EsimTable } from '../components/EsimTable'
 import { Button } from '../components/ui/Button'
+import { StatusPanel } from '../components/ui/StatusPanel'
 import type { Account } from '../types/accounts'
 import type {
   Esim,
@@ -166,40 +167,31 @@ export function EsimsPage() {
 
   if (loading) {
     return (
-      <div
-        className="rounded-lg border border-gray-800 bg-gray-950 p-12 text-center text-sm text-gray-400"
-        role="status"
-      >
+      <StatusPanel variant="loading">
         Loading eSIMs...
-      </div>
+      </StatusPanel>
     )
   }
 
   if (pageError) {
     return (
-      <div
-        role="alert"
-        className="rounded-lg border border-red-900 bg-red-950/40 p-6 text-red-200"
+      <StatusPanel
+        variant="error"
+        onRetry={() => void loadPageData()}
       >
-        <p>{pageError}</p>
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={() => void loadPageData()}
-          className="mt-4"
-        >
-          Try again
-        </Button>
-      </div>
+        {pageError}
+      </StatusPanel>
     )
   }
 
   return (
     <section className="mx-auto max-w-7xl">
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-white">eSIMs</h1>
-          <p className="mt-2 text-sm text-gray-400">
+          <h1 className="text-2xl font-semibold tracking-tight text-gray-50">
+            eSIMs
+          </h1>
+          <p className="mt-2 max-w-2xl text-sm text-gray-400">
             View and manage all eSIM records.
           </p>
         </div>

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import {
+  RiAddLine,
   RiDeleteBinLine,
   RiEditLine,
 } from '@remixicon/react'
@@ -14,6 +15,7 @@ import {
 import { UserFormDialog } from '../components/UserFormDialog'
 import { Button } from '../components/ui/Button'
 import { DataTable } from '../components/ui/DataTable'
+import { StatusPanel } from '../components/ui/StatusPanel'
 import type {
   User,
   UserInput,
@@ -253,45 +255,40 @@ export function UsersPage() {
 
   if (loading) {
     return (
-      <div
-        className="rounded-lg border border-gray-800 bg-gray-950 p-12 text-center text-sm text-gray-400"
-        role="status"
-      >
+      <StatusPanel variant="loading">
         Loading users...
-      </div>
+      </StatusPanel>
     )
   }
 
   if (pageError) {
     return (
-      <div className="rounded-lg border border-red-900 bg-red-950/40 p-6 text-red-200">
-        <p>{pageError}</p>
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={() => void loadUsers()}
-          className="mt-4"
-        >
-          Try again
-        </Button>
-      </div>
+      <StatusPanel
+        variant="error"
+        onRetry={() => void loadUsers()}
+      >
+        {pageError}
+      </StatusPanel>
     )
   }
 
   return (
     <section className="mx-auto max-w-7xl">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-white">Users</h1>
-          <p className="mt-2 text-sm text-gray-400">
+          <h1 className="text-2xl font-semibold tracking-tight text-gray-50">
+            Users
+          </h1>
+          <p className="mt-2 max-w-2xl text-sm text-gray-400">
             Create, find, and update users.
           </p>
         </div>
 
-        <Button type="button" onClick={openAddDialog}>
+        <Button type="button" onClick={openAddDialog} className="gap-1.5">
+          <RiAddLine className="size-4" aria-hidden="true" />
           Add user
         </Button>
-      </div>
+      </header>
 
       <DataTable
         data={users}
@@ -324,7 +321,7 @@ export function UsersPage() {
           noData: 'No users have been added yet.',
           noResults: 'No users match your search.',
         }}
-        className="mt-6"
+        className="mt-8"
       />
 
       {dialogMode && (

@@ -17,7 +17,7 @@ function App() {
         onSectionChange={setActiveSection}
       />
 
-      <main className="min-w-0 bg-[#050914] p-5 md:p-10">
+      <main className="min-w-0 bg-gray-950 p-5 md:p-10">
         {activeSection === 'accounts' && <AccountsPage />}
 
         {activeSection === 'users' && <UsersPage />}

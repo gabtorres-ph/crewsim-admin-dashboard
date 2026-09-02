@@ -21,7 +21,7 @@ export function Sidebar({
   onSectionChange,
 }: SidebarProps) {
   return (
-    <aside className="border-b border-gray-800 bg-gray-950 p-4 md:min-h-screen md:border-r md:border-b-0 md:p-5">
+    <aside className="border-b border-gray-800 bg-gray-950 p-4 shadow-sm md:min-h-screen md:border-r md:border-b-0 md:p-5">
       <div className="mb-5 flex items-center gap-3 md:mb-10">
         <div className="grid size-10 place-items-center rounded-md bg-indigo-500 font-semibold text-white">
           CS
@@ -45,9 +45,9 @@ export function Sidebar({
               variant="ghost"
               onClick={() => onSectionChange(item.id)}
               className={cx(
-                'w-full justify-start gap-3 border-transparent text-gray-400 dark:text-gray-400',
+                'w-full justify-start gap-3 border-transparent text-gray-400 hover:text-gray-50',
                 isActive &&
-                  'bg-indigo-950 text-indigo-300 hover:bg-indigo-950 dark:bg-indigo-950 dark:text-indigo-300 dark:hover:bg-indigo-950',
+                  'border-blue-500/20 bg-blue-500/15 text-blue-300 hover:bg-blue-500/20 hover:text-blue-200',
               )}
               aria-current={isActive ? 'page' : undefined}
             >
