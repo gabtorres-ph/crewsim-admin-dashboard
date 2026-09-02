@@ -104,13 +104,13 @@ export function AccountFormDialog({
         }
       }}
     >
-      <DialogContent className="max-w-lg bg-white text-gray-950 dark:bg-white">
+      <DialogContent className="max-w-lg">
         <DialogHeader className="flex-row items-start justify-between gap-x-4">
           <div>
-            <DialogTitle className="text-2xl text-gray-950">
+            <DialogTitle className="text-2xl">
               {mode === 'add' ? 'Add account' : 'Edit account'}
             </DialogTitle>
-            <DialogDescription className="mt-2 text-gray-500">
+            <DialogDescription className="mt-2">
               Configure the account name and balance.
             </DialogDescription>
           </div>
@@ -120,7 +120,7 @@ export function AccountFormDialog({
               variant="ghost"
               disabled={saving}
               aria-label="Close dialog"
-              className="shrink-0 text-gray-600"
+              className="shrink-0"
             >
               <RiCloseLine className="size-5" aria-hidden="true" />
             </Button>
@@ -155,7 +155,7 @@ export function AccountFormDialog({
           {error && (
             <div
               role="alert"
-              className="mb-5 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700"
+              className="mb-5 rounded-md border border-red-900/70 bg-red-950/40 p-3 text-sm text-red-300"
             >
               {error}
             </div>
@@ -210,7 +210,7 @@ function FormInput({
 
   return (
     <label className="grid gap-2">
-      <span className="text-sm font-medium text-gray-900">{label}</span>
+      <span className="text-sm font-medium text-gray-200">{label}</span>
       <Input
         name={name}
         type={type}
@@ -225,7 +225,7 @@ function FormInput({
         onChange={(event) => onChange(event.target.value)}
       />
       {error && (
-        <span id={errorId} className="text-sm text-red-600">
+        <span id={errorId} className="text-sm text-red-400">
           {error}
         </span>
       )}

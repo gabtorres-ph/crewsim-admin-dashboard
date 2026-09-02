@@ -147,13 +147,13 @@ export function UserFormDialog(props: UserFormDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={(nextOpen) => { if (!saving) onOpenChange(nextOpen) }}>
-      <DialogContent className="max-w-3xl bg-white text-gray-950 dark:bg-white">
+      <DialogContent className="max-w-3xl">
         <DialogHeader className="flex-row items-start justify-between gap-x-4">
           <div>
-            <DialogTitle className="text-2xl text-gray-950">{mode === 'add' ? 'Add user' : 'Edit user'}</DialogTitle>
-            <DialogDescription className="mt-2 text-gray-500">Configure account and optional profile details.</DialogDescription>
+            <DialogTitle className="text-2xl">{mode === 'add' ? 'Add user' : 'Edit user'}</DialogTitle>
+            <DialogDescription className="mt-2">Configure account and optional profile details.</DialogDescription>
           </div>
-          <DialogClose asChild><Button type="button" variant="ghost" disabled={saving} aria-label="Close dialog" className="shrink-0 text-gray-600"><RiCloseLine className="size-5" aria-hidden="true" /></Button></DialogClose>
+          <DialogClose asChild><Button type="button" variant="ghost" disabled={saving} aria-label="Close dialog" className="shrink-0"><RiCloseLine className="size-5" aria-hidden="true" /></Button></DialogClose>
         </DialogHeader>
         <form onSubmit={handleSubmit} noValidate>
           <div className="grid gap-5 py-6 sm:grid-cols-2">
@@ -174,7 +174,7 @@ export function UserFormDialog(props: UserFormDialogProps) {
             <FormSelect label="Newsletter" name="newsletter" value={form.newsletter} saving={saving} onChange={(value) => updateField('newsletter', value as OptionalBoolean)}><option value="">Not set</option><option value="true">Yes</option><option value="false">No</option></FormSelect>
             <FormSelect label="SMS notifications" name="smsnotification" value={form.smsnotification} saving={saving} onChange={(value) => updateField('smsnotification', value as OptionalBoolean)}><option value="">Not set</option><option value="true">Yes</option><option value="false">No</option></FormSelect>
           </div>
-          {error && <div role="alert" className="mb-5 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
+          {error && <div role="alert" className="mb-5 rounded-md border border-red-900/70 bg-red-950/40 p-3 text-sm text-red-300">{error}</div>}
           <DialogFooter><DialogClose asChild><Button type="button" variant="secondary" disabled={saving}>Cancel</Button></DialogClose><Button type="submit" isLoading={saving}>{mode === 'add' ? 'Add user' : 'Save changes'}</Button></DialogFooter>
         </form>
       </DialogContent>
@@ -185,11 +185,11 @@ export function UserFormDialog(props: UserFormDialogProps) {
 type FormInputProps = { label: string; name: string; id?: string; type?: string; value: string; placeholder?: string; required?: boolean; saving: boolean; error?: string; min?: string; step?: string; maxLength?: number; onChange: (value: string) => void }
 function FormInput({ label, name, id, type = 'text', value, placeholder, required, saving, error, min, step, maxLength, onChange }: FormInputProps) {
   const errorId = error ? `${id ?? name}-error` : undefined
-  return <label className="grid gap-2"><span className="text-sm font-medium text-gray-900">{label}</span><Input id={id} name={name} type={type} value={value} placeholder={placeholder} required={required} disabled={saving} min={min} step={step} maxLength={maxLength} hasError={Boolean(error)} aria-invalid={Boolean(error)} aria-describedby={errorId} onChange={(event) => onChange(event.target.value)} />{error && <span id={errorId} className="text-sm text-red-600">{error}</span>}</label>
+  return <label className="grid gap-2"><span className="text-sm font-medium text-gray-200">{label}</span><Input id={id} name={name} type={type} value={value} placeholder={placeholder} required={required} disabled={saving} min={min} step={step} maxLength={maxLength} hasError={Boolean(error)} aria-invalid={Boolean(error)} aria-describedby={errorId} onChange={(event) => onChange(event.target.value)} />{error && <span id={errorId} className="text-sm text-red-400">{error}</span>}</label>
 }
 
 type FormSelectProps = { label: string; name: string; value: string; required?: boolean; saving: boolean; error?: string; onChange: (value: string) => void; children: ReactNode }
 function FormSelect({ label, name, value, required, saving, error, onChange, children }: FormSelectProps) {
   const errorId = error ? `${name}-error` : undefined
-  return <label className="grid gap-2"><span className="text-sm font-medium text-gray-900">{label}</span><SelectNative name={name} value={value} required={required} disabled={saving} hasError={Boolean(error)} aria-invalid={Boolean(error)} aria-describedby={errorId} onChange={(event) => onChange(event.target.value)}>{children}</SelectNative>{error && <span id={errorId} className="text-sm text-red-600">{error}</span>}</label>
+  return <label className="grid gap-2"><span className="text-sm font-medium text-gray-200">{label}</span><SelectNative name={name} value={value} required={required} disabled={saving} hasError={Boolean(error)} aria-invalid={Boolean(error)} aria-describedby={errorId} onChange={(event) => onChange(event.target.value)}>{children}</SelectNative>{error && <span id={errorId} className="text-sm text-red-400">{error}</span>}</label>
 }
