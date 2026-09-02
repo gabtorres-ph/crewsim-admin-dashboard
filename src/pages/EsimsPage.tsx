@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { RiAddLine } from '@remixicon/react'
 
 import {
@@ -14,7 +14,12 @@ import { EsimTable } from '../components/EsimTable'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
 import type { Account } from '../types/accounts'
-import type { Esim, EsimInput, EsimSortKey } from '../types/esims'
+import type {
+  Esim,
+  EsimInput,
+  EsimSortKey,
+  EsimTableRow,
+} from '../types/esims'
 import type { SortDirection } from '../types/sort'
 import type { User } from '../types/user'
 
@@ -37,33 +42,34 @@ export function EsimsPage() {
   const [deletingId, setDeletingId] = useState<number | null>(null)
   const [formError, setFormError] = useState<string | null>(null)
 
-  const userEmails = useMemo(
-    () => new Map(users.map((user) => [user.id, user.email])),
+  const usersById = useMemo(
+    () => new Map(users.map((user) => [user.id, user])),
     [users],
   )
 
-  const getUserLabel = useCallback(
-    (userId: number | null) =>
-      userId === null
-        ? 'Unassigned'
-        : userEmails.get(userId) ?? `User #${userId}`,
-    [userEmails],
-  )
-
-  const accountNames = useMemo(
-    () => new Map(accounts.map((account) => [account.id, account.name])),
+  const accountsById = useMemo(
+    () => new Map(accounts.map((account) => [account.id, account])),
     [accounts],
   )
 
-  const getAccountLabel = useCallback(
-    (accountId: number) => {
-      const accountName = accountNames.get(accountId)
+  const tableRows = useMemo<EsimTableRow[]>(
+    () =>
+      esims.map((esim) => {
+        const accountName = accountsById.get(esim.accountId)?.name
 
-      return accountName
-        ? `${accountName} (ID: ${accountId})`
-        : `Account #${accountId}`
-    },
-    [accountNames],
+        return {
+          ...esim,
+          esim,
+          userLabel:
+            esim.userId === null
+              ? 'Unassigned'
+              : usersById.get(esim.userId)?.email ?? `User #${esim.userId}`,
+          accountLabel: accountName
+            ? `${accountName} (ID: ${esim.accountId})`
+            : `Account #${esim.accountId}`,
+        }
+      }),
+    [accountsById, esims, usersById],
   )
 
   async function loadPageData() {
@@ -178,47 +184,47 @@ export function EsimsPage() {
     setSortDirection('ascending')
   }
 
-  const filteredEsims = useMemo(() => {
+  const filteredRows = useMemo(() => {
     const query = search.trim().toLowerCase()
 
     if (!query) {
-      return esims
+      return tableRows
     }
 
-    return esims.filter((esim) =>
+    return tableRows.filter((row) =>
       [
-        esim.id,
-        getUserLabel(esim.userId),
-        getAccountLabel(esim.accountId),
-        esim.accountId,
-        esim.imsi,
-        esim.name,
-        esim.networkstatus,
-        esim.balance,
-        esim.smdpserver,
-        esim.activationcode,
-        esim.imei,
-        esim.imeiDevice,
+        row.id,
+        row.userLabel,
+        row.accountLabel,
+        row.accountId,
+        row.imsi,
+        row.name,
+        row.networkstatus,
+        row.balance,
+        row.smdpserver,
+        row.activationcode,
+        row.imei,
+        row.imeiDevice,
       ]
         .join(' ')
         .toLowerCase()
         .includes(query),
     )
-  }, [esims, search, getAccountLabel, getUserLabel])
+  }, [search, tableRows])
 
-  const visibleEsims = useMemo(() => {
-    const copy = [...filteredEsims]
+  const visibleRows = useMemo(() => {
+    const copy = [...filteredRows]
 
     copy.sort((left, right) => {
       const leftValue = sortKey === 'user'
-        ? getUserLabel(left.userId)
+        ? left.userLabel
         : sortKey === 'accountId'
-          ? getAccountLabel(left.accountId)
+          ? left.accountLabel
           : left[sortKey]
       const rightValue = sortKey === 'user'
-        ? getUserLabel(right.userId)
+        ? right.userLabel
         : sortKey === 'accountId'
-          ? getAccountLabel(right.accountId)
+          ? right.accountLabel
           : right[sortKey]
       const comparison = String(leftValue).localeCompare(
         String(rightValue),
@@ -231,11 +237,9 @@ export function EsimsPage() {
 
     return copy
   }, [
-    filteredEsims,
+    filteredRows,
     sortKey,
     sortDirection,
-    getAccountLabel,
-    getUserLabel,
   ])
 
   if (loading) {
@@ -294,15 +298,13 @@ export function EsimsPage() {
           className="w-full sm:max-w-md"
         />
         <span className="text-sm text-gray-400">
-          {visibleEsims.length} eSIMs
+          {visibleRows.length} eSIMs
         </span>
       </div>
 
       <div className="mt-4">
         <EsimTable
-          esims={visibleEsims}
-          accounts={accounts}
-          users={users}
+          rows={visibleRows}
           hasSearch={search.trim().length > 0}
           sortKey={sortKey}
           sortDirection={sortDirection}
