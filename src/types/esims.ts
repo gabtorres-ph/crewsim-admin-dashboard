@@ -61,12 +61,3 @@ export type EsimInput = {
   imeiDevice?: string | null
   allowData?: boolean | null
 }
-
-export type EsimSortKey =
-  | 'id'
-  | 'user'
-  | 'accountId'
-  | 'imsi'
-  | 'name'
-  | 'networkstatus'
-  | 'balance'

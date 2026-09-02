@@ -12,15 +12,12 @@ import { listUsers } from '../api/users'
 import { EsimFormDialog } from '../components/EsimFormDialog'
 import { EsimTable } from '../components/EsimTable'
 import { Button } from '../components/ui/Button'
-import { Input } from '../components/ui/Input'
 import type { Account } from '../types/accounts'
 import type {
   Esim,
   EsimInput,
-  EsimSortKey,
   EsimTableRow,
 } from '../types/esims'
-import type { SortDirection } from '../types/sort'
 import type { User } from '../types/user'
 
 type DialogMode = 'add' | 'edit' | null
@@ -29,11 +26,6 @@ export function EsimsPage() {
   const [esims, setEsims] = useState<Esim[]>([])
   const [accounts, setAccounts] = useState<Account[]>([])
   const [users, setUsers] = useState<User[]>([])
-  const [search, setSearch] = useState('')
-  const [sortKey, setSortKey] = useState<EsimSortKey>('imsi')
-  const [sortDirection, setSortDirection] =
-    useState<SortDirection>('ascending')
-
   const [loading, setLoading] = useState(true)
   const [pageError, setPageError] = useState<string | null>(null)
   const [dialogMode, setDialogMode] = useState<DialogMode>(null)
@@ -172,76 +164,6 @@ export function EsimsPage() {
     }
   }
 
-  function handleSort(column: EsimSortKey) {
-    if (column === sortKey) {
-      setSortDirection((current) =>
-        current === 'ascending' ? 'descending' : 'ascending',
-      )
-      return
-    }
-
-    setSortKey(column)
-    setSortDirection('ascending')
-  }
-
-  const filteredRows = useMemo(() => {
-    const query = search.trim().toLowerCase()
-
-    if (!query) {
-      return tableRows
-    }
-
-    return tableRows.filter((row) =>
-      [
-        row.id,
-        row.userLabel,
-        row.accountLabel,
-        row.accountId,
-        row.imsi,
-        row.name,
-        row.networkstatus,
-        row.balance,
-        row.smdpserver,
-        row.activationcode,
-        row.imei,
-        row.imeiDevice,
-      ]
-        .join(' ')
-        .toLowerCase()
-        .includes(query),
-    )
-  }, [search, tableRows])
-
-  const visibleRows = useMemo(() => {
-    const copy = [...filteredRows]
-
-    copy.sort((left, right) => {
-      const leftValue = sortKey === 'user'
-        ? left.userLabel
-        : sortKey === 'accountId'
-          ? left.accountLabel
-          : left[sortKey]
-      const rightValue = sortKey === 'user'
-        ? right.userLabel
-        : sortKey === 'accountId'
-          ? right.accountLabel
-          : right[sortKey]
-      const comparison = String(leftValue).localeCompare(
-        String(rightValue),
-        undefined,
-        { numeric: true, sensitivity: 'base' },
-      )
-
-      return sortDirection === 'ascending' ? comparison : -comparison
-    })
-
-    return copy
-  }, [
-    filteredRows,
-    sortKey,
-    sortDirection,
-  ])
-
   if (loading) {
     return (
       <div
@@ -288,28 +210,10 @@ export function EsimsPage() {
         </Button>
       </header>
 
-      <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <Input
-          type="search"
-          value={search}
-          placeholder="Search by ID, user, account, or IMSI..."
-          aria-label="Search eSIMs"
-          onChange={(event) => setSearch(event.target.value)}
-          className="w-full sm:max-w-md"
-        />
-        <span className="text-sm text-gray-400">
-          {visibleRows.length} eSIMs
-        </span>
-      </div>
-
-      <div className="mt-4">
+      <div className="mt-8">
         <EsimTable
-          rows={visibleRows}
-          hasSearch={search.trim().length > 0}
-          sortKey={sortKey}
-          sortDirection={sortDirection}
+          rows={tableRows}
           deletingId={deletingId}
-          onSort={handleSort}
           onEdit={openEditDialog}
           onDelete={(esim) => void handleDelete(esim)}
         />

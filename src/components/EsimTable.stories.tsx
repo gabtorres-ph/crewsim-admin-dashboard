@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { fn } from 'storybook/test'
+import { expect, fn, userEvent, within } from 'storybook/test'
 
 import { mockAccounts } from '../mocks/data/accounts'
 import { mockEsims } from '../mocks/data/esims'
@@ -9,7 +9,27 @@ import type { Esim, EsimTableRow } from '../types/esims'
 import type { User } from '../types/user'
 import { EsimTable } from './EsimTable'
 
-const esims: Esim[] = mockEsims.slice(0, 3)
+const esims: Esim[] = [
+  {
+    ...mockEsims[0],
+    networkstatus: 'Active',
+    balance: 1250,
+    smdpserver: 'smdp.example.com',
+    activationcode: 'ACT-2001',
+    imei: '357881234567890',
+    imeiDevice: 'Cabin tablet',
+  },
+  {
+    ...mockEsims[1],
+    networkstatus: 'Suspended',
+    balance: 0,
+  },
+  {
+    ...mockEsims[2],
+    networkstatus: null,
+    name: 'Operations backup',
+  },
+]
 const users = mockUsers.slice(0, 3)
 const accounts = mockAccounts.slice(0, 3)
 
@@ -56,11 +76,7 @@ const meta = {
   ],
   args: {
     rows: createRows(esims, users, accounts),
-    hasSearch: false,
-    sortKey: 'imsi',
-    sortDirection: 'ascending',
     deletingId: null,
-    onSort: fn(),
     onEdit: fn(),
     onDelete: fn(),
   },
@@ -69,7 +85,19 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Populated: Story = {}
+export const Populated: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const bodyRows = canvas.getAllByRole('row').slice(1)
+
+    await expect(
+      canvas.getByRole('columnheader', { name: 'IMSI' }),
+    ).toHaveAttribute('aria-sort', 'ascending')
+    await expect(bodyRows[0]).toHaveTextContent('310150123456789')
+    await expect(bodyRows[1]).toHaveTextContent('440100123456789')
+    await expect(bodyRows[2]).toHaveTextContent('525010987654321')
+  },
+}
 
 export const Empty: Story = {
   args: {
@@ -78,9 +106,17 @@ export const Empty: Story = {
 }
 
 export const FilteredEmpty: Story = {
-  args: {
-    rows: [],
-    hasSearch: true,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+
+    await userEvent.type(
+      canvas.getByRole('searchbox', { name: 'Search eSIMs' }),
+      'does-not-exist',
+    )
+
+    await expect(
+      canvas.getByText('No eSIMs match your search.'),
+    ).toBeVisible()
   },
 }
 
@@ -112,14 +148,96 @@ export const LongValues: Story = {
 }
 
 export const DescendingByUser: Story = {
-  args: {
-    sortKey: 'user',
-    sortDirection: 'descending',
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const userHeaderButton = canvas.getByRole('button', { name: 'User' })
+
+    await userEvent.click(userHeaderButton)
+    await userEvent.click(userHeaderButton)
+
+    await expect(
+      canvas.getByRole('columnheader', { name: 'User' }),
+    ).toHaveAttribute('aria-sort', 'descending')
+    await expect(canvas.getAllByRole('row')[1]).toHaveTextContent(
+      'mei.lin@example.com',
+    )
+  },
+}
+
+export const AscendingByAccount: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Account' }))
+
+    await expect(
+      canvas.getByRole('columnheader', { name: 'Account' }),
+    ).toHaveAttribute('aria-sort', 'ascending')
+    await expect(canvas.getAllByRole('row')[1]).toHaveTextContent(
+      'Japan Cabin Services (ID: 3003)',
+    )
   },
 }
 
 export const DeletingRow: Story = {
   args: {
     deletingId: 2002,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const deletingImsi = '525010987654321'
+
+    await expect(
+      canvas.getByRole('button', { name: `Edit eSIM ${deletingImsi}` }),
+    ).toBeDisabled()
+    await expect(
+      canvas.getByRole('button', { name: `Delete eSIM ${deletingImsi}` }),
+    ).toHaveTextContent('Deleting')
+
+    for (const deleteButton of canvas.getAllByRole('button', {
+      name: /Delete eSIM/,
+    })) {
+      await expect(deleteButton).toBeDisabled()
+    }
+  },
+}
+
+export const ActionsUseOriginalRecord: Story = {
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement)
+
+    await userEvent.click(
+      canvas.getByRole('button', { name: `Edit eSIM ${esims[0].imsi}` }),
+    )
+
+    await expect(args.onEdit).toHaveBeenCalledWith(esims[0])
+  },
+}
+
+export const SearchByHiddenMetadata: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+
+    await userEvent.type(
+      canvas.getByRole('searchbox', { name: 'Search eSIMs' }),
+      'Cabin tablet',
+    )
+
+    await expect(canvas.getByText('310150123456789')).toBeVisible()
+    await expect(canvas.getByText('1 result')).toBeVisible()
+  },
+}
+
+export const UnspecifiedStatus: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+
+    await userEvent.selectOptions(
+      canvas.getByRole('combobox', { name: 'Status' }),
+      canvas.getByRole('option', { name: 'Unspecified' }),
+    )
+
+    await expect(canvas.getByText('440100123456789')).toBeVisible()
+    await expect(canvas.getByText('1 result')).toBeVisible()
   },
 }

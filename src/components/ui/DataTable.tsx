@@ -79,13 +79,13 @@ export type DataTableSelectFilter = {
  * matches the normalized search value supplied by the table.
  *
  * Initial table-state policy (implemented in Step 2): state is uncontrolled
- * within `DataTable`; pages supply only data and column definitions. Exactly
- * one column can be sorted at a time, using TanStack's normal ascending then
- * descending header-click cycle, while non-sortable headers remain plain text.
- * The default page size is 10, and the only available page sizes are 10, 25,
- * and 50. A search, select-filter, sort, page-size, or source-data change
- * resets pagination to page 1. Result counts are calculated after search and
- * column filters but before pagination.
+ * within `DataTable`; consumers may provide an initial sort but do not
+ * maintain table state. Exactly one column can be sorted at a time, using
+ * TanStack's normal ascending then descending header-click cycle, while
+ * non-sortable headers remain plain text. The default page size is 10, and
+ * the only available page sizes are 10, 25, and 50. A search, select-filter,
+ * sort, page-size, or source-data change resets pagination to page 1. Result
+ * counts are calculated after search and column filters but before pagination.
  *
  * This initial client-side version intentionally excludes URL synchronization,
  * persisted preferences, server-side pagination, multi-sort, row selection,
@@ -95,6 +95,8 @@ export type DataTableProps<TData extends RowData> = {
   data: TData[]
   columns: ColumnDef<TableFeatures, TData, unknown>[]
   getRowId: (row: TData, index: number) => string
+  /** Sets the first rendered sort while keeping sorting uncontrolled here. */
+  initialSorting?: SortingState
   search: {
     label: string
     placeholder: string
@@ -118,6 +120,7 @@ export function DataTable<TData extends RowData>(
     data,
     columns,
     getRowId,
+    initialSorting = [],
     search,
     filters = [],
     emptyState,
@@ -126,7 +129,7 @@ export function DataTable<TData extends RowData>(
 ) {
   const [globalFilter, setGlobalFilter] = useState('')
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
-  const [sorting, setSorting] = useState<SortingState>([])
+  const [sorting, setSorting] = useState<SortingState>(initialSorting)
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
