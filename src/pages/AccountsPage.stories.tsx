@@ -28,6 +28,28 @@ type Story = StoryObj<typeof meta>
 
 export const Populated: Story = {}
 
+export const SearchUsesOriginalFields: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+
+    await canvas.findByRole('heading', { name: 'Accounts' })
+    await userEvent.type(
+      canvas.getByRole('searchbox', { name: 'Search accounts' }),
+      '12450.75',
+    )
+
+    await expect(canvas.getByText('Pacific Operations')).toBeVisible()
+    await expect(
+      canvas.queryByText('Singapore Flight Crew'),
+    ).not.toBeInTheDocument()
+    await expect(canvas.getByText('1 result')).toBeVisible()
+
+    const tableSelects = canvas.getAllByRole('combobox')
+    await expect(tableSelects).toHaveLength(1)
+    await expect(tableSelects[0]).toHaveAccessibleName('Rows per page')
+  },
+}
+
 export const Empty: Story = {
   parameters: {
     msw: [

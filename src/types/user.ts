@@ -39,10 +39,3 @@ export type UserInput = {
 }
 
 export type UserUpdateInput = Partial<UserInput>
-
-export type UserSortKey =
-  | 'id'
-  | 'email'
-  | 'currency'
-  | 'language'
-  | 'timezone'

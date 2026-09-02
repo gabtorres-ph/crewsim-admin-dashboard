@@ -10,5 +10,3 @@ export type AccountCreateInput = {
 }
 
 export type AccountUpdateInput = Partial<AccountCreateInput>
-
-export type AccountSortKey = 'id' | 'name' | 'balance'

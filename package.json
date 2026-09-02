@@ -10,6 +10,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
+    "test-storybook": "vitest run --project storybook",
     "preview": "vite preview --config vite.preview.config.ts",
     "start": "vite preview --config vite.preview.config.ts",
     "storybook": "storybook dev -p 6006",

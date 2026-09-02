@@ -60,6 +60,44 @@ function createRows(
   })
 }
 
+const fallbackEsims: Esim[] = [
+  {
+    ...mockEsims[0],
+    id: 3101,
+    userId: 1001,
+    accountId: 3001,
+    imsi: '310150000000001',
+  },
+  {
+    ...mockEsims[1],
+    id: 3102,
+    userId: null,
+    accountId: 3001,
+    imsi: '310150000000002',
+  },
+  {
+    ...mockEsims[2],
+    id: 3103,
+    userId: 9999,
+    accountId: 3999,
+    imsi: '310150000000003',
+  },
+]
+
+const fallbackRows = createRows(
+  fallbackEsims,
+  [{ ...mockUsers[0], email: 'zulu.crew@example.com' }],
+  [{ ...mockAccounts[0], name: 'Zulu Account' }],
+)
+
+const paginatedEsims: Esim[] = Array.from({ length: 11 }, (_, index) => ({
+  ...mockEsims[0],
+  id: 4001 + index,
+  userId: null,
+  imsi: `310150${String(index + 1).padStart(9, '0')}`,
+  networkstatus: 'Active',
+}))
+
 const meta = {
   title: 'Components/EsimTable',
   component: EsimTable,
@@ -179,6 +217,28 @@ export const AscendingByAccount: Story = {
   },
 }
 
+export const RelationshipFallbackSorting: Story = {
+  args: {
+    rows: fallbackRows,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+
+    await userEvent.click(canvas.getByRole('button', { name: 'User' }))
+
+    const rowsByUser = canvas.getAllByRole('row').slice(1)
+    await expect(rowsByUser[0]).toHaveTextContent('Unassigned')
+    await expect(rowsByUser[1]).toHaveTextContent('User #9999')
+    await expect(rowsByUser[2]).toHaveTextContent('zulu.crew@example.com')
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Account' }))
+
+    const rowsByAccount = canvas.getAllByRole('row').slice(1)
+    await expect(rowsByAccount[0]).toHaveTextContent('Account #3999')
+    await expect(rowsByAccount[1]).toHaveTextContent('Zulu Account (ID: 3001)')
+  },
+}
+
 export const DeletingRow: Story = {
   args: {
     deletingId: 2002,
@@ -186,6 +246,11 @@ export const DeletingRow: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     const deletingImsi = '525010987654321'
+
+    await userEvent.selectOptions(
+      canvas.getByRole('combobox', { name: 'Status' }),
+      'Suspended',
+    )
 
     await expect(
       canvas.getByRole('button', { name: `Edit eSIM ${deletingImsi}` }),
@@ -206,11 +271,42 @@ export const ActionsUseOriginalRecord: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement)
 
+    await userEvent.selectOptions(
+      canvas.getByRole('combobox', { name: 'Status' }),
+      'Active',
+    )
+
     await userEvent.click(
       canvas.getByRole('button', { name: `Edit eSIM ${esims[0].imsi}` }),
     )
 
+    await userEvent.click(
+      canvas.getByRole('button', { name: `Delete eSIM ${esims[0].imsi}` }),
+    )
+
     await expect(args.onEdit).toHaveBeenCalledWith(esims[0])
+    await expect(args.onDelete).toHaveBeenCalledWith(esims[0])
+  },
+}
+
+export const ActionsAfterPagination: Story = {
+  args: {
+    rows: createRows(paginatedEsims, [], []),
+  },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement)
+    const lastEsim = paginatedEsims.at(-1)!
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Next' }))
+    await expect(canvas.getByText('Page 2 of 2')).toBeVisible()
+    const editButton = canvas.getByRole('button', {
+      name: `Edit eSIM ${lastEsim.imsi}`,
+    })
+    editButton.focus()
+    await expect(editButton).toHaveFocus()
+    await userEvent.keyboard('{Enter}')
+
+    await expect(args.onEdit).toHaveBeenCalledWith(lastEsim)
   },
 }
 

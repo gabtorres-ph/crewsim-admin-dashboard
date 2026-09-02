@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { expect, fn, userEvent, within } from 'storybook/test'
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
 
 import { mockAccounts } from '../mocks/data/accounts'
 import { mockEsims } from '../mocks/data/esims'
@@ -129,10 +129,10 @@ export const InlineValidation: Story = {
       screen.getByRole('button', { name: 'Add eSIM' }),
     )
 
-    await expect(
-      screen.getByText('Account is required.'),
-    ).toBeVisible()
-    await expect(screen.getByText('IMSI is required.')).toBeVisible()
+    await waitFor(() => {
+      expect(screen.getByText('Account is required.')).toBeVisible()
+      expect(screen.getByText('IMSI is required.')).toBeVisible()
+    })
     await expect(args.onSubmit).not.toHaveBeenCalled()
   },
 }
