@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import {
-  RiArrowDownSLine,
-  RiArrowUpSLine,
   RiDeleteBinLine,
   RiEditLine,
 } from '@remixicon/react'
+import type { ColumnDef, TableFeatures } from '@tanstack/react-table'
 
 import {
   createUser,
@@ -14,32 +13,16 @@ import {
 } from '../api/users'
 import { UserFormDialog } from '../components/UserFormDialog'
 import { Button } from '../components/ui/Button'
-import { Input } from '../components/ui/Input'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeaderCell,
-  TableRoot,
-  TableRow,
-} from '../components/ui/Table'
+import { DataTable } from '../components/ui/DataTable'
 import type {
   User,
   UserInput,
-  UserSortKey,
 } from '../types/user'
-import type { SortDirection } from '../types/sort'
 
 type DialogMode = 'add' | 'edit' | null
 
 export function UsersPage() {
   const [users, setUsers] = useState<User[]>([])
-  const [search, setSearch] = useState('')
-  const [sortKey, setSortKey] = useState<UserSortKey>('id')
-  const [sortDirection, setSortDirection] =
-    useState<SortDirection>('ascending')
-
   const [loading, setLoading] = useState(true)
   const [pageError, setPageError] = useState<string | null>(null)
 
@@ -138,87 +121,135 @@ export function UsersPage() {
     }
   }
 
-  function handleSort(column: UserSortKey) {
-    if (column === sortKey) {
-      setSortDirection((current) =>
-        current === 'ascending' ? 'descending' : 'ascending',
-      )
-      return
-    }
+  const columns = useMemo<ColumnDef<TableFeatures, User, unknown>[]>(
+    () => [
+      { accessorKey: 'id', header: 'ID' },
+      {
+        id: 'email',
+        accessorKey: 'email',
+        header: 'Email',
+        cell: ({ row }) => {
+          const user = row.original
 
-    setSortKey(column)
-    setSortDirection('ascending')
-  }
+          return user.firstname || user.lastname ? (
+            <div>
+              <div className="font-medium text-white">
+                {[user.firstname, user.lastname].filter(Boolean).join(' ')}
+              </div>
+              <div className="text-sm text-gray-400">{user.email}</div>
+            </div>
+          ) : (
+            user.email
+          )
+        },
+      },
+      {
+        id: 'profile',
+        header: 'Profile',
+        accessorFn: (user) =>
+          [user.position, user.airline].filter(Boolean).join(' '),
+        enableSorting: false,
+        cell: ({ row }) => {
+          const user = row.original
 
-  const filteredUsers = useMemo(() => {
-    const query = search.trim().toLowerCase()
+          return user.airline || user.position ? (
+            <div>
+              {user.position && <div>{user.position}</div>}
+              {user.airline && (
+                <div className="text-sm text-gray-400">{user.airline}</div>
+              )}
+            </div>
+          ) : (
+            '—'
+          )
+        },
+      },
+      {
+        id: 'language',
+        accessorKey: 'language',
+        header: 'Language',
+        filterFn: (row, columnId, filterValue) =>
+          row.getValue<string>(columnId) === filterValue,
+      },
+      {
+        id: 'currency',
+        accessorKey: 'currency',
+        header: 'Currency',
+        filterFn: (row, columnId, filterValue) =>
+          row.getValue<string>(columnId) === filterValue,
+      },
+      {
+        id: 'timezone',
+        accessorKey: 'timezone',
+        header: 'Timezone',
+        filterFn: (row, columnId, filterValue) =>
+          row.getValue<string>(columnId) === filterValue,
+      },
+      {
+        id: 'actions',
+        header: 'Actions',
+        enableSorting: false,
+        enableColumnFilter: false,
+        cell: ({ row }) => {
+          const user = row.original
 
-    if (!query) {
-      return users
-    }
+          return (
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => openEditDialog(user)}
+                aria-label={`Edit ${user.email}`}
+              >
+                <RiEditLine className="size-4" aria-hidden="true" />
+                Edit
+              </Button>
 
-    return users.filter((user) =>
-      [
-        user.id,
-        user.email,
-        user.language,
-        user.currency,
-        user.timezone,
-        user.firstname,
-        user.lastname,
-        user.airline,
-        user.position,
+              <Button
+                type="button"
+                variant="ghost"
+                className="text-red-400 hover:bg-red-950 hover:text-red-300"
+                onClick={() => void handleDelete(user)}
+                aria-label={`Delete ${user.email}`}
+              >
+                <RiDeleteBinLine className="size-4" aria-hidden="true" />
+                Delete
+              </Button>
+            </div>
+          )
+        },
+      },
+    ],
+    [],
+  )
+
+  const filters = useMemo(
+    () => {
+      const optionsFor = (field: 'language' | 'currency' | 'timezone') =>
+        [...new Set(users.map((user) => user[field].trim()).filter(Boolean))]
+          .sort((left, right) => left.localeCompare(right))
+          .map((value) => ({ label: value, value }))
+
+      return [
+        {
+          columnId: 'language',
+          label: 'Language',
+          options: optionsFor('language'),
+        },
+        {
+          columnId: 'currency',
+          label: 'Currency',
+          options: optionsFor('currency'),
+        },
+        {
+          columnId: 'timezone',
+          label: 'Timezone',
+          options: optionsFor('timezone'),
+        },
       ]
-        .join(' ')
-        .toLowerCase()
-        .includes(query),
-    )
-  }, [users, search])
-
-  const visibleUsers = useMemo(() => {
-    const copy = [...filteredUsers]
-
-    copy.sort((left, right) => {
-      const comparison = String(left[sortKey]).localeCompare(
-        String(right[sortKey]),
-        undefined,
-        { numeric: true, sensitivity: 'base' },
-      )
-
-      return sortDirection === 'ascending' ? comparison : -comparison
-    })
-
-    return copy
-  }, [filteredUsers, sortKey, sortDirection])
-
-  function SortableHeader({
-    column,
-    label,
-  }: {
-    column: UserSortKey
-    label: string
-  }) {
-    const isActive = sortKey === column
-    const SortIcon =
-      sortDirection === 'ascending'
-        ? RiArrowUpSLine
-        : RiArrowDownSLine
-
-    return (
-      <TableHeaderCell aria-sort={isActive ? sortDirection : 'none'}>
-        <button
-          type="button"
-          className="inline-flex items-center gap-1 rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
-          onClick={() => handleSort(column)}
-        >
-          {label}
-          {isActive && (
-            <SortIcon className="size-4" aria-hidden="true" />
-          )}
-        </button>
-      </TableHeaderCell>
-    )
-  }
+    },
+    [users],
+  )
 
   if (loading) {
     return (
@@ -262,113 +293,39 @@ export function UsersPage() {
         </Button>
       </div>
 
-      <Input
-        type="search"
-        value={search}
-        placeholder="Search users..."
-        aria-label="Search users"
-        onChange={(event) => setSearch(event.target.value)}
-        className="mt-6 w-full sm:max-w-sm"
+      <DataTable
+        data={users}
+        columns={columns}
+        getRowId={(user) => String(user.id)}
+        search={{
+          label: 'Search users',
+          placeholder: 'Search users...',
+          filterFn: (row, _columnId, filterValue) => {
+            const query = String(filterValue).trim().toLowerCase()
+
+            return [
+              row.original.id,
+              row.original.email,
+              row.original.language,
+              row.original.currency,
+              row.original.timezone,
+              row.original.firstname,
+              row.original.lastname,
+              row.original.airline,
+              row.original.position,
+            ]
+              .join(' ')
+              .toLowerCase()
+              .includes(query)
+          },
+        }}
+        filters={filters}
+        emptyState={{
+          noData: 'No users have been added yet.',
+          noResults: 'No users match your search.',
+        }}
+        className="mt-6"
       />
-
-      <div className="mt-4 overflow-hidden rounded-lg border border-gray-800 bg-gray-950">
-        <TableRoot>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <SortableHeader column="id" label="ID" />
-                <SortableHeader column="email" label="Email" />
-                <TableHeaderCell>Profile</TableHeaderCell>
-                <SortableHeader column="language" label="Language" />
-                <SortableHeader column="currency" label="Currency" />
-                <SortableHeader column="timezone" label="Timezone" />
-                <TableHeaderCell>Actions</TableHeaderCell>
-              </TableRow>
-            </TableHead>
-
-            <TableBody>
-              {visibleUsers.length === 0 && (
-                <TableRow>
-                  <TableCell
-                    colSpan={7}
-                    className="py-12 text-center text-gray-400"
-                  >
-                    {search
-                      ? 'No users match your search.'
-                      : 'No users have been added yet.'}
-                  </TableCell>
-                </TableRow>
-              )}
-
-              {visibleUsers.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell>{user.id}</TableCell>
-                  <TableCell>
-                    {user.firstname || user.lastname ? (
-                      <div>
-                        <div className="font-medium text-white">
-                          {[user.firstname, user.lastname]
-                            .filter(Boolean)
-                            .join(' ')}
-                        </div>
-                        <div className="text-sm text-gray-400">
-                          {user.email}
-                        </div>
-                      </div>
-                    ) : user.email}
-                  </TableCell>
-                  <TableCell>
-                    {user.airline || user.position ? (
-                      <div>
-                        {user.position && <div>{user.position}</div>}
-                        {user.airline && (
-                          <div className="text-sm text-gray-400">
-                            {user.airline}
-                          </div>
-                        )}
-                      </div>
-                    ) : '—'}
-                  </TableCell>
-                  <TableCell>{user.language}</TableCell>
-                  <TableCell>{user.currency}</TableCell>
-                  <TableCell>{user.timezone}</TableCell>
-
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        onClick={() => openEditDialog(user)}
-                        aria-label={`Edit ${user.email}`}
-                      >
-                        <RiEditLine
-                          className="size-4"
-                          aria-hidden="true"
-                        />
-                        Edit
-                      </Button>
-
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        className="text-red-400 hover:bg-red-950 hover:text-red-300"
-                        onClick={() => void handleDelete(user)}
-                        aria-label={`Delete ${user.email}`}
-                      >
-                        <RiDeleteBinLine
-                          className="size-4"
-                          aria-hidden="true"
-                        />
-                        Delete
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableRoot>
-      </div>
 
       {dialogMode && (
         <UserFormDialog
