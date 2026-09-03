@@ -1,8 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { RiCloseLine } from '@remixicon/react'
 
-import type { Account, AccountCreateInput } from '../types/accounts'
-import { Button } from './ui/Button'
 import {
   Dialog,
   DialogClose,
@@ -11,8 +9,11 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from './ui/Dialog'
-import { Input } from './ui/Input'
+} from '@/shared/ui/Dialog'
+import { Button } from '@/shared/ui/Button'
+import { Input } from '@/shared/ui/Input'
+
+import type { Account, AccountCreateInput } from '../types/accounts'
 
 type AccountFormDialogProps = {
   mode: 'add' | 'edit'

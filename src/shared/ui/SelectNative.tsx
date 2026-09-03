@@ -2,7 +2,7 @@
 import React from 'react'
 import { tv, type VariantProps } from 'tailwind-variants'
 
-import { cx, focusInput, hasErrorInput } from '../../lib/utils'
+import { cx, focusInput, hasErrorInput } from '@/shared/lib/utils'
 
 const selectNativeStyles = tv({
   base: [

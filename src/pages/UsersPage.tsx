@@ -6,6 +6,10 @@ import {
 } from '@remixicon/react'
 import type { ColumnDef, TableFeatures } from '@tanstack/react-table'
 
+import { Button } from '@/shared/ui/Button'
+import { DataTable } from '@/shared/ui/DataTable'
+import { StatusPanel } from '@/shared/ui/StatusPanel'
+
 import {
   createUser,
   deleteUser,
@@ -13,9 +17,6 @@ import {
   updateUser,
 } from '../api/users'
 import { UserFormDialog } from '../components/UserFormDialog'
-import { Button } from '../components/ui/Button'
-import { DataTable } from '../components/ui/DataTable'
-import { StatusPanel } from '../components/ui/StatusPanel'
 import type {
   User,
   UserInput,

@@ -2,7 +2,7 @@
 import React from 'react'
 import * as DialogPrimitives from '@radix-ui/react-dialog'
 
-import { cx, focusRing } from '../../lib/utils'
+import { cx, focusRing } from '@/shared/lib/utils'
 
 const Dialog = (
   props: React.ComponentPropsWithoutRef<typeof DialogPrimitives.Root>,

@@ -1,7 +1,7 @@
 import { RiBankLine, RiSimCardLine, RiUserLine } from '@remixicon/react'
 
-import { cx } from '../lib/utils'
-import { Button } from './ui/Button'
+import { cx } from '@/shared/lib/utils'
+import { Button } from '@/shared/ui/Button'
 
 type Section = 'users' | 'accounts' | 'esims'
 

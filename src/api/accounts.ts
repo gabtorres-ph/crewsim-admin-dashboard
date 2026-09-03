@@ -1,5 +1,5 @@
 import { fromEsimResponse, type EsimResponse } from './esims'
-import { request } from './request'
+import { request } from '@/shared/api/request'
 import type { Esim } from '../types/esims'
 import type {
   Account,

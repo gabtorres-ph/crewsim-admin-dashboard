@@ -7,9 +7,10 @@ import type {
   TableFeatures,
 } from '@tanstack/react-table'
 
+import { Button } from '@/shared/ui/Button'
+import { DataTable, type DataTableSelectFilter } from '@/shared/ui/DataTable'
+
 import type { Esim, EsimTableRow } from '../types/esims'
-import { Button } from './ui/Button'
-import { DataTable, type DataTableSelectFilter } from './ui/DataTable'
 
 const unspecifiedNetworkStatus = '__unspecified_network_status__'
 const initialSorting: SortingState = [{ id: 'imsi', desc: false }]

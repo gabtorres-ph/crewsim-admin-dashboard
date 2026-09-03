@@ -1,8 +1,6 @@
 import { useId, useState, type FormEvent, type ReactNode } from 'react'
 import { RiCloseLine } from '@remixicon/react'
 
-import type { User, UserInput } from '../types/user'
-import { Button } from './ui/Button'
 import {
   Dialog,
   DialogClose,
@@ -11,9 +9,12 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from './ui/Dialog'
-import { Input } from './ui/Input'
-import { SelectNative } from './ui/SelectNative'
+} from '@/shared/ui/Dialog'
+import { Button } from '@/shared/ui/Button'
+import { Input } from '@/shared/ui/Input'
+import { SelectNative } from '@/shared/ui/SelectNative'
+
+import type { User, UserInput } from '../types/user'
 
 type UserFormDialogProps = {
   mode: 'add' | 'edit'

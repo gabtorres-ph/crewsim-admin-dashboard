@@ -1,5 +1,5 @@
 import type { Esim, EsimInput } from '../types/esims'
-import { request } from './request'
+import { request } from '@/shared/api/request'
 
 export type EsimResponse = {
   id: number

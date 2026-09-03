@@ -23,7 +23,7 @@ import {
   useTable,
 } from '@tanstack/react-table'
 
-import { cx, focusRing } from '../../lib/utils'
+import { cx, focusRing } from '@/shared/lib/utils'
 import {
   Table,
   TableBody,

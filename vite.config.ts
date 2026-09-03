@@ -17,6 +17,11 @@ export default defineConfig(({ mode }) => {
     // must be embedded while Vite builds the browser bundle. This intentionally
     // exposes the test-environment Cloudflare Access service token.
     envPrefix: ['VITE_', 'CF_ACCESS_'],
+    resolve: {
+      alias: {
+        '@': path.resolve(import.meta.dirname, 'src'),
+      },
+    },
     plugins: [react(), tailwindcss()],
     server: {
       proxy: {

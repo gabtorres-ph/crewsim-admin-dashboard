@@ -1,13 +1,14 @@
 import { useState, type FormEvent, type ReactNode } from 'react'
 import { RiCloseLine } from '@remixicon/react'
 
+import { Button } from '@/shared/ui/Button'
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/shared/ui/Dialog'
+import { Input } from '@/shared/ui/Input'
+import { SelectNative } from '@/shared/ui/SelectNative'
+
 import type { Account } from '../types/accounts'
 import type { Esim, EsimInput } from '../types/esims'
 import type { User } from '../types/user'
-import { Button } from './ui/Button'
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from './ui/Dialog'
-import { Input } from './ui/Input'
-import { SelectNative } from './ui/SelectNative'
 
 type EsimFormDialogProps = { mode: 'add' | 'edit'; esim: Esim | null; accounts?: Account[]; users: User[]; open: boolean; saving: boolean; error: string | null; onOpenChange: (open: boolean) => void; onSubmit: (input: EsimInput) => Promise<void> }
 type OptionalBoolean = '' | 'true' | 'false'

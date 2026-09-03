@@ -2,9 +2,10 @@ import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { expect, fn, userEvent, within } from 'storybook/test'
 
+import { Button } from '@/shared/ui/Button'
+
 import { mockUsers } from '../mocks/data/users'
 import type { UserInput } from '../types/user'
-import { Button } from './ui/Button'
 import { UserFormDialog } from './UserFormDialog'
 
 const meta = {

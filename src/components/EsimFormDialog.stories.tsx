@@ -2,12 +2,13 @@ import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
 
+import { Button } from '@/shared/ui/Button'
+
 import { mockAccounts } from '../mocks/data/accounts'
 import { mockEsims } from '../mocks/data/esims'
 import { mockUsers } from '../mocks/data/users'
 import type { EsimInput } from '../types/esims'
 import { EsimFormDialog } from './EsimFormDialog'
-import { Button } from './ui/Button'
 
 const users = mockUsers.slice(0, 4)
 const accounts = mockAccounts.slice(0, 4)

@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import { RiAddLine } from '@remixicon/react'
 
+import { Button } from '@/shared/ui/Button'
+import { StatusPanel } from '@/shared/ui/StatusPanel'
+
 import {
   createEsim,
   deleteEsim,
@@ -11,8 +14,6 @@ import { listAccounts } from '../api/accounts'
 import { listUsers } from '../api/users'
 import { EsimFormDialog } from '../components/EsimFormDialog'
 import { EsimTable } from '../components/EsimTable'
-import { Button } from '../components/ui/Button'
-import { StatusPanel } from '../components/ui/StatusPanel'
 import type { Account } from '../types/accounts'
 import type {
   Esim,

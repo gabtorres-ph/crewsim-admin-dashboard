@@ -1,11 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { RiCloseLine } from '@remixicon/react'
 
-import { listAccountEsims } from '../api/accounts'
-import type { Account } from '../types/accounts'
-import type { Esim } from '../types/esims'
-import type { User } from '../types/user'
-import { Button } from './ui/Button'
 import {
   Dialog,
   DialogClose,
@@ -13,7 +8,8 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from './ui/Dialog'
+} from '@/shared/ui/Dialog'
+import { Button } from '@/shared/ui/Button'
 import {
   Table,
   TableBody,
@@ -22,7 +18,12 @@ import {
   TableHeaderCell,
   TableRoot,
   TableRow,
-} from './ui/Table'
+} from '@/shared/ui/Table'
+
+import { listAccountEsims } from '../api/accounts'
+import type { Account } from '../types/accounts'
+import type { Esim } from '../types/esims'
+import type { User } from '../types/user'
 
 type AccountEsimsDialogProps = {
   account: Account

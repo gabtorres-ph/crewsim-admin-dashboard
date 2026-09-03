@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 
-import { cx } from '../../lib/utils'
+import { cx } from '@/shared/lib/utils'
 import { Button } from './Button'
 
 type StatusPanelProps = {
