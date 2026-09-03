@@ -1,7 +1,7 @@
 import { delay, http, HttpResponse } from 'msw'
 
-import type { User, UserInput } from '../../types/user'
-import { mockUsers } from '../data/users'
+import type { User, UserInput } from '../model'
+import { mockUsers } from './data'
 
 const USERS_PATH = '*/users'
 const USER_PATH = '*/users/:id'

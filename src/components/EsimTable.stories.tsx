@@ -3,10 +3,10 @@ import { expect, fn, userEvent, within } from 'storybook/test'
 
 import { mockAccounts } from '../mocks/data/accounts'
 import { mockEsims } from '../mocks/data/esims'
-import { mockUsers } from '../mocks/data/users'
+import { mockUsers } from '@/features/users/mocks'
 import type { Account } from '../types/accounts'
 import type { Esim, EsimTableRow } from '../types/esims'
-import type { User } from '../types/user'
+import type { User } from '@/features/users/model'
 import { EsimTable } from './EsimTable'
 
 const esims: Esim[] = [

@@ -4,8 +4,8 @@ import { expect, fn, userEvent, within } from 'storybook/test'
 
 import { Button } from '@/shared/ui/Button'
 
-import { mockUsers } from '../mocks/data/users'
-import type { UserInput } from '../types/user'
+import { mockUsers } from '../mocks'
+import type { UserInput } from '../model'
 import { UserFormDialog } from './UserFormDialog'
 
 const meta = {
@@ -121,8 +121,30 @@ export const Saving: Story = {
   },
 }
 
+export const Validation: Story = {
+  render: (args) => <InteractiveDialog {...args} />,
+  play: async ({ args, canvasElement }) => {
+    const screen = within(canvasElement.ownerDocument.body)
+
+    await userEvent.click(screen.getByRole('button', { name: 'Add user' }))
+
+    await expect(screen.getByText('Email is required.')).toBeInTheDocument()
+    await expect(screen.getByText('Language is required.')).toBeInTheDocument()
+    await expect(screen.getByText('Currency is required.')).toBeInTheDocument()
+    await expect(screen.getByText('Timezone is required.')).toBeInTheDocument()
+    await expect(args.onSubmit).not.toHaveBeenCalled()
+  },
+}
+
 export const WithError: Story = {
   args: {
     error: 'A user with this email already exists.',
+  },
+  play: async ({ canvasElement }) => {
+    const screen = within(canvasElement.ownerDocument.body)
+
+    await expect(
+      screen.getByRole('alert'),
+    ).toHaveTextContent('A user with this email already exists.')
   },
 }

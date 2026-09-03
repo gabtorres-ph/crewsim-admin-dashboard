@@ -6,7 +6,7 @@ import { Button } from '@/shared/ui/Button'
 
 import { mockAccounts } from '../mocks/data/accounts'
 import { mockEsims } from '../mocks/data/esims'
-import { mockUsers } from '../mocks/data/users'
+import { mockUsers } from '@/features/users/mocks'
 import type { EsimInput } from '../types/esims'
 import { EsimFormDialog } from './EsimFormDialog'
 

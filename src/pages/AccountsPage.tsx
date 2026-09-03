@@ -16,11 +16,11 @@ import {
   listAccounts,
   updateAccount,
 } from '../api/accounts'
-import { listUsers } from '../api/users'
+import { listUsers } from '@/features/users/api'
 import { AccountEsimsDialog } from '../components/AccountEsimsDialog'
 import { AccountFormDialog } from '../components/AccountFormDialog'
 import type { Account } from '../types/accounts'
-import type { User } from '../types/user'
+import type { User } from '@/features/users/model'
 
 type DialogMode = 'add' | 'edit' | null
 

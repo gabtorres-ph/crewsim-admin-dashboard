@@ -5,7 +5,7 @@ import '../src/index.css'
 import { handlers } from '../src/mocks/handlers'
 import { resetMockAccounts } from '../src/mocks/handlers/accounts'
 import { resetMockEsims } from '../src/mocks/handlers/esims'
-import { resetMockUsers } from '../src/mocks/handlers/users'
+import { resetMockUsers } from '../src/features/users/mocks'
 
 const preview: Preview = {
   loaders: [mswLoader()],

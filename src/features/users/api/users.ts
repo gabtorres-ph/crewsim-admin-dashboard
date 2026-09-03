@@ -1,7 +1,7 @@
-import { fromEsimResponse, type EsimResponse } from './esims'
+import { fromEsimResponse, type EsimResponse } from '@/api/esims'
 import { request } from '@/shared/api/request'
-import type { Esim } from '../types/esims'
-import type { User, UserInput, UserUpdateInput } from '../types/user'
+import type { Esim } from '@/types/esims'
+import type { User, UserInput, UserUpdateInput } from '../model'
 
 export type UserListParams = {
   offset?: number

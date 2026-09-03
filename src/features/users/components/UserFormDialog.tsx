@@ -14,7 +14,7 @@ import { Button } from '@/shared/ui/Button'
 import { Input } from '@/shared/ui/Input'
 import { SelectNative } from '@/shared/ui/SelectNative'
 
-import type { User, UserInput } from '../types/user'
+import type { User, UserInput } from '../model'
 
 type UserFormDialogProps = {
   mode: 'add' | 'edit'

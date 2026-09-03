@@ -11,7 +11,7 @@ import {
   updateEsim,
 } from '../api/esims'
 import { listAccounts } from '../api/accounts'
-import { listUsers } from '../api/users'
+import { listUsers } from '@/features/users/api'
 import { EsimFormDialog } from '../components/EsimFormDialog'
 import { EsimTable } from '../components/EsimTable'
 import type { Account } from '../types/accounts'
@@ -20,7 +20,7 @@ import type {
   EsimInput,
   EsimTableRow,
 } from '../types/esims'
-import type { User } from '../types/user'
+import type { User } from '@/features/users/model'
 
 type DialogMode = 'add' | 'edit' | null
 

@@ -23,7 +23,7 @@ import {
 import { listAccountEsims } from '../api/accounts'
 import type { Account } from '../types/accounts'
 import type { Esim } from '../types/esims'
-import type { User } from '../types/user'
+import type { User } from '@/features/users/model'
 
 type AccountEsimsDialogProps = {
   account: Account

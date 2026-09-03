@@ -4,7 +4,7 @@ import { expect, userEvent, within } from 'storybook/test'
 
 import { accountHandlers } from '../mocks/handlers/accounts'
 import { esimHandlers } from '../mocks/handlers/esims'
-import { userHandlers } from '../mocks/handlers/users'
+import { userHandlers } from '@/features/users/mocks'
 import { EsimsPage } from './EsimsPage'
 
 const meta = {

@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { Sidebar } from './components/Sidebar'
 import { AccountsPage } from './pages/AccountsPage'
 import { EsimsPage } from './pages/EsimsPage'
-import { UsersPage } from './pages/UsersPage'
+import { UsersPage } from '@/features/users'
 
 type Section = 'users' | 'accounts' | 'esims'
 

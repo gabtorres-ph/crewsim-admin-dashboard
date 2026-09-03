@@ -15,12 +15,12 @@ import {
   deleteUser,
   listUsers,
   updateUser,
-} from '../api/users'
+} from '../api'
 import { UserFormDialog } from '../components/UserFormDialog'
 import type {
   User,
   UserInput,
-} from '../types/user'
+} from '../model'
 
 type DialogMode = 'add' | 'edit' | null
 
