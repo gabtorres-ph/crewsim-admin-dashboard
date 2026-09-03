@@ -6,7 +6,7 @@ import type {
   AccountUpdateInput,
 } from '../model'
 import { mockAccounts } from './data'
-import { listMockEsimsForAccount, toEsimResponse } from '@/mocks/handlers/esims'
+import { listMockEsimsForAccount, toEsimResponse } from '@/features/esims/mocks'
 
 const ACCOUNTS_PATH = '*/accounts'
 const ACCOUNT_PATH = '*/accounts/:id'

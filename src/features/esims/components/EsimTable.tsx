@@ -10,7 +10,7 @@ import type {
 import { Button } from '@/shared/ui/Button'
 import { DataTable, type DataTableSelectFilter } from '@/shared/ui/DataTable'
 
-import type { Esim, EsimTableRow } from '../types/esims'
+import type { Esim, EsimTableRow } from '../model'
 
 const unspecifiedNetworkStatus = '__unspecified_network_status__'
 const initialSorting: SortingState = [{ id: 'imsi', desc: false }]

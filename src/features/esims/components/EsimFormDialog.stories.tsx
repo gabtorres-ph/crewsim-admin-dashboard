@@ -5,9 +5,9 @@ import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
 import { Button } from '@/shared/ui/Button'
 
 import { mockAccounts } from '@/features/accounts/mocks'
-import { mockEsims } from '../mocks/data/esims'
+import { mockEsims } from '../mocks'
 import { mockUsers } from '@/features/users/mocks'
-import type { EsimInput } from '../types/esims'
+import type { EsimInput } from '../model'
 import { EsimFormDialog } from './EsimFormDialog'
 
 const users = mockUsers.slice(0, 4)

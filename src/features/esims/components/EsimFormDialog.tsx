@@ -7,7 +7,7 @@ import { Input } from '@/shared/ui/Input'
 import { SelectNative } from '@/shared/ui/SelectNative'
 
 import type { Account } from '@/features/accounts/model'
-import type { Esim, EsimInput } from '../types/esims'
+import type { Esim, EsimInput } from '../model'
 import type { User } from '@/features/users/model'
 
 type EsimFormDialogProps = { mode: 'add' | 'edit'; esim: Esim | null; accounts?: Account[]; users: User[]; open: boolean; saving: boolean; error: string | null; onOpenChange: (open: boolean) => void; onSubmit: (input: EsimInput) => Promise<void> }

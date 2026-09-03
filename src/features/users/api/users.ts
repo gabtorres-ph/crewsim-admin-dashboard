@@ -1,6 +1,6 @@
-import { fromEsimResponse, type EsimResponse } from '@/api/esims'
+import { fromEsimResponse, type EsimResponse } from '@/features/esims/api'
 import { request } from '@/shared/api/request'
-import type { Esim } from '@/types/esims'
+import type { Esim } from '@/features/esims/model'
 import type { User, UserInput, UserUpdateInput } from '../model'
 
 export type UserListParams = {

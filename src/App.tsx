@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
 import { Sidebar } from './components/Sidebar'
-import { EsimsPage } from './pages/EsimsPage'
+import { EsimsPage } from '@/features/esims'
 import { AccountsPage } from '@/features/accounts'
 import { UsersPage } from '@/features/users'
 

@@ -19,7 +19,7 @@ import type {
   Esim,
   EsimInput,
   EsimTableRow,
-} from '../types/esims'
+} from '../model'
 import type { User } from '@/features/users/model'
 
 type DialogMode = 'add' | 'edit' | null

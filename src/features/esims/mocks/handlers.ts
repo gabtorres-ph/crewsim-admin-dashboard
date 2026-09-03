@@ -1,7 +1,7 @@
 import { delay, http, HttpResponse } from 'msw'
 
-import type { Esim, EsimInput } from '../../types/esims'
-import { mockEsims } from '../data/esims'
+import type { Esim, EsimInput } from '../model'
+import { mockEsims } from './data'
 import { hasMockAccountId } from '@/features/accounts/mocks'
 import { hasMockUserId } from '@/features/users/mocks'
 

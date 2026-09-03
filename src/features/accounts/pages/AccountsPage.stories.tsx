@@ -3,7 +3,7 @@ import { delay, http, HttpResponse } from 'msw'
 import { expect, userEvent, within } from 'storybook/test'
 
 import { accountHandlers } from '../mocks'
-import { esimHandlers } from '@/mocks/handlers/esims'
+import { esimHandlers } from '@/features/esims/mocks'
 import { userHandlers } from '@/features/users/mocks'
 import { AccountsPage } from './AccountsPage'
 

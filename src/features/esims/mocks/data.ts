@@ -1,4 +1,4 @@
-import type { Esim } from '../../types/esims'
+import type { Esim } from '../model'
 
 const defaultEsimFields = {
   name: null,

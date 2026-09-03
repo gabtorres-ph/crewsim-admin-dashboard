@@ -1,4 +1,4 @@
-import type { Esim, EsimInput } from '../types/esims'
+import type { Esim, EsimInput } from '../model'
 import { request } from '@/shared/api/request'
 
 export type EsimResponse = {
