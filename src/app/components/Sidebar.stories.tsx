@@ -4,7 +4,7 @@ import { fn } from 'storybook/test'
 import { Sidebar } from './Sidebar'
 
 const meta = {
-  title: 'Components/Sidebar',
+  title: 'App/Sidebar',
   component: Sidebar,
   tags: ['autodocs'],
   parameters: {
