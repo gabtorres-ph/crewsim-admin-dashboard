@@ -10,11 +10,11 @@ import {
   listEsims,
   updateEsim,
 } from '../api/esims'
-import { listAccounts } from '../api/accounts'
+import { listAccounts } from '@/features/accounts/api'
 import { listUsers } from '@/features/users/api'
 import { EsimFormDialog } from '../components/EsimFormDialog'
 import { EsimTable } from '../components/EsimTable'
-import type { Account } from '../types/accounts'
+import type { Account } from '@/features/accounts/model'
 import type {
   Esim,
   EsimInput,

@@ -2,8 +2,8 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { delay, http, HttpResponse } from 'msw'
 import { expect, userEvent, within } from 'storybook/test'
 
-import { accountHandlers } from '../mocks/handlers/accounts'
-import { esimHandlers } from '../mocks/handlers/esims'
+import { accountHandlers } from '../mocks'
+import { esimHandlers } from '@/mocks/handlers/esims'
 import { userHandlers } from '@/features/users/mocks'
 import { AccountsPage } from './AccountsPage'
 

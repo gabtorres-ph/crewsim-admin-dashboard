@@ -3,7 +3,7 @@ import { mswLoader } from 'msw-storybook-addon/csf3'
 
 import '../src/index.css'
 import { handlers } from '../src/mocks/handlers'
-import { resetMockAccounts } from '../src/mocks/handlers/accounts'
+import { resetMockAccounts } from '../src/features/accounts/mocks'
 import { resetMockEsims } from '../src/mocks/handlers/esims'
 import { resetMockUsers } from '../src/features/users/mocks'
 

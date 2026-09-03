@@ -1,11 +1,11 @@
-import { fromEsimResponse, type EsimResponse } from './esims'
+import { fromEsimResponse, type EsimResponse } from '@/api/esims'
 import { request } from '@/shared/api/request'
-import type { Esim } from '../types/esims'
+import type { Esim } from '@/types/esims'
 import type {
   Account,
   AccountCreateInput,
   AccountUpdateInput,
-} from '../types/accounts'
+} from '../model'
 
 export type AccountListParams = {
   offset?: number

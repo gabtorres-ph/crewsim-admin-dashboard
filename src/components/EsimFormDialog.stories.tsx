@@ -4,7 +4,7 @@ import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
 
 import { Button } from '@/shared/ui/Button'
 
-import { mockAccounts } from '../mocks/data/accounts'
+import { mockAccounts } from '@/features/accounts/mocks'
 import { mockEsims } from '../mocks/data/esims'
 import { mockUsers } from '@/features/users/mocks'
 import type { EsimInput } from '../types/esims'

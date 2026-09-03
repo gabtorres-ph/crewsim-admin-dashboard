@@ -6,7 +6,7 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, Di
 import { Input } from '@/shared/ui/Input'
 import { SelectNative } from '@/shared/ui/SelectNative'
 
-import type { Account } from '../types/accounts'
+import type { Account } from '@/features/accounts/model'
 import type { Esim, EsimInput } from '../types/esims'
 import type { User } from '@/features/users/model'
 

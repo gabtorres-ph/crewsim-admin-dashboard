@@ -6,6 +6,8 @@ import {
 } from '@remixicon/react'
 import type { ColumnDef, TableFeatures } from '@tanstack/react-table'
 
+import { listUsers } from '@/features/users/api'
+import type { User } from '@/features/users/model'
 import { Button } from '@/shared/ui/Button'
 import { DataTable } from '@/shared/ui/DataTable'
 import { StatusPanel } from '@/shared/ui/StatusPanel'
@@ -15,12 +17,10 @@ import {
   deleteAccount,
   listAccounts,
   updateAccount,
-} from '../api/accounts'
-import { listUsers } from '@/features/users/api'
+} from '../api'
 import { AccountEsimsDialog } from '../components/AccountEsimsDialog'
 import { AccountFormDialog } from '../components/AccountFormDialog'
-import type { Account } from '../types/accounts'
-import type { User } from '@/features/users/model'
+import type { Account } from '../model'
 
 type DialogMode = 'add' | 'edit' | null
 

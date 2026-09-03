@@ -20,9 +20,9 @@ import {
   TableRow,
 } from '@/shared/ui/Table'
 
-import { listAccountEsims } from '../api/accounts'
-import type { Account } from '../types/accounts'
-import type { Esim } from '../types/esims'
+import { listAccountEsims } from '../api'
+import type { Account } from '../model'
+import type { Esim } from '@/types/esims'
 import type { User } from '@/features/users/model'
 
 type AccountEsimsDialogProps = {

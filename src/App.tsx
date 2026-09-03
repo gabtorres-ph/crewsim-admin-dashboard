@@ -1,8 +1,8 @@
 import { useState } from 'react'
 
 import { Sidebar } from './components/Sidebar'
-import { AccountsPage } from './pages/AccountsPage'
 import { EsimsPage } from './pages/EsimsPage'
+import { AccountsPage } from '@/features/accounts'
 import { UsersPage } from '@/features/users'
 
 type Section = 'users' | 'accounts' | 'esims'

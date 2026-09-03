@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { expect, fn, userEvent, within } from 'storybook/test'
 
-import { mockAccounts } from '../mocks/data/accounts'
+import { mockAccounts } from '@/features/accounts/mocks'
 import { mockEsims } from '../mocks/data/esims'
 import { mockUsers } from '@/features/users/mocks'
-import type { Account } from '../types/accounts'
+import type { Account } from '@/features/accounts/model'
 import type { Esim, EsimTableRow } from '../types/esims'
 import type { User } from '@/features/users/model'
 import { EsimTable } from './EsimTable'

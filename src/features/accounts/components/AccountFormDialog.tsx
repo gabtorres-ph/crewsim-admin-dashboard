@@ -13,7 +13,7 @@ import {
 import { Button } from '@/shared/ui/Button'
 import { Input } from '@/shared/ui/Input'
 
-import type { Account, AccountCreateInput } from '../types/accounts'
+import type { Account, AccountCreateInput } from '../model'
 
 type AccountFormDialogProps = {
   mode: 'add' | 'edit'

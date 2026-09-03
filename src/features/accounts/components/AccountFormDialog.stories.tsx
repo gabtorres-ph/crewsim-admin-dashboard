@@ -4,8 +4,8 @@ import { expect, fn, userEvent, within } from 'storybook/test'
 
 import { Button } from '@/shared/ui/Button'
 
-import { mockAccounts } from '../mocks/data/accounts'
-import type { AccountCreateInput } from '../types/accounts'
+import { mockAccounts } from '../mocks'
+import type { AccountCreateInput } from '../model'
 import { AccountFormDialog } from './AccountFormDialog'
 
 const meta = {

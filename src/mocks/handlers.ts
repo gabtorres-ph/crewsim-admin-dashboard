@@ -1,4 +1,4 @@
-import { accountHandlers } from './handlers/accounts'
+import { accountHandlers } from '@/features/accounts/mocks'
 import { esimHandlers } from './handlers/esims'
 import { userHandlers } from '@/features/users/mocks'
 

@@ -1,4 +1,4 @@
-import type { Account } from '../../types/accounts'
+import type { Account } from '../model'
 
 export const mockAccounts = [
   { id: 3001, name: 'Pacific Operations', balance: 12450.75 },

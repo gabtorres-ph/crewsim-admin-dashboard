@@ -4,9 +4,9 @@ import type {
   Account,
   AccountCreateInput,
   AccountUpdateInput,
-} from '../../types/accounts'
-import { mockAccounts } from '../data/accounts'
-import { listMockEsimsForAccount, toEsimResponse } from './esims'
+} from '../model'
+import { mockAccounts } from './data'
+import { listMockEsimsForAccount, toEsimResponse } from '@/mocks/handlers/esims'
 
 const ACCOUNTS_PATH = '*/accounts'
 const ACCOUNT_PATH = '*/accounts/:id'

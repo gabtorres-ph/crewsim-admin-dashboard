@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { http, HttpResponse } from 'msw'
 
-import { mockAccounts } from '../mocks/data/accounts'
+import { mockAccounts } from '../mocks'
 import { mockUsers } from '@/features/users/mocks'
 import { AccountEsimsDialog } from './AccountEsimsDialog'
 

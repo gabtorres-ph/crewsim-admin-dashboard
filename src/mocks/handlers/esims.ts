@@ -2,7 +2,7 @@ import { delay, http, HttpResponse } from 'msw'
 
 import type { Esim, EsimInput } from '../../types/esims'
 import { mockEsims } from '../data/esims'
-import { hasMockAccountId } from './accounts'
+import { hasMockAccountId } from '@/features/accounts/mocks'
 import { hasMockUserId } from '@/features/users/mocks'
 
 const ESIMS_PATH = '*/esims'
