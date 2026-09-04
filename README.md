@@ -130,6 +130,47 @@ supports CRUD operations for each resource. It rejects unknown eSIM user or
 account relationships and prevents deletion of accounts referenced by eSIMs.
 Mock state resets on page refresh and before each Storybook story.
 
+## Frontend architecture
+
+The source tree is organized by app shell, feature ownership, and shared
+infrastructure:
+
+```text
+src/
+├── app/
+│   ├── App.tsx
+│   ├── App.stories.tsx
+│   └── components/
+├── features/
+│   ├── accounts/
+│   ├── users/
+│   └── esims/
+├── shared/
+│   ├── api/
+│   ├── lib/
+│   ├── mocks/
+│   └── ui/
+├── assets/
+├── index.css
+└── main.tsx
+```
+
+Feature slices own their API calls, model types, pages, UI components, stories,
+and mock data. Each feature exposes app-facing pages from its root `index.ts`;
+cross-feature contracts must go through a feature `api`, `model`, or `mocks`
+barrel instead of importing another feature's private files directly.
+
+`app` composes the shell and may depend on features and shared modules.
+Features may depend on shared modules. `shared` contains domain-neutral API,
+library, mock-composition, and UI code, and must not import `app` or feature
+modules except for `shared/mocks`, which intentionally aggregates feature mock
+handlers for development and Storybook.
+
+Mock fixtures and handlers are isolated from production barrels. The browser
+MSW worker is loaded only by `src/main.tsx` in development when
+`VITE_USE_MOCK_API=true`, so production builds do not statically import MSW
+handlers or fixture data.
+
 ## Commands
 
 ```bash
