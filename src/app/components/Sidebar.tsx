@@ -1,9 +1,17 @@
-import { RiBankLine, RiSimCardLine, RiUserLine } from '@remixicon/react'
+import { 
+  RiBankLine, 
+  RiSimCardLine, 
+  RiUserLine, 
+  RiStarLine,
+  RiRedPacketFill,
+  RiHourglassLine,
+  RiPlaneLine
+} from '@remixicon/react'
 
 import { cx } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/Button'
 
-type Section = 'users' | 'accounts' | 'esims'
+type Section = 'users' | 'accounts' | 'esims' | 'favorites' | 'packages' | 'usage' | 'crew'
 
 type SidebarProps = {
   activeSection: Section
@@ -14,6 +22,10 @@ const navigationItems = [
   { id: 'accounts', label: 'Accounts', icon: RiBankLine },
   { id: 'users', label: 'Users', icon: RiUserLine },
   { id: 'esims', label: 'eSIMs', icon: RiSimCardLine },
+  { id: 'favorites', label: 'Favorites', icon: RiStarLine },
+  { id: 'packages', label: 'Packages', icon: RiRedPacketFill },
+  { id: 'usage', label: 'Usage', icon: RiHourglassLine },
+  { id: 'crew', label: 'Crew', icon: RiPlaneLine }
 ] as const
 
 export function Sidebar({
