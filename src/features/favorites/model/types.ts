@@ -1,15 +1,11 @@
 
 export type Favorites = {
     id: number
-    userid: number
+    userId: number
     country: string
-    user: string
 }
 
-export type FavoritesCreate = {
-
-}
-
-export type FavoritesUpdate = {
-
+export type FavoritesCreateInput = {
+    userId: number
+    country: string
 }
