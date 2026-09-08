@@ -112,7 +112,7 @@ export function EsimTable({
           <div className="grid gap-0.5 text-xs">
             <span>{row.original.smdpserver ?? 'No SMDP server'}</span>
             {row.original.activationcode && (
-              <span className="font-mono text-gray-500">
+              <span className="font-mono text-gray-500 dark:text-gray-500">
                 {row.original.activationcode}
               </span>
             )}
@@ -148,7 +148,7 @@ export function EsimTable({
                 loadingText="Deleting"
                 disabled={deletingId !== null}
                 onClick={() => onDelete(tableRow.esim)}
-                className="gap-1.5 text-red-400 hover:bg-red-950 hover:text-red-300 dark:text-red-400 dark:hover:bg-red-950 dark:hover:text-red-300"
+                className="gap-1.5 text-red-700 hover:bg-red-50 hover:text-red-800 dark:text-red-400 dark:hover:bg-red-950 dark:hover:text-red-300"
                 aria-label={`Delete eSIM ${tableRow.imsi}`}
               >
                 <RiDeleteBinLine className="size-4" aria-hidden="true" />

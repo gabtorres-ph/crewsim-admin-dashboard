@@ -89,13 +89,13 @@ export function AccountEsimsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl bg-white text-gray-950 dark:bg-white">
+      <DialogContent className="max-w-4xl">
         <DialogHeader className="flex-row items-start justify-between gap-x-4">
           <div>
-            <DialogTitle className="text-2xl text-gray-950">
+            <DialogTitle className="text-2xl">
               {account.name} eSIMs
             </DialogTitle>
-            <DialogDescription className="mt-2 text-gray-500">
+            <DialogDescription className="mt-2">
               eSIMs assigned to account #{account.id}.
             </DialogDescription>
           </div>
@@ -104,7 +104,7 @@ export function AccountEsimsDialog({
               type="button"
               variant="ghost"
               aria-label="Close dialog"
-              className="shrink-0 text-gray-600"
+              className="shrink-0"
             >
               <RiCloseLine className="size-5" aria-hidden="true" />
             </Button>
@@ -115,7 +115,7 @@ export function AccountEsimsDialog({
           {loading && (
             <div
               role="status"
-              className="rounded-lg border border-gray-200 p-8 text-center text-sm text-gray-500"
+              className="rounded-lg border border-gray-200 p-8 text-center text-sm text-gray-500 dark:border-gray-800 dark:text-gray-400"
             >
               Loading eSIMs...
             </div>
@@ -124,7 +124,7 @@ export function AccountEsimsDialog({
           {error && (
             <div
               role="alert"
-              className="rounded-lg border border-red-200 bg-red-50 p-5 text-red-700"
+              className="rounded-lg border border-red-200 bg-red-50 p-5 text-red-700 dark:border-red-900/80 dark:bg-red-950/30 dark:text-red-200"
             >
               <p>{error}</p>
               <Button
@@ -155,7 +155,7 @@ function AccountEsimsTable({
   userEmails: Map<number, string>
 }) {
   return (
-    <div className="overflow-hidden rounded-lg border border-gray-200">
+    <div className="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-800">
       <TableRoot>
         <Table>
           <TableHead>
@@ -183,7 +183,7 @@ function AccountEsimsTable({
             ))}
             {esims.length === 0 && (
               <TableRow>
-                <TableCell colSpan={4} className="py-12 text-center text-gray-500">
+                <TableCell colSpan={4} className="py-12 text-center text-gray-500 dark:text-gray-400">
                   No eSIMs are assigned to this account.
                 </TableCell>
               </TableRow>

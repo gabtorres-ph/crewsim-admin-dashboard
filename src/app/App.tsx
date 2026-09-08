@@ -8,20 +8,28 @@ import { PackagesPage } from '@/features/packages'
 import { UsagePage } from '@/features/usage'
 import { CrewPage } from '@/features/crew'
 import { Sidebar } from './components/Sidebar'
+import { useTheme, type Theme } from './theme'
 
 type Section = 'users' | 'accounts' | 'esims' | 'favorites' | 'packages' | 'usage' | 'crew'
 
-function App() {
+type AppProps = {
+  initialTheme?: Theme
+}
+
+function App({ initialTheme = 'light' }: AppProps) {
   const [activeSection, setActiveSection] = useState<Section>('users')
+  const [theme, setTheme] = useTheme(initialTheme)
 
   return (
-    <div className="dark min-h-screen bg-gray-950 md:grid md:grid-cols-[240px_minmax(0,1fr)]">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 md:grid md:grid-cols-[240px_minmax(0,1fr)]">
       <Sidebar
         activeSection={activeSection}
         onSectionChange={setActiveSection}
+        theme={theme}
+        onThemeChange={setTheme}
       />
 
-      <main className="min-w-0 bg-gray-950 p-5 md:p-10">
+      <main className="min-w-0 bg-gray-50 p-5 dark:bg-gray-950 md:p-10">
         {activeSection === 'accounts' && <AccountsPage />}
 
         {activeSection === 'users' && <UsersPage />}

@@ -1,10 +1,10 @@
 
 export function CrewPage() {
     return (
-        <section>
+        <section className="mx-auto max-w-7xl">
             <header>
                 <div>
-                    <h1>
+                    <h1 className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-gray-50">
                         Crew
                     </h1>
                 </div>

@@ -2,6 +2,7 @@ import type { Preview } from '@storybook/react-vite'
 import { mswLoader } from 'msw-storybook-addon/csf3'
 
 import '../src/index.css'
+import { applyTheme } from '../src/app/theme'
 import { handlers, resetAllMocks } from '../src/shared/mocks'
 
 const preview: Preview = {
@@ -9,6 +10,29 @@ const preview: Preview = {
   beforeEach: () => {
     resetAllMocks()
   },
+  initialGlobals: {
+    theme: 'light',
+  },
+  globalTypes: {
+    theme: {
+      description: 'Dashboard color theme',
+      toolbar: {
+        icon: 'paintbrush',
+        items: [
+          { value: 'light', title: 'Light' },
+          { value: 'dark', title: 'Dark' },
+        ],
+      },
+    },
+  },
+  decorators: [
+    (Story, context) => {
+      const theme = context.globals.theme === 'dark' ? 'dark' : 'light'
+      applyTheme(theme, false)
+
+      return <Story />
+    },
+  ],
   parameters: {
     msw: handlers,
     controls: {

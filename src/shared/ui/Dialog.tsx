@@ -31,7 +31,7 @@ const DialogOverlay = React.forwardRef<
         // base
         'fixed inset-0 z-50 overflow-y-auto',
         // background color
-        'bg-black/70',
+        'bg-gray-950/50 dark:bg-black/70',
         // transition
         'data-[state=open]:animate-dialog-overlay-show',
         className,
@@ -55,9 +55,9 @@ const DialogContent = React.forwardRef<
             // base
             'fixed left-1/2 top-1/2 z-50 w-[95vw] max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-md border p-6 shadow-2xl shadow-black/40',
             // border color
-            'border-gray-800',
+            'border-gray-200 dark:border-gray-800',
             // background color
-            'bg-gray-900 text-gray-50',
+            'bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-50',
             // transition
             'data-[state=open]:animate-dialog-content-show',
             focusRing,
@@ -90,7 +90,7 @@ const DialogTitle = React.forwardRef<
       // base
       'text-lg font-semibold',
       // text color
-      'text-gray-50',
+      'text-gray-900 dark:text-gray-50',
       className,
     )}
     {...props}
@@ -105,7 +105,7 @@ const DialogDescription = React.forwardRef<
   return (
     <DialogPrimitives.Description
       ref={forwardedRef}
-      className={cx('text-gray-400', className)}
+      className={cx('text-gray-500 dark:text-gray-400', className)}
       {...props}
     />
   )

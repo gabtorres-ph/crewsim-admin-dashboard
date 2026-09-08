@@ -156,7 +156,7 @@ export function AccountFormDialog({
           {error && (
             <div
               role="alert"
-              className="mb-5 rounded-md border border-red-900/70 bg-red-950/40 p-3 text-sm text-red-300"
+              className="mb-5 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-900/70 dark:bg-red-950/40 dark:text-red-300"
             >
               {error}
             </div>
@@ -211,7 +211,7 @@ function FormInput({
 
   return (
     <label className="grid gap-2">
-      <span className="text-sm font-medium text-gray-200">{label}</span>
+      <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{label}</span>
       <Input
         name={name}
         type={type}
@@ -226,7 +226,7 @@ function FormInput({
         onChange={(event) => onChange(event.target.value)}
       />
       {error && (
-        <span id={errorId} className="text-sm text-red-400">
+        <span id={errorId} className="text-sm text-red-600 dark:text-red-400">
           {error}
         </span>
       )}

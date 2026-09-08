@@ -16,7 +16,7 @@ const meta = {
   },
   decorators: [
     (Story) => (
-      <main className="dark min-h-screen bg-[#050914] p-5 md:p-10">
+      <main className="min-h-screen bg-gray-50 p-5 dark:bg-gray-950 md:p-10">
         <Story />
       </main>
     ),

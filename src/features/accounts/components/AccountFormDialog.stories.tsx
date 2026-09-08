@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { expect, fn, userEvent, within } from 'storybook/test'
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
 
 import { Button } from '@/shared/ui/Button'
 
@@ -88,15 +88,20 @@ export const Validation: Story = {
   render: (args) => <InteractiveDialog {...args} />,
   play: async ({ args, canvasElement }) => {
     const screen = within(canvasElement.ownerDocument.body)
+    const dialog = screen.getByRole('dialog')
+    const form = within(dialog)
 
     await userEvent.click(
-      screen.getByRole('button', { name: 'Add account' }),
+      form.getByRole('button', { name: 'Add account' }),
     )
 
-    await expect(screen.getByText('Name is required.')).toBeVisible()
-    await expect(
-      screen.getByText('Balance must be a finite number.'),
-    ).toBeVisible()
+    await waitFor(() => {
+      const activeDialog = within(screen.getByRole('dialog'))
+      expect(activeDialog.getByText('Name is required.')).toBeVisible()
+      expect(
+        activeDialog.getByText('Balance must be a finite number.'),
+      ).toBeVisible()
+    })
     await expect(args.onSubmit).not.toHaveBeenCalled()
   },
 }

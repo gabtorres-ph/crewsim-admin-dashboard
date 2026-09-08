@@ -30,7 +30,7 @@ const Table = React.forwardRef<
       // base
       'w-full caption-bottom border-b',
       // border color
-      'border-gray-800',
+      'border-gray-200 dark:border-gray-800',
       className,
     )}
     {...props}
@@ -44,7 +44,7 @@ const TableHead = React.forwardRef<
 >(({ className, ...props }, forwardedRef) => (
   <thead
     ref={forwardedRef}
-    className={cx('bg-gray-950/70', className)}
+    className={cx('bg-gray-50 dark:bg-gray-950/70', className)}
     {...props}
   />
 ))
@@ -60,7 +60,7 @@ const TableHeaderCell = React.forwardRef<
       // base
       'px-4 py-2 text-left text-sm font-semibold',
       // text color
-      'text-gray-400',
+      'text-gray-600 dark:text-gray-400',
       className,
     )}
     {...props}
@@ -92,9 +92,9 @@ const TableRow = React.forwardRef<
     ref={forwardedRef}
     className={cx(
       // base
-      'border-b border-gray-800 transition-colors duration-100',
+      'border-b border-gray-200 transition-colors duration-100 dark:border-gray-800',
       // hover
-      'hover:bg-gray-800/50',
+      'hover:bg-gray-50 dark:hover:bg-gray-800/50',
       // Keep the outer columns clear of the containing card edge.
       '[&_td:last-child]:pr-4 [&_th:last-child]:pr-4',
       '[&_td:first-child]:pl-4 [&_th:first-child]:pl-4',
@@ -115,7 +115,7 @@ const TableCell = React.forwardRef<
       // base
       'px-4 py-0 text-sm',
       // text color
-      'text-gray-300',
+      'text-gray-700 dark:text-gray-300',
       className,
     )}
     {...props}
@@ -134,9 +134,9 @@ const TableFoot = React.forwardRef<
         // base
         'border-t text-left font-medium',
         // text color
-        'text-gray-50',
+        'text-gray-900 dark:text-gray-50',
         // border color
-        'border-gray-800',
+        'border-gray-200 dark:border-gray-800',
         className,
       )}
       {...props}
@@ -155,7 +155,7 @@ const TableCaption = React.forwardRef<
       // base
       'mt-3 px-3 text-center text-sm',
       // text color
-      'text-gray-500',
+      'text-gray-500 dark:text-gray-500',
       className,
     )}
     {...props}

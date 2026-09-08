@@ -184,11 +184,11 @@ export function DataTable<TData extends RowData>(
   return (
     <div
       className={cx(
-        'overflow-hidden rounded-lg border border-gray-950 bg-gray-950 shadow-sm',
+        'overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900',
         className,
       )}
     >
-      <div className="flex flex-col gap-3 border-b border-gray-800 p-4 sm:flex-row sm:flex-wrap sm:items-end">
+      <div className="flex flex-col gap-3 border-b border-gray-200 p-4 dark:border-gray-800 sm:flex-row sm:flex-wrap sm:items-end">
         <Input
           type="search"
           value={globalFilter}
@@ -211,7 +211,7 @@ export function DataTable<TData extends RowData>(
 
           return (
             <label key={filter.columnId} htmlFor={selectId} className="grid gap-1">
-              <span className="text-sm font-medium text-gray-200">
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
                 {filter.label}
               </span>
               <SelectNative
@@ -264,7 +264,7 @@ export function DataTable<TData extends RowData>(
                           <button
                             type="button"
                             className={cx(
-                              '-m-1 inline-flex items-center gap-1 rounded-sm p-1 text-gray-400 transition-colors hover:text-gray-50',
+                              '-m-1 inline-flex items-center gap-1 rounded-sm p-1 text-gray-600 transition-colors hover:text-gray-950 dark:text-gray-400 dark:hover:text-gray-50',
                               focusRing,
                             )}
                             onClick={header.column.getToggleSortingHandler()}
@@ -297,7 +297,7 @@ export function DataTable<TData extends RowData>(
               <TableRow>
                 <TableCell
                   colSpan={visibleColumnCount}
-                  className="py-12 text-center text-gray-400"
+                  className="py-12 text-center text-gray-500 dark:text-gray-400"
                 >
                   {emptyMessage}
                 </TableCell>
@@ -319,12 +319,12 @@ export function DataTable<TData extends RowData>(
           </TableBody>
         </Table>
       </TableRoot>
-      <div className="flex flex-col gap-3 border-t border-gray-950 p-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-        <p className="text-sm text-gray-400">
+      <div className="flex flex-col gap-3 border-t border-gray-200 p-4 dark:border-gray-800 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+        <p className="text-sm text-gray-500 dark:text-gray-400">
           {filteredRowCount} {filteredRowCount === 1 ? 'result' : 'results'}
         </p>
         <div className="flex flex-wrap items-center gap-3">
-          <label className="flex items-center gap-2 text-sm text-gray-400">
+          <label className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
             <span>Rows per page</span>
             <SelectNative
               value={String(pagination.pageSize)}
@@ -338,7 +338,7 @@ export function DataTable<TData extends RowData>(
               <option value="50">50</option>
             </SelectNative>
           </label>
-          <span className="text-sm text-gray-400" aria-live="polite">
+          <span className="text-sm text-gray-500 dark:text-gray-400" aria-live="polite">
             {pageCount > 0
               ? `Page ${pagination.pageIndex + 1} of ${pageCount}`
               : 'No pages'}

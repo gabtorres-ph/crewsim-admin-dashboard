@@ -43,8 +43,13 @@ body,
 body {
   margin: 0;
   min-width: 320px;
-  background-color: var(--color-gray-950);
-  color: var(--color-gray-50);
+  background-color: var(--color-gray-50);
+  color: var(--color-gray-900);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+html.dark body {
+  background-color: var(--color-gray-950);
+  color: var(--color-gray-50);
 }

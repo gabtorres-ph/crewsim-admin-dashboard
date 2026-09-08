@@ -136,10 +136,10 @@ export function UsersPage() {
 
           return user.firstname || user.lastname ? (
             <div>
-              <div className="font-medium text-white">
+              <div className="font-medium text-gray-900 dark:text-white">
                 {[user.firstname, user.lastname].filter(Boolean).join(' ')}
               </div>
-              <div className="text-sm text-gray-400">{user.email}</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">{user.email}</div>
             </div>
           ) : (
             user.email
@@ -159,7 +159,7 @@ export function UsersPage() {
             <div>
               {user.position && <div>{user.position}</div>}
               {user.airline && (
-                <div className="text-sm text-gray-400">{user.airline}</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">{user.airline}</div>
               )}
             </div>
           ) : (
@@ -211,7 +211,7 @@ export function UsersPage() {
               <Button
                 type="button"
                 variant="ghost"
-                className="text-red-400 hover:bg-red-950 hover:text-red-300"
+                className="text-red-700 hover:bg-red-50 hover:text-red-800 dark:text-red-400 dark:hover:bg-red-950 dark:hover:text-red-300"
                 onClick={() => void handleDelete(user)}
                 aria-label={`Delete ${user.email}`}
               >
@@ -277,10 +277,10 @@ export function UsersPage() {
     <section className="mx-auto max-w-7xl">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-gray-50">
+          <h1 className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-gray-50">
             Users
           </h1>
-          <p className="mt-2 max-w-2xl text-sm text-gray-400">
+          <p className="mt-2 max-w-2xl text-sm text-gray-500 dark:text-gray-400">
             Create, find, and update users.
           </p>
         </div>

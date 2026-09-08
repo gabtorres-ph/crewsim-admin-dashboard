@@ -13,14 +13,22 @@ const meta = {
   args: {
     activeSection: 'users',
     onSectionChange: fn(),
+    theme: 'light',
+    onThemeChange: fn(),
   },
   decorators: [
     (Story) => (
-      <div className="dark min-h-screen bg-gray-950 md:w-60">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 md:w-60">
         <Story />
       </div>
     ),
   ],
+  render: (args, context) => (
+    <Sidebar
+      {...args}
+      theme={context.globals.theme === 'dark' ? 'dark' : 'light'}
+    />
+  ),
 } satisfies Meta<typeof Sidebar>
 
 export default meta

@@ -175,7 +175,7 @@ export function UserFormDialog(props: UserFormDialogProps) {
             <FormSelect label="Newsletter" name="newsletter" value={form.newsletter} saving={saving} onChange={(value) => updateField('newsletter', value as OptionalBoolean)}><option value="">Not set</option><option value="true">Yes</option><option value="false">No</option></FormSelect>
             <FormSelect label="SMS notifications" name="smsnotification" value={form.smsnotification} saving={saving} onChange={(value) => updateField('smsnotification', value as OptionalBoolean)}><option value="">Not set</option><option value="true">Yes</option><option value="false">No</option></FormSelect>
           </div>
-          {error && <div role="alert" className="mb-5 rounded-md border border-red-900/70 bg-red-950/40 p-3 text-sm text-red-300">{error}</div>}
+          {error && <div role="alert" className="mb-5 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-900/70 dark:bg-red-950/40 dark:text-red-300">{error}</div>}
           <DialogFooter><DialogClose asChild><Button type="button" variant="secondary" disabled={saving}>Cancel</Button></DialogClose><Button type="submit" isLoading={saving}>{mode === 'add' ? 'Add user' : 'Save changes'}</Button></DialogFooter>
         </form>
       </DialogContent>
@@ -186,11 +186,11 @@ export function UserFormDialog(props: UserFormDialogProps) {
 type FormInputProps = { label: string; name: string; id?: string; type?: string; value: string; placeholder?: string; required?: boolean; saving: boolean; error?: string; min?: string; step?: string; maxLength?: number; onChange: (value: string) => void }
 function FormInput({ label, name, id, type = 'text', value, placeholder, required, saving, error, min, step, maxLength, onChange }: FormInputProps) {
   const errorId = error ? `${id ?? name}-error` : undefined
-  return <label className="grid gap-2"><span className="text-sm font-medium text-gray-200">{label}</span><Input id={id} name={name} type={type} value={value} placeholder={placeholder} required={required} disabled={saving} min={min} step={step} maxLength={maxLength} hasError={Boolean(error)} aria-invalid={Boolean(error)} aria-describedby={errorId} onChange={(event) => onChange(event.target.value)} />{error && <span id={errorId} className="text-sm text-red-400">{error}</span>}</label>
+  return <label className="grid gap-2"><span className="text-sm font-medium text-gray-700 dark:text-gray-200">{label}</span><Input id={id} name={name} type={type} value={value} placeholder={placeholder} required={required} disabled={saving} min={min} step={step} maxLength={maxLength} hasError={Boolean(error)} aria-invalid={Boolean(error)} aria-describedby={errorId} onChange={(event) => onChange(event.target.value)} />{error && <span id={errorId} className="text-sm text-red-600 dark:text-red-400">{error}</span>}</label>
 }
 
 type FormSelectProps = { label: string; name: string; value: string; required?: boolean; saving: boolean; error?: string; onChange: (value: string) => void; children: ReactNode }
 function FormSelect({ label, name, value, required, saving, error, onChange, children }: FormSelectProps) {
   const errorId = error ? `${name}-error` : undefined
-  return <label className="grid gap-2"><span className="text-sm font-medium text-gray-200">{label}</span><SelectNative name={name} value={value} required={required} disabled={saving} hasError={Boolean(error)} aria-invalid={Boolean(error)} aria-describedby={errorId} onChange={(event) => onChange(event.target.value)}>{children}</SelectNative>{error && <span id={errorId} className="text-sm text-red-400">{error}</span>}</label>
+  return <label className="grid gap-2"><span className="text-sm font-medium text-gray-700 dark:text-gray-200">{label}</span><SelectNative name={name} value={value} required={required} disabled={saving} hasError={Boolean(error)} aria-invalid={Boolean(error)} aria-describedby={errorId} onChange={(event) => onChange(event.target.value)}>{children}</SelectNative>{error && <span id={errorId} className="text-sm text-red-600 dark:text-red-400">{error}</span>}</label>
 }

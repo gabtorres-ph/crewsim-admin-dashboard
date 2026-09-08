@@ -135,7 +135,7 @@ export function AccountsPage() {
         accessorKey: 'name',
         header: 'Name',
         cell: ({ getValue }) => (
-          <span className="font-medium text-white">{getValue<string>()}</span>
+          <span className="font-medium text-gray-900 dark:text-white">{getValue<string>()}</span>
         ),
       },
       {
@@ -179,7 +179,7 @@ export function AccountsPage() {
                 loadingText="Deleting"
                 disabled={deletingId !== null}
                 onClick={() => void handleDelete(account)}
-                className="gap-1.5 text-red-400 hover:bg-red-950 hover:text-red-300 dark:text-red-400 dark:hover:bg-red-950 dark:hover:text-red-300"
+                className="gap-1.5 text-red-700 hover:bg-red-50 hover:text-red-800 dark:text-red-400 dark:hover:bg-red-950 dark:hover:text-red-300"
                 aria-label={`Delete ${account.name}`}
               >
                 <RiDeleteBinLine className="size-4" aria-hidden="true" />
@@ -216,10 +216,10 @@ export function AccountsPage() {
     <section className="mx-auto max-w-7xl">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-gray-50">
+          <h1 className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-gray-50">
             Accounts
           </h1>
-          <p className="mt-2 max-w-2xl text-sm text-gray-400">
+          <p className="mt-2 max-w-2xl text-sm text-gray-500 dark:text-gray-400">
             View and manage account balances.
           </p>
         </div>

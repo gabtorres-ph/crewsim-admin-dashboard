@@ -2,6 +2,9 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from '@/app/App'
+import { initializeTheme } from '@/app/theme'
+
+const initialTheme = initializeTheme()
 
 async function enableMocking() {
   if (
@@ -23,7 +26,7 @@ async function bootstrap() {
 
   createRoot(document.getElementById('root')!).render(
     <StrictMode>
-      <App />
+      <App initialTheme={initialTheme} />
     </StrictMode>,
   )
 }
