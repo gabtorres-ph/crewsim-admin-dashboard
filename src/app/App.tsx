@@ -7,10 +7,13 @@ import { FavoritesPage } from '@/features/favorites'
 import { PackagesPage } from '@/features/packages'
 import { UsagePage } from '@/features/usage'
 import { CrewPage } from '@/features/crew'
+import { SmsPage } from '@/features/sms'
+import { EmailWhitelistPage } from '@/features/whitelist'
+import { StripeNotificationPage } from '@/features/stripe'
 import { Sidebar } from './components/Sidebar'
 import { useTheme, type Theme } from './theme'
 
-type Section = 'users' | 'accounts' | 'esims' | 'favorites' | 'packages' | 'usage' | 'crew'
+type Section = 'users' | 'accounts' | 'esims' | 'favorites' | 'packages' | 'usage' | 'crew' | 'whitelist' | 'sms' | 'stripe'
 
 type AppProps = {
   initialTheme?: Theme
@@ -43,6 +46,12 @@ function App({ initialTheme = 'light' }: AppProps) {
         {activeSection === 'usage' && <UsagePage />}
 
         {activeSection === 'crew' && <CrewPage />}
+
+        {activeSection === 'stripe' && <StripeNotificationPage />}
+
+        {activeSection === 'sms' && < SmsPage />}
+
+        {activeSection === 'whitelist' && <EmailWhitelistPage />}
       </main>
     </div>
   )
