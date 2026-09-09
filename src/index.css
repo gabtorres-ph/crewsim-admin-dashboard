@@ -43,7 +43,7 @@ body,
 body {
   margin: 0;
   min-width: 320px;
-  background-color: var(--color-gray-50);
+  background-color: var(--color-white);
   color: var(--color-gray-900);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

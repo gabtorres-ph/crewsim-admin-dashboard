@@ -24,7 +24,7 @@ function App({ initialTheme = 'light' }: AppProps) {
   const [theme, setTheme] = useTheme(initialTheme)
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 md:grid md:grid-cols-[240px_minmax(0,1fr)]">
+    <div className="min-h-screen bg-white dark:bg-gray-950 md:grid md:grid-cols-[240px_minmax(0,1fr)]">
       <Sidebar
         activeSection={activeSection}
         onSectionChange={setActiveSection}
@@ -32,7 +32,7 @@ function App({ initialTheme = 'light' }: AppProps) {
         onThemeChange={setTheme}
       />
 
-      <main className="min-w-0 bg-gray-50 p-5 dark:bg-gray-950 md:p-10">
+      <main className="min-w-0 bg-white p-5 dark:bg-gray-950 md:p-10">
         {activeSection === 'accounts' && <AccountsPage />}
 
         {activeSection === 'users' && <UsersPage />}
