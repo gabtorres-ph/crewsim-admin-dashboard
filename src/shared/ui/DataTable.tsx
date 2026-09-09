@@ -184,7 +184,7 @@ export function DataTable<TData extends RowData>(
   return (
     <div
       className={cx(
-        'overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900',
+        'overflow-hidden bg-white dark:border-gray-800 dark:bg-gray-950',
         className,
       )}
     >
