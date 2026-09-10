@@ -1,23 +1,29 @@
-// Tremor Table [v1.0.0]
-import React from 'react'
+// Tremor Raw Table [v0.0.2]
 
-import { cx } from '@/shared/lib/utils'
+import React from "react"
+
+import { cx } from "@/shared/lib/utils"
 
 const TableRoot = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, children, ...props }, forwardedRef) => (
-  <div ref={forwardedRef}>
+  <div
+    ref={forwardedRef}
+    // Activate if table is used in a float environment
+    // className="flow-root"
+  >
     <div
-      // Make the table scrollable on mobile.
-      className={cx('w-full overflow-auto whitespace-nowrap', className)}
+      // make table scrollable on mobile
+      className={cx("w-full overflow-auto whitespace-nowrap", className)}
       {...props}
     >
       {children}
     </div>
   </div>
 ))
-TableRoot.displayName = 'TableRoot'
+
+TableRoot.displayName = "TableRoot"
 
 const Table = React.forwardRef<
   HTMLTableElement,
@@ -25,30 +31,27 @@ const Table = React.forwardRef<
 >(({ className, ...props }, forwardedRef) => (
   <table
     ref={forwardedRef}
-    tremor-id="tremor-raw"
     className={cx(
       // base
-      'w-full caption-bottom border-b',
+      "w-full caption-bottom border-b",
       // border color
-      'border-gray-200 dark:border-gray-800',
+      "border-gray-200 dark:border-gray-800",
       className,
     )}
     {...props}
   />
 ))
-Table.displayName = 'Table'
+
+Table.displayName = "Table"
 
 const TableHead = React.forwardRef<
   HTMLTableSectionElement,
   React.HTMLAttributes<HTMLTableSectionElement>
 >(({ className, ...props }, forwardedRef) => (
-  <thead
-    ref={forwardedRef}
-    className={cx('bg-gray-50 dark:bg-gray-950/70', className)}
-    {...props}
-  />
+  <thead ref={forwardedRef} className={cx(className)} {...props} />
 ))
-TableHead.displayName = 'TableHead'
+
+TableHead.displayName = "TableHead"
 
 const TableHeaderCell = React.forwardRef<
   HTMLTableCellElement,
@@ -58,15 +61,18 @@ const TableHeaderCell = React.forwardRef<
     ref={forwardedRef}
     className={cx(
       // base
-      'px-4 py-2 text-left text-sm font-semibold',
+      "border-b px-4 py-3.5 text-left text-sm font-semibold",
       // text color
-      'text-gray-600 dark:text-gray-400',
+      "text-gray-900 dark:text-gray-50",
+      // border color
+      "border-gray-200 dark:border-gray-800",
       className,
     )}
     {...props}
   />
 ))
-TableHeaderCell.displayName = 'TableHeaderCell'
+
+TableHeaderCell.displayName = "TableHeaderCell"
 
 const TableBody = React.forwardRef<
   HTMLTableSectionElement,
@@ -75,14 +81,17 @@ const TableBody = React.forwardRef<
   <tbody
     ref={forwardedRef}
     className={cx(
-      // Keep the table's bottom rule while avoiding a doubled final divider.
-      '[&_tr:last-child]:border-b-0',
+      // base
+      "divide-y",
+      // divide color
+      "divide-gray-200 dark:divide-gray-800",
       className,
     )}
     {...props}
   />
 ))
-TableBody.displayName = 'TableBody'
+
+TableBody.displayName = "TableBody"
 
 const TableRow = React.forwardRef<
   HTMLTableRowElement,
@@ -91,19 +100,15 @@ const TableRow = React.forwardRef<
   <tr
     ref={forwardedRef}
     className={cx(
-      // base
-      'border-b border-gray-200 transition-colors duration-100 dark:border-gray-800',
-      // hover
-      'hover:bg-gray-50 dark:hover:bg-gray-800/50',
-      // Keep the outer columns clear of the containing card edge.
-      '[&_td:last-child]:pr-4 [&_th:last-child]:pr-4',
-      '[&_td:first-child]:pl-4 [&_th:first-child]:pl-4',
+      "[&_td:last-child]:pr-4 [&_th:last-child]:pr-4",
+      "[&_td:first-child]:pl-4 [&_th:first-child]:pl-4",
       className,
     )}
     {...props}
   />
 ))
-TableRow.displayName = 'TableRow'
+
+TableRow.displayName = "TableRow"
 
 const TableCell = React.forwardRef<
   HTMLTableCellElement,
@@ -113,15 +118,16 @@ const TableCell = React.forwardRef<
     ref={forwardedRef}
     className={cx(
       // base
-      'px-4 py-0 text-sm',
+      "p-4 text-sm",
       // text color
-      'text-gray-700 dark:text-gray-300',
+      "text-gray-600 dark:text-gray-400",
       className,
     )}
     {...props}
   />
 ))
-TableCell.displayName = 'TableCell'
+
+TableCell.displayName = "TableCell"
 
 const TableFoot = React.forwardRef<
   HTMLTableSectionElement,
@@ -132,18 +138,19 @@ const TableFoot = React.forwardRef<
       ref={forwardedRef}
       className={cx(
         // base
-        'border-t text-left font-medium',
+        "border-t text-left font-medium",
         // text color
-        'text-gray-900 dark:text-gray-50',
+        "text-gray-900 dark:text-gray-50",
         // border color
-        'border-gray-200 dark:border-gray-800',
+        "border-gray-200 dark:border-gray-800",
         className,
       )}
       {...props}
     />
   )
 })
-TableFoot.displayName = 'TableFoot'
+
+TableFoot.displayName = "TableFoot"
 
 const TableCaption = React.forwardRef<
   HTMLTableCaptionElement,
@@ -153,15 +160,16 @@ const TableCaption = React.forwardRef<
     ref={forwardedRef}
     className={cx(
       // base
-      'mt-3 px-3 text-center text-sm',
+      "mt-3 px-3 text-center text-sm",
       // text color
-      'text-gray-500 dark:text-gray-500',
+      "text-gray-500 dark:text-gray-500",
       className,
     )}
     {...props}
   />
 ))
-TableCaption.displayName = 'TableCaption'
+
+TableCaption.displayName = "TableCaption"
 
 export {
   Table,

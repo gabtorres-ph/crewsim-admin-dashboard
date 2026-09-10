@@ -28,15 +28,15 @@ type SidebarProps = {
 
 const navigationItems = [
   { id: 'accounts', label: 'Accounts', icon: RiBankLine },
-  { id: 'users', label: 'Users', icon: RiUserLine },
-  { id: 'esims', label: 'eSIMs', icon: RiSimCardLine },
-  { id: 'favorites', label: 'Favorites', icon: RiStarLine },
-  { id: 'packages', label: 'Packages', icon: RiRedPacketFill },
-  { id: 'usage', label: 'Usage', icon: RiHourglassLine },
-  { id: 'crew', label: 'Crew', icon: RiPlaneLine },
-  { id: 'sms', label: 'SMS', icon: RiMailFill },
-  { id: 'whitelist', label: 'Email Whitelist', icon: RiFileListFill},
-  { id: 'stripe', label: 'Stripe Notification', icon: RiBankCardFill}
+  // { id: 'users', label: 'Users', icon: RiUserLine },
+  // { id: 'esims', label: 'eSIMs', icon: RiSimCardLine },
+  // { id: 'favorites', label: 'Favorites', icon: RiStarLine },
+  // { id: 'packages', label: 'Packages', icon: RiRedPacketFill },
+  // { id: 'usage', label: 'Usage', icon: RiHourglassLine },
+  // { id: 'crew', label: 'Crew', icon: RiPlaneLine },
+  // { id: 'sms', label: 'SMS', icon: RiMailFill },
+  // { id: 'whitelist', label: 'Email Whitelist', icon: RiFileListFill},
+  // { id: 'stripe', label: 'Stripe Notification', icon: RiBankCardFill}
 ] as const
 
 export function Sidebar({

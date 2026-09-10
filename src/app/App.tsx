@@ -35,7 +35,7 @@ function App({ initialTheme = 'light' }: AppProps) {
       <main className="min-w-0 bg-white p-5 dark:bg-gray-950 md:p-10">
         {activeSection === 'accounts' && <AccountsPage />}
 
-        {activeSection === 'users' && <UsersPage />}
+        {/* {activeSection === 'users' && <UsersPage />}
 
         {activeSection === 'esims' && <EsimsPage />}
 
@@ -51,7 +51,7 @@ function App({ initialTheme = 'light' }: AppProps) {
 
         {activeSection === 'sms' && < SmsPage />}
 
-        {activeSection === 'whitelist' && <EmailWhitelistPage />}
+        {activeSection === 'whitelist' && <EmailWhitelistPage />} */}
       </main>
     </div>
   )
