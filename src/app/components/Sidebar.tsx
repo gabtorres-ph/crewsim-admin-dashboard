@@ -1,16 +1,16 @@
 import { 
   RiBankLine, 
-  RiSimCardLine, 
-  RiUserLine, 
-  RiStarLine,
-  RiRedPacketFill,
-  RiHourglassLine,
+  // RiSimCardLine, 
+  // RiUserLine, 
+  // RiStarLine,
+  // RiRedPacketFill,
+  // RiHourglassLine,
   RiMoonLine,
-  RiPlaneLine,
+  // RiPlaneLine,
   RiSunLine,
-  RiMailFill,
-  RiFileListFill,
-  RiBankCardFill
+  // RiMailFill,
+  // RiFileListFill,
+  // RiBankCardFill
 } from '@remixicon/react'
 
 import type { Theme } from '@/app/theme'
