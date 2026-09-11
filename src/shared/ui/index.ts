@@ -1,10 +1,5 @@
 export { Button, type ButtonProps } from './Button'
 export {
-  DataTable,
-  type DataTableProps,
-  type DataTableSelectFilter,
-} from './DataTable'
-export {
   Dialog,
   DialogClose,
   DialogContent,

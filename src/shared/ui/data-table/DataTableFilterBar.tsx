@@ -1,14 +1,14 @@
 "use client"
 
 import { Button } from "@/shared/ui/Button"
-import { Searchbar } from "@/shared/ui/SearchBar"
+// import { Searchbar } from "@/shared/ui/SearchBar"
 // import { conditions, regions, statuses } from "@/data/data"
-import { formatters } from "@/shared/lib/utils"
+// import { formatters } from "@/shared/lib/utils"
 import { RiDownloadLine } from "@remixicon/react"
 import { type Table } from "@tanstack/react-table"
-import { useState } from "react"
-import { useDebouncedCallback } from "use-debounce"
-import { DataTableFilter } from "./DataTableFilter"
+// import { useState } from "react"
+// import { useDebouncedCallback } from "use-debounce"
+// import { DataTableFilter } from "./DataTableFilter"
 import { ViewOptions } from "./DataTableViewOptions"
 
 interface DataTableToolbarProps<TData> {
@@ -17,55 +17,21 @@ interface DataTableToolbarProps<TData> {
 
 export function Filterbar<TData>({ table }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0
-  const [searchTerm, setSearchTerm] = useState<string>("")
+  // const [searchTerm, setSearchTerm] = useState<string>("")
 
-  const debouncedSetFilterValue = useDebouncedCallback((value) => {
-    table.getColumn("owner")?.setFilterValue(value)
-  }, 300)
+  // const debouncedSetFilterValue = useDebouncedCallback((value) => {
+  //   table.getColumn("owner")?.setFilterValue(value)
+  // }, 300)
 
-  const handleSearchChange = (event: any) => {
-    const value = event.target.value
-    setSearchTerm(value)
-    debouncedSetFilterValue(value)
-  }
+  // const handleSearchChange = (event: any) => {
+  //   const value = event.target.value
+  //   setSearchTerm(value)
+  //   debouncedSetFilterValue(value)
+  // }
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-x-6">
       <div className="flex w-full flex-col gap-2 sm:w-fit sm:flex-row sm:items-center">
-        {table.getColumn("status")?.getIsVisible() && (
-          <DataTableFilter
-            column={table.getColumn("status")}
-            title="Status"
-            options={statuses}
-            type="select"
-          />
-        )}
-        {table.getColumn("region")?.getIsVisible() && (
-          <DataTableFilter
-            column={table.getColumn("region")}
-            title="Region"
-            options={regions}
-            type="checkbox"
-          />
-        )}
-        {table.getColumn("costs")?.getIsVisible() && (
-          <DataTableFilter
-            column={table.getColumn("costs")}
-            title="Costs"
-            type="number"
-            options={conditions}
-            formatter={formatters.currency}
-          />
-        )}
-        {table.getColumn("owner")?.getIsVisible() && (
-          <Searchbar
-            type="search"
-            placeholder="Search by owner..."
-            value={searchTerm}
-            onChange={handleSearchChange}
-            className="w-full sm:max-w-[250px] sm:[&>input]:h-[30px]"
-          />
-        )}
         {isFiltered && (
           <Button
             variant="ghost"
