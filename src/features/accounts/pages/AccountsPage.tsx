@@ -1,11 +1,45 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { DataTable } from '@/shared/ui/data-table/DataTable'
 import type { Account } from '../model'
 import { columns } from "@/shared/ui/data-table/columns"
+import { listAccounts } from '../api'
 
 
 export function AccountsPage() {
   const [accounts, setAccounts] = useState<Account[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let isMounted = true
+
+    async function loadAccounts() {
+      try {
+        setIsLoading(true)
+        setError(null)
+
+        const data = await listAccounts({ offset:0, limit: 100})
+
+      if (isMounted) {
+        setAccounts(data)
+      }
+    } catch(error) {
+      if (isMounted) {
+        setError(error instanceof Error ? error.message : 'Failed to load accounts.')
+      }
+    } finally {
+      if (isMounted) {
+        setIsLoading(false)
+      }
+    }
+  }
+
+  loadAccounts()
+
+  return () => {
+    isMounted = false
+  }
+}, [])
 
   return (
     <section className="mx-auto max-w-7xl">
@@ -19,11 +53,20 @@ export function AccountsPage() {
           </p>
         </div>
       </header>
+      {isLoading && <p className="mt-6 text-sm text-gray-500">Loading accounts...</p>}
 
+      {error && (
+        <p role="alert" className="mt-6 text-sm text-red-600">
+          {error}
+        </p>
+      )}
+
+      {!isLoading && !error && (
       <DataTable
         data={accounts}
         columns={columns}
       />
+      )}
 
     </section>
   )

@@ -20,7 +20,7 @@ type AppProps = {
 }
 
 function App({ initialTheme = 'light' }: AppProps) {
-  const [activeSection, setActiveSection] = useState<Section>('users')
+  const [activeSection, setActiveSection] = useState<Section>('accounts')
   const [theme, setTheme] = useTheme(initialTheme)
 
   return (
