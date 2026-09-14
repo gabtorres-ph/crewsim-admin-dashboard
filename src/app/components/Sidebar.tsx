@@ -1,7 +1,7 @@
 import { 
   RiBankLine, 
   RiSimCardLine, 
-  // RiUserLine, 
+  RiUserLine, 
   // RiStarLine,
   // RiRedPacketFill,
   // RiHourglassLine,
@@ -28,7 +28,7 @@ type SidebarProps = {
 
 const navigationItems = [
   { id: 'accounts', label: 'Accounts', icon: RiBankLine },
-  // { id: 'users', label: 'Users', icon: RiUserLine },
+  { id: 'users', label: 'Users', icon: RiUserLine },
   { id: 'esims', label: 'eSIMs', icon: RiSimCardLine },
   // { id: 'favorites', label: 'Favorites', icon: RiStarLine },
   // { id: 'packages', label: 'Packages', icon: RiRedPacketFill },

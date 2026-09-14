@@ -2,7 +2,7 @@ import { useState } from 'react'
 
 import { EsimsPage } from '@/features/esims'
 import { AccountsPage } from '@/features/accounts'
-// import { UsersPage } from '@/features/users'
+import { UsersPage } from '@/features/users'
 // import { FavoritesPage } from '@/features/favorites'
 // import { PackagesPage } from '@/features/packages'
 // import { UsagePage } from '@/features/usage'
@@ -35,7 +35,7 @@ function App({ initialTheme = 'light' }: AppProps) {
       <main className="min-w-0 bg-white p-5 dark:bg-gray-950 md:p-10">
         {activeSection === 'accounts' && <AccountsPage />}
 
-        {/* {activeSection === 'users' && <UsersPage />} */}
+        {activeSection === 'users' && <UsersPage />}
 
         {activeSection === 'esims' && <EsimsPage />}
 
