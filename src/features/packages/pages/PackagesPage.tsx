@@ -1,4 +1,12 @@
 
+import { DataTable } from "@/shared/ui/data-table/DataTable"
+import {
+  columns,
+  type PackageTableRow,
+} from "@/features/packages/components/columns"
+
+const packages: PackageTableRow[] = []
+
 export function PackagesPage() {
     return (
         <section className="mx-auto max-w-7xl">
@@ -9,6 +17,9 @@ export function PackagesPage() {
                     </h1>
                 </div>
             </header>
+            <div className="mt-6">
+                <DataTable data={packages} columns={columns} />
+            </div>
         </section>
     )
 }

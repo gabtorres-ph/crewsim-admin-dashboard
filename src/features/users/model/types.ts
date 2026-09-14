@@ -19,7 +19,7 @@ export type User = {
   rateus: string | null
 }
 
-export type UserInput = {
+export type UserCreate = {
   email: string
   currency: string
   language: string
@@ -38,4 +38,7 @@ export type UserInput = {
   rateus?: string | null
 }
 
-export type UserUpdateInput = Partial<UserInput>
+export type UserUpdate = Partial<UserCreate>
+export type UserRead = User
+export type UserInput = UserCreate
+export type UserUpdateInput = UserUpdate

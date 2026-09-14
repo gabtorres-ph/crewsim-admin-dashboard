@@ -1,3 +1,11 @@
+import { DataTable } from "@/shared/ui/data-table/DataTable"
+import {
+  columns,
+  type StripeNotificationTableRow,
+} from "@/features/stripe/components/columns"
+
+const stripeNotifications: StripeNotificationTableRow[] = []
+
 export function StripeNotificationPage() {
     return (
         <section className="mx-auto max-w-7xl">
@@ -8,6 +16,9 @@ export function StripeNotificationPage() {
                     </h1>
                 </div>
             </header>
+            <div className="mt-6">
+                <DataTable data={stripeNotifications} columns={columns} />
+            </div>
         </section>
     )
 }

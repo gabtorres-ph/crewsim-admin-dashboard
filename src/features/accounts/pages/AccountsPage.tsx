@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { DataTable } from '@/shared/ui/data-table/DataTable'
 import type { Account } from '../model'
-import { columns } from "@/shared/ui/data-table/columns"
+import { columns } from "@/features/accounts/components/columns"
 import { listAccounts } from '../api'
 
 

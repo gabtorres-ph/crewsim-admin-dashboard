@@ -1,3 +1,11 @@
+import { DataTable } from "@/shared/ui/data-table/DataTable"
+import {
+  columns,
+  type SmsTableRow,
+} from "@/features/sms/components/columns"
+
+const sms: SmsTableRow[] = []
+
 export function SmsPage() {
     return (
         <section className="mx-auto max-w-7xl">
@@ -8,6 +16,9 @@ export function SmsPage() {
                     </h1>
                 </div>
             </header>
+            <div className="mt-6">
+                <DataTable data={sms} columns={columns} />
+            </div>
         </section>
     )
 }

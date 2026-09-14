@@ -10,3 +10,6 @@ export type AccountCreateInput = {
 }
 
 export type AccountUpdateInput = Partial<AccountCreateInput>
+export type AccountCreate = AccountCreateInput
+export type AccountUpdate = AccountUpdateInput
+export type AccountRead = Account

@@ -1,14 +1,18 @@
+import { listCrew } from "../api"
+import { ResourceTablePage } from "@/shared/ui"
+import { columns } from "@/features/crew/components/columns"
+
+function loadCrew() {
+  return listCrew({ offset: 0, limit: 100 })
+}
 
 export function CrewPage() {
-    return (
-        <section className="mx-auto max-w-7xl">
-            <header>
-                <div>
-                    <h1 className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-gray-50">
-                        Crew
-                    </h1>
-                </div>
-            </header>
-        </section>
-    )
+  return (
+    <ResourceTablePage
+      title="Crew"
+      description="View crew identity records from the backend contract."
+      columns={columns}
+      load={loadCrew}
+    />
+  )
 }

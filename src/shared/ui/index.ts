@@ -10,6 +10,7 @@ export {
   DialogTrigger,
 } from './Dialog'
 export { Input, type InputProps } from './Input'
+export { ResourceTablePage } from './ResourceTablePage'
 export { SelectNative, type SelectNativeProps } from './SelectNative'
 export { StatusPanel } from './StatusPanel'
 export {
