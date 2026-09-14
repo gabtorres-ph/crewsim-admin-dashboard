@@ -42,7 +42,7 @@ export function AccountsPage() {
 }, [])
 
   return (
-    <section className="mx-auto max-w-7xl">
+    <section className="mx-auto w-full">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-gray-50">
