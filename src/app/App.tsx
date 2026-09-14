@@ -3,13 +3,13 @@ import { useState } from 'react'
 import { EsimsPage } from '@/features/esims'
 import { AccountsPage } from '@/features/accounts'
 import { UsersPage } from '@/features/users'
-// import { FavoritesPage } from '@/features/favorites'
-// import { PackagesPage } from '@/features/packages'
-// import { UsagePage } from '@/features/usage'
-// import { CrewPage } from '@/features/crew'
-// import { SmsPage } from '@/features/sms'
-// import { EmailWhitelistPage } from '@/features/whitelist'
-// import { StripeNotificationPage } from '@/features/stripe'
+import { FavoritesPage } from '@/features/favorites'
+import { PackagesPage } from '@/features/packages'
+import { UsagePage } from '@/features/usage'
+import { CrewPage } from '@/features/crew'
+import { SmsPage } from '@/features/sms'
+import { EmailWhitelistPage } from '@/features/whitelist'
+import { StripeNotificationPage } from '@/features/stripe'
 import { Sidebar } from './components/Sidebar'
 import { useTheme, type Theme } from './theme'
 
@@ -39,7 +39,7 @@ function App({ initialTheme = 'light' }: AppProps) {
 
         {activeSection === 'esims' && <EsimsPage />}
 
-        {/* {activeSection === 'favorites' && <FavoritesPage />}
+        {activeSection === 'favorites' && <FavoritesPage />}
 
         {activeSection === 'packages' && <PackagesPage />}
 
@@ -51,7 +51,7 @@ function App({ initialTheme = 'light' }: AppProps) {
 
         {activeSection === 'sms' && < SmsPage />}
 
-        {activeSection === 'whitelist' && <EmailWhitelistPage />} */} 
+        {activeSection === 'whitelist' && <EmailWhitelistPage />}
       </main>
     </div>
   )
