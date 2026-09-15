@@ -114,6 +114,23 @@ export const userHandlers = [
     return HttpResponse.json({ ...user }, { status: 201 })
   }),
 
+  http.get(USER_PATH, async ({ params }) => {
+    await delay(MOCK_DELAY_MS)
+    const id = parseUserId(params.id)
+    const user = id === null
+      ? undefined
+      : users.find((candidate) => candidate.id === id)
+
+    if (!user) {
+      return HttpResponse.json(
+        { detail: 'User not found.' },
+        { status: 404 },
+      )
+    }
+
+    return HttpResponse.json({ ...user })
+  }),
+
   http.patch(USER_PATH, async ({ params, request }) => {
     await delay(MOCK_DELAY_MS)
     const id = parseUserId(params.id)

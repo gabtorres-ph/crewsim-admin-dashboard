@@ -1,24 +1,18 @@
-import { DataTable } from "@/shared/ui/data-table/DataTable"
-import {
-  columns,
-  type SmsTableRow,
-} from "@/features/sms/components/columns"
+import { listSms } from "../api"
+import { ResourceTablePage } from "@/shared/ui"
+import { columns } from "@/features/sms/components/columns"
 
-const sms: SmsTableRow[] = []
+function loadSms() {
+  return listSms({ offset: 0, limit: 100 })
+}
 
 export function SmsPage() {
-    return (
-        <section className="mx-auto max-w-7xl">
-            <header>
-                <div>
-                    <h1 className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-gray-50">
-                        SMS
-                    </h1>
-                </div>
-            </header>
-            <div className="mt-6">
-                <DataTable data={sms} columns={columns} />
-            </div>
-        </section>
-    )
+  return (
+    <ResourceTablePage
+      title="SMS"
+      description="View stored SMS records from the backend contract."
+      columns={columns}
+      load={loadSms}
+    />
+  )
 }

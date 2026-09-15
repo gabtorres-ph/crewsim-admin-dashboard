@@ -1,7 +1,7 @@
 # CrewSim Admin Dashboard
 
 React, TypeScript, Tailwind CSS, and Tremor Raw administration UI for managing
-CrewSim users and eSIMs through a FastAPI REST API.
+CrewSim operational records through a FastAPI REST API.
 
 ## Run locally against FastAPI
 
@@ -111,24 +111,37 @@ docker compose -f compose.integration.yaml down
 
 The frontend currently expects array responses, numeric IDs, and these routes:
 
-| Resource | List | Create | Update | Delete |
-| --- | --- | --- | --- | --- |
-| Users | `GET /api/users` | `POST /api/users` | `PATCH /api/users/{id}` | `DELETE /api/users/{id}` |
-| Accounts | `GET /api/accounts` | `POST /api/accounts` | `PATCH /api/accounts/{id}` | `DELETE /api/accounts/{id}` |
-| eSIMs | `GET /api/esims` | `POST /api/esims` | `PATCH /api/esims/{id}` | `DELETE /api/esims/{id}` |
+| Resource | List | Detail | Create | Update | Delete |
+| --- | --- | --- | --- | --- | --- |
+| Users | `GET /api/users` | `GET /api/users/{id}` | `POST /api/users` | `PATCH /api/users/{id}` | `DELETE /api/users/{id}` |
+| Accounts | `GET /api/accounts` | `GET /api/accounts/{id}` | `POST /api/accounts` | `PATCH /api/accounts/{id}` | `DELETE /api/accounts/{id}` |
+| eSIMs | `GET /api/esims` | `GET /api/esims/{id}` | `POST /api/esims` | `PATCH /api/esims/{id}` | `DELETE /api/esims/{id}` |
+| Favorites | `GET /api/favorites` | `GET /api/favorites/{id}` | `POST /api/favorites` | none | `DELETE /api/favorites/{id}` |
+| Packages | `GET /api/packages` | `GET /api/packages/{id}` | `POST /api/packages` | `PATCH /api/packages/{id}` | `DELETE /api/packages/{id}` |
+| SMS | `GET /api/sms` | `GET /api/sms/{id}` | `POST /api/sms` | `PATCH /api/sms/{id}` | `DELETE /api/sms/{id}` |
+| Usage | `GET /api/usage` | `GET /api/usage/{id}` | `POST /api/usage` | `PATCH /api/usage/{id}` | `DELETE /api/usage/{id}` |
+| Crew | `GET /api/crew` | `GET /api/crew/{id}` | `POST /api/crew` | `PATCH /api/crew/{id}` | `DELETE /api/crew/{id}` |
+| Email Whitelist | `GET /api/email-whitelist` | `GET /api/email-whitelist/{id}` | `POST /api/email-whitelist` | `PATCH /api/email-whitelist/{id}` | `DELETE /api/email-whitelist/{id}` |
+| Stripe Notifications | `GET /api/stripe/notifications` | `GET /api/stripe/notifications/{id}` | `POST /api/stripe/notifications` | `PATCH /api/stripe/notifications/{id}` | `DELETE /api/stripe/notifications/{id}` |
 
-User create/update bodies contain `email`, `language`, `currency`, and
-`timezone`. Account create/update bodies contain `name` and numeric `balance`.
-eSIM create/update bodies contain numeric `account_id`, optional numeric
-`user_id`, and `imsi` (a non-empty string). All list routes accept `offset` and
-`limit`; eSIMs can be filtered with `user_id`, and
-`GET /api/accounts/{id}/esims` returns an account's assigned eSIMs. The backend
-remains responsible for authorization and relationship validation.
+DTOs live in each feature's `model/types.ts` file. The frontend keeps backend
+wire keys at the API boundary: Favorites and Crew use `user_id`, Stripe
+notifications use `userid`, and eSIM UI models are adapted to and from the
+backend's snake-case response. Newer contracts omit only `undefined` values
+before sending JSON so permitted `null`, zero, and false values are preserved.
+Usage charges, Crew confidence, and Stripe monetary fields are represented as
+strings to preserve Decimal precision.
 
-The mock API supplies deterministic Users, Accounts, and eSIM records and
-supports CRUD operations for each resource. It rejects unknown eSIM user or
-account relationships and prevents deletion of accounts referenced by eSIMs.
-Mock state resets on page refresh and before each Storybook story.
+All list routes accept `offset` and `limit`. eSIMs can be filtered with
+`user_id`, `GET /api/accounts/{id}/esims` and `GET /api/users/{id}/esims`
+return assigned eSIMs, and Favorites support both `GET /api/favorites?user_id=`
+and `GET /api/users/{id}/favorites`. The backend remains responsible for
+authorization and relationship validation.
+
+The mock API supplies deterministic records for all ten domains and supports
+the documented CRUD operations, including 204 deletes and relationship errors
+where the frontend already has related fixtures. Mock state resets on page
+refresh and before each Storybook story.
 
 ## Frontend architecture
 
@@ -144,7 +157,14 @@ src/
 ├── features/
 │   ├── accounts/
 │   ├── users/
-│   └── esims/
+│   ├── esims/
+│   ├── favorites/
+│   ├── packages/
+│   ├── sms/
+│   ├── usage/
+│   ├── crew/
+│   ├── whitelist/
+│   └── stripe/
 ├── shared/
 │   ├── api/
 │   ├── lib/
@@ -180,8 +200,9 @@ npm run storybook
 npm run build-storybook
 ```
 
-Storybook includes populated, empty, loading, validation, mutation-error, and
-service-error states for Users, Accounts, and eSIM management.
+Storybook includes populated page stories for all contract-backed domains, plus
+empty, loading, validation, mutation-error, and service-error states for Users,
+Accounts, and eSIM management.
 
 ## TODO
 

@@ -1,12 +1,13 @@
 import { delay, http, HttpResponse } from 'msw'
 
-import type { Esim, EsimInput } from '../model'
+import type { Esim, EsimCreateInput, EsimUpdateInput } from '../model'
 import { mockEsims } from './data'
 import { hasMockAccountId } from '@/features/accounts/mocks'
 import { hasMockUserId } from '@/features/users/mocks'
 
 const ESIMS_PATH = '*/esims'
 const ESIM_PATH = '*/esims/:id'
+const USER_ESIMS_PATH = '*/users/:id/esims'
 const MOCK_DELAY_MS = 250
 
 let esims: Esim[] = []
@@ -51,13 +52,13 @@ export function toEsimResponse(esim: Esim) {
 }
 
 function fromInput(
-  input: EsimInput,
+  input: EsimCreateInput | EsimUpdateInput,
   fallback: Esim | null = null,
 ): Omit<Esim, 'id'> {
   return {
     userId: input.userId ?? fallback?.userId ?? null,
     accountId: input.accountId ?? fallback?.accountId ?? 3001,
-    imsi: input.imsi,
+    imsi: input.imsi ?? fallback?.imsi ?? '',
     name: input.name ?? fallback?.name ?? null,
     isesim: input.isesim ?? fallback?.isesim ?? null,
     createdate: input.createdate ?? fallback?.createdate ?? null,
@@ -89,7 +90,7 @@ function parseEsimId(value: string | readonly string[] | undefined) {
   return Number.isInteger(id) ? id : null
 }
 
-async function readEsimInput(request: Request) {
+async function readEsimInput(request: Request, requireBaseFields: boolean) {
   let body: unknown
 
   try {
@@ -117,7 +118,7 @@ async function readEsimInput(request: Request) {
   const accountId = candidate.account_id
   const imsi = typeof candidate.imsi === 'string'
     ? candidate.imsi.trim()
-    : ''
+    : undefined
 
   if (
     userId !== undefined &&
@@ -169,7 +170,16 @@ async function readEsimInput(request: Request) {
     }
   }
 
-  if (!imsi) {
+  if (requireBaseFields && accountId === undefined) {
+    return {
+      error: HttpResponse.json(
+        { detail: 'Account is required.' },
+        { status: 422 },
+      ),
+    }
+  }
+
+  if (requireBaseFields && !imsi) {
     return {
       error: HttpResponse.json(
         { detail: 'IMSI is required.' },
@@ -178,7 +188,7 @@ async function readEsimInput(request: Request) {
     }
   }
 
-  if (!/^\d+$/.test(imsi)) {
+  if (imsi && !/^\d+$/.test(imsi)) {
     return {
       error: HttpResponse.json(
         { detail: 'IMSI must contain digits only.' },
@@ -204,7 +214,7 @@ async function readEsimInput(request: Request) {
       imei: candidate.imei,
       imeiDevice: candidate.imei_device,
       allowData: candidate.allow_data,
-    } satisfies EsimInput,
+    } satisfies EsimUpdateInput,
   }
 }
 
@@ -234,10 +244,17 @@ export const esimHandlers = [
 
   http.post(ESIMS_PATH, async ({ request }) => {
     await delay(MOCK_DELAY_MS)
-    const result = await readEsimInput(request)
+    const result = await readEsimInput(request, true)
 
     if ('error' in result) {
       return result.error
+    }
+
+    if (!result.input.imsi || result.input.accountId === undefined) {
+      return HttpResponse.json(
+        { detail: 'Account and IMSI are required.' },
+        { status: 422 },
+      )
     }
 
     if (hasDuplicateImsi(result.input.imsi)) {
@@ -248,7 +265,7 @@ export const esimHandlers = [
     }
 
     const esim: Esim = {
-      ...fromInput(result.input),
+      ...fromInput(result.input as EsimCreateInput),
       id: Math.max(0, ...esims.map(({ id }) => id)) + 1,
     }
 
@@ -256,10 +273,50 @@ export const esimHandlers = [
     return HttpResponse.json(toEsimResponse(esim), { status: 201 })
   }),
 
+  http.get(USER_ESIMS_PATH, async ({ params, request }) => {
+    await delay(MOCK_DELAY_MS)
+    const id = parseEsimId(params.id)
+
+    if (id === null || !hasMockUserId(id)) {
+      return HttpResponse.json(
+        { detail: 'User not found.' },
+        { status: 404 },
+      )
+    }
+
+    const url = new URL(request.url)
+    const offset = Number(url.searchParams.get('offset') ?? 0)
+    const limit = Number(url.searchParams.get('limit') ?? 100)
+
+    return HttpResponse.json(
+      esims
+        .filter((esim) => esim.userId === id)
+        .slice(offset, offset + limit)
+        .map(toEsimResponse),
+    )
+  }),
+
+  http.get(ESIM_PATH, async ({ params }) => {
+    await delay(MOCK_DELAY_MS)
+    const id = parseEsimId(params.id)
+    const esim = id === null
+      ? undefined
+      : esims.find((candidate) => candidate.id === id)
+
+    if (!esim) {
+      return HttpResponse.json(
+        { detail: 'eSIM not found.' },
+        { status: 404 },
+      )
+    }
+
+    return HttpResponse.json(toEsimResponse(esim))
+  }),
+
   http.patch(ESIM_PATH, async ({ params, request }) => {
     await delay(MOCK_DELAY_MS)
     const id = parseEsimId(params.id)
-    const result = await readEsimInput(request)
+    const result = await readEsimInput(request, false)
 
     if ('error' in result) {
       return result.error
@@ -276,7 +333,7 @@ export const esimHandlers = [
       )
     }
 
-    if (hasDuplicateImsi(result.input.imsi, id)) {
+    if (result.input.imsi && hasDuplicateImsi(result.input.imsi, id)) {
       return HttpResponse.json(
         { detail: 'An eSIM with this IMSI already exists.' },
         { status: 409 },

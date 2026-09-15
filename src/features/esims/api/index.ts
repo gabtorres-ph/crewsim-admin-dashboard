@@ -2,6 +2,7 @@ export {
   createEsim,
   deleteEsim,
   fromEsimResponse,
+  getEsim,
   listEsims,
   updateEsim,
   type EsimListParams,
