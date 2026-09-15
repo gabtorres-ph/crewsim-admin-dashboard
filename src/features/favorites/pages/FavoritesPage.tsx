@@ -1,25 +1,18 @@
+import { listFavorites } from "../api"
+import { ResourceTablePage } from "@/shared/ui"
+import { columns } from "@/features/favorites/components/columns"
 
-import { DataTable } from "@/shared/ui/data-table/DataTable"
-import {
-  columns,
-  type FavoriteTableRow,
-} from "@/features/favorites/components/columns"
-
-const favorites: FavoriteTableRow[] = []
+function loadFavorites() {
+  return listFavorites({ offset: 0, limit: 100 })
+}
 
 export function FavoritesPage() {
-    return (
-        <section className="mx-auto max-w-7xl">
-            <header>
-                <div>
-                    <h1 className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-gray-50">
-                        Favorites
-                    </h1>
-                </div>
-            </header>
-            <div className="mt-6">
-                <DataTable data={favorites} columns={columns} />
-            </div>
-        </section>
-    )
+  return (
+    <ResourceTablePage
+      title="Favorites"
+      description="View favorite country records from the backend contract."
+      columns={columns}
+      load={loadFavorites}
+    />
+  )
 }
