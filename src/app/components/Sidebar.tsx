@@ -10,14 +10,17 @@ import {
   RiSunLine,
   RiMailFill,
   RiFileListFill,
-  RiBankCardFill
+  RiBankCardFill,
+  RiTranslate2,
+  RiMoneyEuroCircleFill,
+  RiTimeZoneFill
 } from '@remixicon/react'
 
 import type { Theme } from '@/app/theme'
 import { cx } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/Button'
 
-type Section = 'users' | 'accounts' | 'esims' | 'favorites' | 'packages' | 'usage' | 'crew' | 'whitelist' | 'sms' | 'stripe'
+type Section = 'users' | 'accounts' | 'esims' | 'favorites' | 'packages' | 'usage' | 'crew' | 'whitelist' | 'sms' | 'stripe' | 'languages' | 'currencies' | 'timezones'
 
 type SidebarProps = {
   activeSection: Section
@@ -36,7 +39,10 @@ const navigationItems = [
   { id: 'crew', label: 'Crew', icon: RiPlaneLine },
   { id: 'sms', label: 'SMS', icon: RiMailFill },
   { id: 'whitelist', label: 'Email Whitelist', icon: RiFileListFill},
-  { id: 'stripe', label: 'Stripe Notification', icon: RiBankCardFill}
+  { id: 'stripe', label: 'Stripe Notification', icon: RiBankCardFill},
+  { id: 'languages', label: 'Languages', icon: RiTranslate2},
+  { id: 'currencies', label: 'Currencies', icon: RiMoneyEuroCircleFill},
+  { id: 'timezones', label: 'Timezones', icon: RiTimeZoneFill}
 ] as const
 
 export function Sidebar({

@@ -10,10 +10,13 @@ import { CrewPage } from '@/features/crew'
 import { SmsPage } from '@/features/sms'
 import { EmailWhitelistPage } from '@/features/whitelist'
 import { StripeNotificationPage } from '@/features/stripe'
+import { LanguagesPage } from '@/features/language'
+import { CurrenciesPage } from '@/features/currencies'
+import { TimezonesPage } from '@/features/timezones'
 import { Sidebar } from './components/Sidebar'
 import { useTheme, type Theme } from './theme'
 
-type Section = 'users' | 'accounts' | 'esims' | 'favorites' | 'packages' | 'usage' | 'crew' | 'whitelist' | 'sms' | 'stripe'
+type Section = 'users' | 'accounts' | 'esims' | 'favorites' | 'packages' | 'usage' | 'crew' | 'whitelist' | 'sms' | 'stripe' | 'languages' | 'currencies' | 'timezones'
 
 type AppProps = {
   initialTheme?: Theme
@@ -52,6 +55,12 @@ function App({ initialTheme = 'light' }: AppProps) {
         {activeSection === 'sms' && < SmsPage />}
 
         {activeSection === 'whitelist' && <EmailWhitelistPage />}
+
+        {activeSection === 'languages' && <LanguagesPage />}
+
+        {activeSection === 'currencies' && <CurrenciesPage />}
+
+        {activeSection === 'timezones' && <TimezonesPage />}
       </main>
     </div>
   )
