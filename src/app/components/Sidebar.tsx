@@ -54,7 +54,7 @@ export function Sidebar({
   const isDark = theme === 'dark'
 
   return (
-    <aside className="border-b border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-950 md:min-h-screen md:border-r md:border-b-0 md:p-5">
+    <aside className="flex grow flex-col gap-y-6 overflow-y-auto border-r border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-950">
       <div className="mb-5 flex items-center justify-between gap-3 md:mb-10">
         <div className="flex min-w-0 items-center gap-3">
           <div className="grid size-10 shrink-0 place-items-center rounded-md bg-indigo-500 font-semibold text-white">
