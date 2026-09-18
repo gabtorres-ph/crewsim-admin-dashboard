@@ -1,112 +1,132 @@
-import { 
-  RiBankLine, 
-  RiSimCardLine, 
-  RiUserLine, 
-  RiStarLine,
-  RiRedPacketFill,
-  RiHourglassLine,
-  RiMoonLine,
-  RiPlaneLine,
-  RiSunLine,
-  RiMailFill,
-  RiFileListFill,
-  RiBankCardFill,
-  RiTranslate2,
-  RiMoneyEuroCircleFill,
-  RiTimeZoneFill
-} from '@remixicon/react'
+"use client"
+import { siteConfig } from "@/app/siteConfig"
+import { cx, focusRing } from "@/lib/utils"
+import {
+  RiHome2Line,
+  RiLinkM,
+  RiListCheck,
+  RiSettings5Line,
+} from "@remixicon/react"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import MobileSidebar from "./MobileSidebar"
+import {
+  WorkspacesDropdownDesktop,
+  WorkspacesDropdownMobile,
+} from "./SidebarWorkspacesDropdown"
+import { UserProfileDesktop, UserProfileMobile } from "./UserProfile"
 
-import type { Theme } from '@/app/theme'
-import { cx } from '@/shared/lib/utils'
-import { Button } from '@/shared/ui/Button'
-
-type Section = 'users' | 'accounts' | 'esims' | 'favorites' | 'packages' | 'usage' | 'crew' | 'whitelist' | 'sms' | 'stripe' | 'languages' | 'currencies' | 'timezones'
-
-type SidebarProps = {
-  activeSection: Section
-  onSectionChange: (section: Section) => void
-  theme: Theme
-  onThemeChange: (theme: Theme) => void
-}
-
-const navigationItems = [
-  { id: 'accounts', label: 'Accounts', icon: RiBankLine },
-  { id: 'users', label: 'Users', icon: RiUserLine },
-  { id: 'esims', label: 'eSIMs', icon: RiSimCardLine },
-  { id: 'favorites', label: 'Favorites', icon: RiStarLine },
-  { id: 'packages', label: 'Packages', icon: RiRedPacketFill },
-  { id: 'usage', label: 'Usage', icon: RiHourglassLine },
-  { id: 'crew', label: 'Crew', icon: RiPlaneLine },
-  { id: 'sms', label: 'SMS', icon: RiMailFill },
-  { id: 'whitelist', label: 'Email Whitelist', icon: RiFileListFill},
-  { id: 'stripe', label: 'Stripe Notification', icon: RiBankCardFill},
-  { id: 'languages', label: 'Languages', icon: RiTranslate2},
-  { id: 'currencies', label: 'Currencies', icon: RiMoneyEuroCircleFill},
-  { id: 'timezones', label: 'Timezones', icon: RiTimeZoneFill}
+const navigation = [
+  { name: "Overview", href: siteConfig.baseLinks.overview, icon: RiHome2Line },
+  { name: "Details", href: siteConfig.baseLinks.details, icon: RiListCheck },
+  {
+    name: "Settings",
+    href: siteConfig.baseLinks.settings.general,
+    icon: RiSettings5Line,
+  },
 ] as const
 
-export function Sidebar({
-  activeSection,
-  onSectionChange,
-  theme,
-  onThemeChange,
-}: SidebarProps) {
-  const isDark = theme === 'dark'
+const shortcuts = [
+  {
+    name: "Add new user",
+    href: "/settings/users",
+    icon: RiLinkM,
+  },
+  {
+    name: "Workspace usage",
+    href: "/settings/billing#billing-overview",
+    icon: RiLinkM,
+  },
+  {
+    name: "Cost spend control",
+    href: "/settings/billing#cost-spend-control",
+    icon: RiLinkM,
+  },
+  {
+    name: "Overview – Rows written",
+    href: "/overview#usage-overview",
+    icon: RiLinkM,
+  },
+] as const
 
+export function Sidebar() {
+  const pathname = usePathname()
+  const isActive = (itemHref: string) => {
+    if (itemHref === siteConfig.baseLinks.settings.general) {
+      return pathname.startsWith("/settings")
+    }
+    return pathname === itemHref || pathname.startsWith(itemHref)
+  }
   return (
-    <aside className="flex grow flex-col gap-y-6 overflow-y-auto border-r border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-950">
-      <div className="mb-5 flex items-center justify-between gap-3 md:mb-10">
-        <div className="flex min-w-0 items-center gap-3">
-          <div className="grid size-10 shrink-0 place-items-center rounded-md bg-indigo-500 font-semibold text-white">
-            CS
+    <>
+      {/* sidebar (lg+) */}
+      <nav className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
+        <aside className="flex grow flex-col gap-y-6 overflow-y-auto border-r border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-950">
+          <WorkspacesDropdownDesktop />
+          <nav
+            aria-label="core navigation links"
+            className="flex flex-1 flex-col space-y-10"
+          >
+            <ul role="list" className="space-y-0.5">
+              {navigation.map((item) => (
+                <li key={item.name}>
+                  <Link
+                    href={item.href}
+                    className={cx(
+                      isActive(item.href)
+                        ? "text-indigo-600 dark:text-indigo-400"
+                        : "text-gray-700 hover:text-gray-900 dark:text-gray-400 hover:dark:text-gray-50",
+                      "flex items-center gap-x-2.5 rounded-md px-2 py-1.5 text-sm font-medium transition hover:bg-gray-100 hover:dark:bg-gray-900",
+                      focusRing,
+                    )}
+                  >
+                    <item.icon className="size-4 shrink-0" aria-hidden="true" />
+                    {item.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <div>
+              <span className="text-xs font-medium leading-6 text-gray-500">
+                Shortcuts
+              </span>
+              <ul aria-label="shortcuts" role="list" className="space-y-0.5">
+                {shortcuts.map((item) => (
+                  <li key={item.name}>
+                    <Link
+                      href={item.href}
+                      className={cx(
+                        pathname === item.href || pathname.startsWith(item.href)
+                          ? "text-indigo-600 dark:text-indigo-400"
+                          : "text-gray-700 hover:text-gray-900 dark:text-gray-400 hover:dark:text-gray-50",
+                        "flex items-center gap-x-2.5 rounded-md px-2 py-1.5 text-sm font-medium transition hover:bg-gray-100 hover:dark:bg-gray-900",
+                        focusRing,
+                      )}
+                    >
+                      <item.icon
+                        className="size-4 shrink-0"
+                        aria-hidden="true"
+                      />
+                      {item.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </nav>
+          <div className="mt-auto">
+            <UserProfileDesktop />
           </div>
-
-          <div className="min-w-0">
-            <p className="font-semibold text-gray-900 dark:text-white">CrewSim</p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">Admin dashboard</p>
-          </div>
-        </div>
-
-        <Button
-          type="button"
-          variant="ghost"
-          aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
-          title={`Switch to ${isDark ? 'light' : 'dark'} mode`}
-          onClick={() => onThemeChange(isDark ? 'light' : 'dark')}
-          className="shrink-0 p-2"
-        >
-          {isDark ? (
-            <RiSunLine className="size-5" aria-hidden="true" />
-          ) : (
-            <RiMoonLine className="size-5" aria-hidden="true" />
-          )}
-        </Button>
-      </div>
-
-      <nav className="flex gap-2 md:flex-col" aria-label="Main navigation">
-        {navigationItems.map((item) => {
-          const Icon = item.icon
-          const isActive = activeSection === item.id
-
-          return (
-            <Button
-              key={item.id}
-              type="button"
-              variant="ghost"
-              onClick={() => onSectionChange(item.id)}
-              className={cx(
-                'w-full justify-start gap-3 border-transparent text-gray-600 hover:text-gray-950 dark:text-gray-400 dark:hover:text-gray-50',
-                isActive &&
-                  'border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-800 dark:border-blue-500/20 dark:bg-blue-500/15 dark:text-blue-300 dark:hover:bg-blue-500/20 dark:hover:text-blue-200',
-              )}
-              aria-current={isActive ? 'page' : undefined}
-            >
-              <Icon className="size-5" aria-hidden="true" />
-              {item.label}
-            </Button>
-          )
-        })}
+        </aside>
       </nav>
-    </aside>
+      {/* top navbar (xs-lg) */}
+      <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center justify-between border-b border-gray-200 bg-white px-2 shadow-sm sm:gap-x-6 sm:px-4 lg:hidden dark:border-gray-800 dark:bg-gray-950">
+        <WorkspacesDropdownMobile />
+        <div className="flex items-center gap-1 sm:gap-2">
+          <UserProfileMobile />
+          <MobileSidebar />
+        </div>
+      </div>
+    </>
   )
 }
