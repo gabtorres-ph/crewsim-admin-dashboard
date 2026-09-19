@@ -1,209 +1,50 @@
-# CrewSim Admin Dashboard
+# Tremor – Dashboard
 
-React, TypeScript, Tailwind CSS, and Tremor Raw administration UI for managing
-CrewSim operational records through a FastAPI REST API.
+`Dashboard` is a SaaS application template from [Tremor](https://tremor.so). It's built
+using [`Tremor Raw`](https://raw.tremor.so/docs/getting-started/installation)
+and [Next.js](https://nextjs.org).
 
-## Run locally against FastAPI
+## Getting started
 
-Start the backend stack and seed its database:
-
-```bash
-cd ../core-crewsim
-docker compose up --build --wait
-docker compose exec api python -m app.seed
-```
-
-Then start the frontend development server from this repository:
+1. Install the dependencies. We recommend using pnpm. If you want to use `npm`,
+   just replace `pnpm` with `npm`.
 
 ```bash
-npm ci
-npm run dev
+pnpm install
 ```
 
-The frontend is available at `http://localhost:5173`. Development requests to
-`/api` are proxied to `http://localhost:8000`, avoiding cross-origin browser
-requests. `CORE_API_URL` can override that development proxy target.
-
-The checked-in development environment uses the real API. To use the bundled
-Mock Service Worker API for a single run instead, use:
+2. Then, start the development server:
 
 ```bash
-VITE_USE_MOCK_API=true npm run dev
+pnpm run dev
 ```
 
-`VITE_API_BASE_URL` is a build-time browser setting and defaults to `/api`.
-Keep that default when the deployment routes `/api/*` to the backend on the
-same origin. For a locked Nixpacks static deployment that cannot proxy API
-requests, set it to the backend's public API origin, for example
-`https://api.example.com/api`.
+3. Visit [http://localhost:3000](http://localhost:3000) in your browser to view
+   the template.
 
-### Static Nixpacks test deployment
+## Notes
 
-When Dokploy uses Nixpacks with `dist` as the Publish Directory, configure
-these variables on the frontend application before rebuilding it:
+This project uses
+[`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to
+automatically optimize and load Inter, a custom Google Font.
 
-```dotenv
-VITE_API_BASE_URL=https://api.example.com/api
-CF_ACCESS_CLIENT_ID=<service-token-client-id>
-CF_ACCESS_CLIENT_SECRET=<service-token-client-secret>
-```
+This project uses
+[`Tremor Raw`](https://raw.tremor.so/docs/getting-started/installation)
+components for the UI.
 
-This project's Vite configuration deliberately exposes the two `CF_ACCESS_*`
-variables to client code. During `npm run build`, Vite embeds their values in
-`dist`; the shared API client then sends `CF-Access-Client-Id` and
-`CF-Access-Client-Secret` on every backend request. Changing these variables in
-Dokploy requires a rebuild/redeploy because the static Nginx container cannot
-read them at runtime.
+## License
 
-This mode is only suitable for an isolated test environment: anyone who can
-load the application can recover and reuse the service token. Revoke or rotate
-the token before moving to a server-side proxy or production deployment.
+This site template is a commercial product and is licensed under the
+[Tremor License](https://blocks.tremor.so/license).
 
-Direct browser requests are cross-origin and preflighted. The Cloudflare
-Access application must have a Service Auth policy for the service token and
-must either bypass OPTIONS requests to the API or answer preflight requests.
-The API/Access CORS response must allow the frontend origin, credentials,
-`GET`, `POST`, `PATCH`, `DELETE`, and `OPTIONS`, plus the `Content-Type`,
-`CF-Access-Client-Id`, and `CF-Access-Client-Secret` request headers.
+## Learn more
 
-In a dynamic Dokploy deployment, configure `CF_ACCESS_CLIENT_ID`,
-`CF_ACCESS_CLIENT_SECRET`, and `CORE_API_URL` as runtime environment variables
-on the frontend container. Vite reads them when the container starts, proxies
-`/api/*` to `CORE_API_URL`, and attaches the corresponding Cloudflare Access
-service-token headers. The secret is not included in the browser bundle. These
-runtime proxy settings do not apply when Dokploy serves a Nixpacks Publish
-Directory with its static Nginx image.
+For a deeper understanding of the technologies used in this template, check out
+the resources listed below:
 
-The container runs `npm start`, which serves the built application with Vite on
-port `8080`. Set `PORT` to change the container port if the deployment platform
-requires a different one.
-
-`VITE_USE_MOCK_API`, `VITE_API_BASE_URL`, and the intentionally exposed
-`CF_ACCESS_*` values are build-time frontend settings.
-`NIXPACKS_NODE_VERSION` selects the Node.js major version used by Nixpacks and
-the Docker build; it defaults to `24` in the supplied configuration.
-
-## Run the integrated Docker stack
-
-The integration Compose file includes the backend stack from the sibling
-`core-crewsim` repository and adds this frontend as a Vite container:
-
-```bash
-docker compose -f compose.integration.yaml up --build --wait
-docker compose -f compose.integration.yaml exec api python -m app.seed
-```
-
-Open `http://localhost:5173`. Vite serves the frontend and proxies `/api/*` to
-the FastAPI `api` service on the shared Compose network. Override the frontend
-host port with `FRONTEND_PORT`, if needed:
-
-```bash
-FRONTEND_PORT=8080 docker compose -f compose.integration.yaml up --build --wait
-```
-
-Stop the integration stack while preserving its PostgreSQL data with:
-
-```bash
-docker compose -f compose.integration.yaml down
-```
-
-## REST API contract
-
-The frontend currently expects array responses, numeric IDs, and these routes:
-
-| Resource | List | Detail | Create | Update | Delete |
-| --- | --- | --- | --- | --- | --- |
-| Users | `GET /api/users` | `GET /api/users/{id}` | `POST /api/users` | `PATCH /api/users/{id}` | `DELETE /api/users/{id}` |
-| Accounts | `GET /api/accounts` | `GET /api/accounts/{id}` | `POST /api/accounts` | `PATCH /api/accounts/{id}` | `DELETE /api/accounts/{id}` |
-| eSIMs | `GET /api/esims` | `GET /api/esims/{id}` | `POST /api/esims` | `PATCH /api/esims/{id}` | `DELETE /api/esims/{id}` |
-| Favorites | `GET /api/favorites` | `GET /api/favorites/{id}` | `POST /api/favorites` | none | `DELETE /api/favorites/{id}` |
-| Packages | `GET /api/packages` | `GET /api/packages/{id}` | `POST /api/packages` | `PATCH /api/packages/{id}` | `DELETE /api/packages/{id}` |
-| SMS | `GET /api/sms` | `GET /api/sms/{id}` | `POST /api/sms` | `PATCH /api/sms/{id}` | `DELETE /api/sms/{id}` |
-| Usage | `GET /api/usage` | `GET /api/usage/{id}` | `POST /api/usage` | `PATCH /api/usage/{id}` | `DELETE /api/usage/{id}` |
-| Crew | `GET /api/crew` | `GET /api/crew/{id}` | `POST /api/crew` | `PATCH /api/crew/{id}` | `DELETE /api/crew/{id}` |
-| Email Whitelist | `GET /api/email-whitelist` | `GET /api/email-whitelist/{id}` | `POST /api/email-whitelist` | `PATCH /api/email-whitelist/{id}` | `DELETE /api/email-whitelist/{id}` |
-| Stripe Notifications | `GET /api/stripe/notifications` | `GET /api/stripe/notifications/{id}` | `POST /api/stripe/notifications` | `PATCH /api/stripe/notifications/{id}` | `DELETE /api/stripe/notifications/{id}` |
-
-DTOs live in each feature's `model/types.ts` file. The frontend keeps backend
-wire keys at the API boundary: Favorites and Crew use `user_id`, Stripe
-notifications use `userid`, and eSIM UI models are adapted to and from the
-backend's snake-case response. Newer contracts omit only `undefined` values
-before sending JSON so permitted `null`, zero, and false values are preserved.
-Usage charges, Crew confidence, and Stripe monetary fields are represented as
-strings to preserve Decimal precision.
-
-All list routes accept `offset` and `limit`. eSIMs can be filtered with
-`user_id`, `GET /api/accounts/{id}/esims` and `GET /api/users/{id}/esims`
-return assigned eSIMs, and Favorites support both `GET /api/favorites?user_id=`
-and `GET /api/users/{id}/favorites`. The backend remains responsible for
-authorization and relationship validation.
-
-The mock API supplies deterministic records for all ten domains and supports
-the documented CRUD operations, including 204 deletes and relationship errors
-where the frontend already has related fixtures. Mock state resets on page
-refresh and before each Storybook story.
-
-## Frontend architecture
-
-The source tree is organized by app shell, feature ownership, and shared
-infrastructure:
-
-```text
-src/
-├── app/
-│   ├── App.tsx
-│   ├── App.stories.tsx
-│   └── components/
-├── features/
-│   ├── accounts/
-│   ├── users/
-│   ├── esims/
-│   ├── favorites/
-│   ├── packages/
-│   ├── sms/
-│   ├── usage/
-│   ├── crew/
-│   ├── whitelist/
-│   └── stripe/
-├── shared/
-│   ├── api/
-│   ├── lib/
-│   ├── mocks/
-│   └── ui/
-├── assets/
-├── index.css
-└── main.tsx
-```
-
-Feature slices own their API calls, model types, pages, UI components, stories,
-and mock data. Each feature exposes app-facing pages from its root `index.ts`;
-cross-feature contracts must go through a feature `api`, `model`, or `mocks`
-barrel instead of importing another feature's private files directly.
-
-`app` composes the shell and may depend on features and shared modules.
-Features may depend on shared modules. `shared` contains domain-neutral API,
-library, mock-composition, and UI code, and must not import `app` or feature
-modules except for `shared/mocks`, which intentionally aggregates feature mock
-handlers for development and Storybook.
-
-Mock fixtures and handlers are isolated from production barrels. The browser
-MSW worker is loaded only by `src/main.tsx` in development when
-`VITE_USE_MOCK_API=true`, so production builds do not statically import MSW
-handlers or fixture data.
-
-## Commands
-
-```bash
-npm run lint
-npm run build
-npm run storybook
-npm run build-storybook
-```
-
-Storybook includes populated page stories for all contract-backed domains, plus
-empty, loading, validation, mutation-error, and service-error states for Users,
-Accounts, and eSIM management.
-
-## TODO
-
-- Add authentication and authorization once the FastAPI contract is defined.
+- [Tremor Raw](https://raw.tremor.so) - Tremor Raw documentation
+- [Tailwind CSS](https://tailwindcss.com) - A utility-first CSS framework
+- [Next.js](https://nextjs.org/docs) - Next.js documentation
+- [Radix UI](https://www.radix-ui.com) - Radix UI Website
+- [Recharts](https://recharts.org) - Recharts documentation and website
+- [Tanstack](https://tanstack.com/table/latest) - TanStack table documentation

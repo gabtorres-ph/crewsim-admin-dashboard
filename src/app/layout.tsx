@@ -4,7 +4,7 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import { siteConfig } from "./siteConfig"
 
-import { Sidebar } from "@/app/components/Sidebar"
+import { Sidebar } from "@/components/ui/navigation/Sidebar"
 
 const inter = Inter({
   subsets: ["latin"],
