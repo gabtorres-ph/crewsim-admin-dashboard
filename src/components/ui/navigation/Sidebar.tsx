@@ -2,6 +2,7 @@
 import { siteConfig } from "@/app/siteConfig"
 import { cx, focusRing } from "@/lib/utils"
 import {
+  RiFolderUserLine,
   RiHome2Line,
   RiLinkM,
   RiListCheck,
@@ -15,8 +16,9 @@ import {
   WorkspacesDropdownMobile,
 } from "./SidebarWorkspacesDropdown"
 import { UserProfileDesktop, UserProfileMobile } from "./UserProfile"
-
+// todo wire account page here
 const navigation = [
+  { name: "Accounts", href: siteConfig.baseLinks.accounts, icon: RiFolderUserLine},
   { name: "Overview", href: siteConfig.baseLinks.overview, icon: RiHome2Line },
   { name: "Details", href: siteConfig.baseLinks.details, icon: RiListCheck },
   {
