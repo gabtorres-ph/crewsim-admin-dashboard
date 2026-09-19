@@ -1,6 +1,6 @@
 "use client"
 import { siteConfig } from "@/app/siteConfig"
-import { cx, focusRing } from "@/lib/utils"
+import { cx, focusRing } from "@/shared/lib/utils"
 import {
   RiHome2Line,
   RiLinkM,
