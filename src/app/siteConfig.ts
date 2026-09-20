@@ -8,7 +8,7 @@ export const siteConfig = {
     users: "/users",
     esims: "/esims",
     favorites: "/favorites",
-    packages: "/packages",
+    package_templates: "/packages",
     usage: "/usage",
     crew: "/crew",
     sms: "/sms",

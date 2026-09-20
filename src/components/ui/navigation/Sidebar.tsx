@@ -3,6 +3,17 @@ import { siteConfig } from "@/app/siteConfig"
 import { cx, focusRing } from "@/lib/utils"
 import {
   RiFolderUserLine,
+  RiUserLine,
+  RiSimCardLine,
+  RiStarLine,
+  RiRedPacketLine,
+  RiHourglassFill,
+  RiPlaneLine,
+  RiMessage2Line,
+  RiBankCardLine,
+  RiTranslate2, 
+  RiMoneyEuroCircleLine,
+  RiTimeZoneLine,
   RiHome2Line,
   RiLinkM,
   RiListCheck,
@@ -18,7 +29,19 @@ import {
 import { UserProfileDesktop, UserProfileMobile } from "./UserProfile"
 // todo wire account page here
 const navigation = [
-  { name: "Accounts", href: siteConfig.baseLinks.accounts, icon: RiFolderUserLine},
+  { name: "Accounts", href: siteConfig.baseLinks.accounts, icon: RiFolderUserLine },
+  { name: "Users", href: siteConfig.baseLinks.users, icon: RiUserLine },
+  { name: "ESims", href: siteConfig.baseLinks.esims, icon: RiSimCardLine },
+  { name: "Favorites", href: siteConfig.baseLinks.favorites, icon: RiStarLine },
+  { name: "Packages", href: siteConfig.baseLinks.package_templates, icon: RiRedPacketLine },
+  { name: "Usage", href: siteConfig.baseLinks.usage, icon: RiHourglassFill },
+  { name: "Crew", href: siteConfig.baseLinks.crew, icon: RiPlaneLine },
+  { name: "SMS", href: siteConfig.baseLinks.sms, icon: RiMessage2Line },
+  { name: "Stripe Notification", href: siteConfig.baseLinks.stripe_notification, icon: RiBankCardLine },
+  { name: "Languages", href: siteConfig.baseLinks.languages, icon: RiTranslate2 }, 
+  { name: "Currencies", href: siteConfig.baseLinks.currencies, icon: RiMoneyEuroCircleLine },
+  { name: "Timezones", href: siteConfig.baseLinks.timezones, icon: RiTimeZoneLine },
+
   { name: "Overview", href: siteConfig.baseLinks.overview, icon: RiHome2Line },
   { name: "Details", href: siteConfig.baseLinks.details, icon: RiListCheck },
   {
