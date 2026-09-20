@@ -5,6 +5,18 @@ export const siteConfig = {
   baseLinks: {
     home: "/",
     accounts: "/accounts",
+    users: "/users",
+    esims: "/esims",
+    favorites: "/favorites",
+    packages: "/packages",
+    usage: "/usage",
+    crew: "/crew",
+    sms: "/sms",
+    email: "/email",
+    stripe_notification: "/stripe_notification",
+    languages: "/languages",
+    currencies: "/currencies",
+    timezones: "/timezones",
     overview: "/overview",
     details: "/details",
     settings: {
