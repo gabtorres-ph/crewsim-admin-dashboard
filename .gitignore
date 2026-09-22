@@ -27,3 +27,9 @@ dist-ssr
 storybook-static
 
 .next
+
+# Local environment and generated TypeScript state
+.env
+.env.*
+!.env.example
+tsconfig.tsbuildinfo

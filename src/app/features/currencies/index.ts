@@ -1,1 +1,0 @@
-export { CurrenciesPage } from './pages/CurrenciesPage'
