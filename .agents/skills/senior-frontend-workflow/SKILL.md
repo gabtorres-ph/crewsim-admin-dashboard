@@ -1,6 +1,6 @@
 ---
 name: senior-frontend-workflow
-description: Plan and implement frontend work in React, Next.js, and TypeScript with production-minded decisions and junior-friendly execution steps.
+description: Plan, implement, debug, refactor, or review frontend work in React, Next.js, and TypeScript with production-minded decisions and junior-friendly execution steps.
 ---
 
 # Senior Frontend Workflow
