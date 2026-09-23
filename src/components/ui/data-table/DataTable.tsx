@@ -88,8 +88,8 @@ export function DataTable<TData>({
                     <TableHeaderCell
                       key={header.id}
                       className={cx(
-                        "whitespace-nowrap py-1 text-sm sm:text-xs",
                         header.column.columnDef.meta?.className,
+                        "whitespace-nowrap py-1 text-left text-sm sm:text-xs",
                       )}
                     >
                       {flexRender(
@@ -123,9 +123,9 @@ export function DataTable<TData>({
                           row.getIsSelected()
                             ? "bg-gray-50 dark:bg-gray-900"
                             : "",
-                          "relative whitespace-nowrap py-1 text-gray-600 dark:text-gray-400",
                           enableRowSelection && "first:w-10",
                           cell.column.columnDef.meta?.className,
+                          "relative whitespace-nowrap py-1 text-left text-gray-600 dark:text-gray-400",
                         )}
                       >
                         {index === 0 && row.getIsSelected() && (
@@ -143,7 +143,7 @@ export function DataTable<TData>({
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className="h-24 text-center"
+                    className="h-24 text-left"
                   >
                     {emptyMessage}
                   </TableCell>

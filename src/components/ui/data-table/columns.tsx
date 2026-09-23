@@ -149,7 +149,7 @@ export const columns = [
     ),
     enableSorting: true,
     meta: {
-      className: "text-right",
+      className: "text-left",
       displayName: "Costs",
     },
     cell: ({ getValue }) => {

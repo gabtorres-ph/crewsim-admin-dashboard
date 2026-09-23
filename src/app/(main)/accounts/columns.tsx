@@ -91,7 +91,7 @@ export function getAccountColumns({ onEdit, onDelete }: AccountColumnActions) {
       ),
       enableSorting: true,
       meta: {
-        className: "text-right tabular-nums",
+        className: "text-left tabular-nums",
         displayName: "ID",
       },
     }),
@@ -118,7 +118,7 @@ export function getAccountColumns({ onEdit, onDelete }: AccountColumnActions) {
       enableSorting: true,
       filterFn: filterBalance,
       meta: {
-        className: "text-right tabular-nums",
+        className: "text-left tabular-nums",
         displayName: "Balance",
       },
     }),
@@ -126,7 +126,7 @@ export function getAccountColumns({ onEdit, onDelete }: AccountColumnActions) {
       id: "actions",
       header: "Actions",
       cell: ({ row }) => (
-        <div className="flex justify-end gap-1">
+        <div className="flex justify-start gap-1">
           <Button
             type="button"
             variant="ghost"
@@ -153,7 +153,7 @@ export function getAccountColumns({ onEdit, onDelete }: AccountColumnActions) {
           </Button>
         </div>
       ),
-      meta: { className: "text-right", displayName: "Actions" },
+      meta: { className: "text-left", displayName: "Actions" },
     }),
   ] as ColumnDef<AccountRead>[]
 }
