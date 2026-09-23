@@ -1,26 +1,18 @@
-/** Data required by POST /api/accounts. */
-export type AccountCreate = {
-  name: string;
-  balance: number;
-};
+import "server-only";
 
-/** Data accepted by PATCH /api/accounts/{accountId}. */
-export type AccountUpdate = {
-  name?: string;
-  balance?: number;
-};
+import type {
+  AccountCreate,
+  AccountListParams,
+  AccountRead,
+  AccountUpdate,
+} from "./types";
 
-/** Account representation returned by the API. */
-export type AccountRead = {
-  id: number;
-  name: string;
-  balance: number;
-};
-
-export type AccountListParams = {
-  offset?: number;
-  limit?: number;
-};
+export type {
+  AccountCreate,
+  AccountListParams,
+  AccountRead,
+  AccountUpdate,
+} from "./types";
 
 type ApiErrorBody = {
   detail?: unknown;
