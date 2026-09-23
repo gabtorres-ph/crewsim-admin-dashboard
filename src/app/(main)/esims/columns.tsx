@@ -3,6 +3,7 @@
 import { RiDeleteBinLine, RiEditLine } from "@remixicon/react"
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table"
 import { Button } from "@/components/Button"
+import { Checkbox } from "@/components/Checkbox"
 import { DataTableColumnHeader } from "@/components/ui/data-table/DataTableColumnHeader"
 import type { EsimRead } from "./types"
 
@@ -16,6 +17,34 @@ export function getEsimColumns({
   onDelete: (esim: EsimRead) => void
 }) {
   return [
+    helper.display({
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected()
+              ? true
+              : table.getIsSomeRowsSelected()
+                ? "indeterminate"
+                : false
+          }
+          onCheckedChange={() => table.toggleAllPageRowsSelected()}
+          className="translate-y-0.5"
+          aria-label="Select all eSIMs"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={() => row.toggleSelected()}
+          className="translate-y-0.5"
+          aria-label={`Select ${row.original.name ?? row.original.imsi}`}
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+      meta: { displayName: "Select" },
+    }),
     helper.accessor("id", {
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="ID" />

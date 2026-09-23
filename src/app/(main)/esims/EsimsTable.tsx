@@ -58,6 +58,7 @@ export function EsimsTable({ esims }: { esims: EsimRead[] }) {
         columns={getEsimColumns({ onEdit: setEditing, onDelete: remove })}
         data={esims}
         emptyMessage="No eSIMs found."
+        enableRowSelection
         getRowId={(esim) => String(esim.id)}
         pageSize={20}
         toolbar={toolbar}
