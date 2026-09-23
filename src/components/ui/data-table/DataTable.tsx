@@ -11,12 +11,16 @@ import {
 import { cx } from "@/lib/utils"
 import * as React from "react"
 
-import { DataTableBulkEditor } from "./DataTableBulkEditor"
-import { Filterbar } from "./DataTableFilterbar"
+import {
+  DataTableBulkActions,
+  DataTableBulkEditor,
+} from "./DataTableBulkEditor"
+import { DataTableToolbarConfig, Filterbar } from "./DataTableFilterbar"
 import { DataTablePagination } from "./DataTablePagination"
 
 import {
   ColumnDef,
+  TableOptions,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
@@ -28,14 +32,29 @@ import {
 interface DataTableProps<TData> {
   columns: ColumnDef<TData>[]
   data: TData[]
+  pageSize?: number
+  getRowId?: TableOptions<TData>["getRowId"]
+  emptyMessage?: string
+  toolbar?: DataTableToolbarConfig
+  enableRowSelection?: boolean
+  bulkActions?: DataTableBulkActions<TData>
 }
 
-export function DataTable<TData>({ columns, data }: DataTableProps<TData>) {
-  const pageSize = 20
+export function DataTable<TData>({
+  columns,
+  data,
+  pageSize = 20,
+  getRowId,
+  emptyMessage = "No results.",
+  toolbar,
+  enableRowSelection = false,
+  bulkActions,
+}: DataTableProps<TData>) {
   const [rowSelection, setRowSelection] = React.useState({})
   const table = useReactTable({
     data,
     columns,
+    getRowId,
     state: {
       rowSelection,
     },
@@ -45,7 +64,7 @@ export function DataTable<TData>({ columns, data }: DataTableProps<TData>) {
         pageSize: pageSize,
       },
     },
-    enableRowSelection: true,
+    enableRowSelection,
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onRowSelectionChange: setRowSelection,
@@ -56,7 +75,7 @@ export function DataTable<TData>({ columns, data }: DataTableProps<TData>) {
   return (
     <>
       <div className="space-y-3">
-        <Filterbar table={table} />
+        {toolbar && <Filterbar table={table} config={toolbar} />}
         <div className="relative overflow-hidden overflow-x-auto">
           <Table>
             <TableHead>
@@ -87,8 +106,15 @@ export function DataTable<TData>({ columns, data }: DataTableProps<TData>) {
                 table.getRowModel().rows.map((row) => (
                   <TableRow
                     key={row.id}
-                    onClick={() => row.toggleSelected(!row.getIsSelected())}
-                    className="group select-none hover:bg-gray-50 hover:dark:bg-gray-900"
+                    onClick={
+                      enableRowSelection
+                        ? () => row.toggleSelected(!row.getIsSelected())
+                        : undefined
+                    }
+                    className={cx(
+                      "group hover:bg-gray-50 hover:dark:bg-gray-900",
+                      enableRowSelection && "cursor-pointer select-none",
+                    )}
                   >
                     {row.getVisibleCells().map((cell, index) => (
                       <TableCell
@@ -97,7 +123,8 @@ export function DataTable<TData>({ columns, data }: DataTableProps<TData>) {
                           row.getIsSelected()
                             ? "bg-gray-50 dark:bg-gray-900"
                             : "",
-                          "relative whitespace-nowrap py-1 text-gray-600 first:w-10 dark:text-gray-400",
+                          "relative whitespace-nowrap py-1 text-gray-600 dark:text-gray-400",
+                          enableRowSelection && "first:w-10",
                           cell.column.columnDef.meta?.className,
                         )}
                       >
@@ -118,15 +145,25 @@ export function DataTable<TData>({ columns, data }: DataTableProps<TData>) {
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    No results.
+                    {emptyMessage}
                   </TableCell>
                 </TableRow>
               )}
             </TableBody>
           </Table>
-          <DataTableBulkEditor table={table} rowSelection={rowSelection} />
+          {enableRowSelection && bulkActions && (
+            <DataTableBulkEditor
+              table={table}
+              rowSelection={rowSelection}
+              actions={bulkActions}
+            />
+          )}
         </div>
-        <DataTablePagination table={table} pageSize={pageSize} />
+        <DataTablePagination
+          table={table}
+          pageSize={pageSize}
+          showSelectionCount={enableRowSelection}
+        />
       </div>
     </>
   )

@@ -11,11 +11,13 @@ import { Table } from "@tanstack/react-table"
 interface DataTablePaginationProps<TData> {
   table: Table<TData>
   pageSize: number
+  showSelectionCount?: boolean
 }
 
 export function DataTablePagination<TData>({
   table,
   pageSize,
+  showSelectionCount = false,
 }: DataTablePaginationProps<TData>) {
   const paginationButtons = [
     {
@@ -50,15 +52,19 @@ export function DataTablePagination<TData>({
 
   const totalRows = table.getFilteredRowModel().rows.length
   const currentPage = table.getState().pagination.pageIndex
-  const firstRowIndex = currentPage * pageSize + 1
+  const firstRowIndex = totalRows === 0 ? 0 : currentPage * pageSize + 1
   const lastRowIndex = Math.min(totalRows, firstRowIndex + pageSize - 1)
 
   return (
     <div className="flex items-center justify-between">
-      <div className="text-sm tabular-nums text-gray-500">
-        {table.getFilteredSelectedRowModel().rows.length} of {totalRows} row(s)
-        selected.
-      </div>
+      {showSelectionCount ? (
+        <div className="text-sm tabular-nums text-gray-500">
+          {table.getFilteredSelectedRowModel().rows.length} of {totalRows}{" "}
+          row(s) selected.
+        </div>
+      ) : (
+        <div />
+      )}
       <div className="flex items-center gap-x-6 lg:gap-x-8">
         <p className="hidden text-sm tabular-nums text-gray-500 sm:block">
           Showing{" "}

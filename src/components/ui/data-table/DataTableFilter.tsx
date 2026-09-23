@@ -32,7 +32,7 @@ export type ConditionFilter = {
   value: [number | string, number | string]
 }
 
-type FilterType = "select" | "checkbox" | "number"
+export type FilterType = "select" | "checkbox" | "number"
 
 interface DataTableFilterProps<TData, TValue> {
   column: Column<TData, TValue> | undefined
@@ -42,7 +42,8 @@ interface DataTableFilterProps<TData, TValue> {
     value: string
   }[]
   type?: FilterType
-  formatter?: (value: any) => string
+  formatter?: (value: unknown) => string
+  inputPlaceholder?: string
 }
 
 const ColumnFiltersLabel = ({
@@ -91,7 +92,8 @@ export function DataTableFilter<TData, TValue>({
   title,
   options,
   type = "select",
-  formatter = (value) => value.toString(),
+  formatter = (value) => String(value),
+  inputPlaceholder = "0",
 }: DataTableFilterProps<TData, TValue>) {
   const columnFilters = column?.getFilterValue() as FilterValues
 
@@ -225,7 +227,7 @@ export function DataTableFilter<TData, TValue>({
               <Input
                 disabled={!(selectedValues as ConditionFilter)?.condition}
                 type="number"
-                placeholder="$0"
+                placeholder={inputPlaceholder}
                 className="sm:[&>input]:py-1"
                 value={(selectedValues as ConditionFilter)?.value?.[0]}
                 onChange={(e) => {
@@ -247,7 +249,7 @@ export function DataTableFilter<TData, TValue>({
                   <Input
                     disabled={!(selectedValues as ConditionFilter)?.condition}
                     type="number"
-                    placeholder="$0"
+                    placeholder={inputPlaceholder}
                     className="sm:[&>input]:py-1"
                     value={(selectedValues as ConditionFilter)?.value?.[1]}
                     onChange={(e) => {

@@ -8,7 +8,6 @@ import { formatters } from "@/lib/utils"
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table"
 import { DataTableColumnHeader } from "./DataTableColumnHeader"
 import { ConditionFilter } from "./DataTableFilter"
-import { DataTableRowActions } from "./DataTableRowActions"
 
 const columnHelper = createColumnHelper<Usage>()
 
@@ -185,16 +184,5 @@ export const columns = [
       className: "tabular-nums",
       displayName: "Last edited",
     },
-  }),
-  columnHelper.display({
-    id: "edit",
-    header: "Edit",
-    enableSorting: false,
-    enableHiding: false,
-    meta: {
-      className: "text-right",
-      displayName: "Edit",
-    },
-    cell: ({ row }) => <DataTableRowActions row={row} />,
   }),
 ] as ColumnDef<Usage>[]
