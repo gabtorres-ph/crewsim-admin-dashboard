@@ -19,7 +19,7 @@ pnpm install
 pnpm run dev
 ```
 
-3. Visit [http://localhost:3000](http://localhost:3000) in your browser to view
+3. Visit [http://localhost:8080](http://localhost:8080) in your browser to view
    the template.
 
 ## Notes
