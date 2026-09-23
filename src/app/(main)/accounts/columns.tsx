@@ -2,6 +2,7 @@
 
 import { DataTableColumnHeader } from "@/components/ui/data-table/DataTableColumnHeader"
 import { Button } from "@/components/Button"
+import { Checkbox } from "@/components/Checkbox"
 import { RiDeleteBinLine, RiEditLine } from "@remixicon/react"
 import type { ConditionFilter } from "@/components/ui/data-table/DataTableFilter"
 import {
@@ -54,6 +55,36 @@ export type AccountColumnActions = {
 
 export function getAccountColumns({ onEdit, onDelete }: AccountColumnActions) {
   return [
+    columnHelper.display({
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected()
+              ? true
+              : table.getIsSomeRowsSelected()
+                ? "indeterminate"
+                : false
+          }
+          onCheckedChange={() => table.toggleAllPageRowsSelected()}
+          className="translate-y-0.5"
+          aria-label="Select all accounts"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={() => row.toggleSelected()}
+          className="translate-y-0.5"
+          aria-label={`Select ${row.original.name}`}
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+      meta: {
+        displayName: "Select",
+      },
+    }),
     columnHelper.accessor("id", {
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="ID" />
@@ -101,7 +132,10 @@ export function getAccountColumns({ onEdit, onDelete }: AccountColumnActions) {
             variant="ghost"
             className="p-1.5"
             aria-label={`Edit ${row.original.name}`}
-            onClick={() => onEdit(row.original)}
+            onClick={(event) => {
+              event.stopPropagation()
+              onEdit(row.original)
+            }}
           >
             <RiEditLine className="size-4" aria-hidden="true" />
           </Button>
@@ -110,7 +144,10 @@ export function getAccountColumns({ onEdit, onDelete }: AccountColumnActions) {
             variant="ghost"
             className="p-1.5 text-red-600 hover:text-red-700 dark:text-red-400"
             aria-label={`Delete ${row.original.name}`}
-            onClick={() => onDelete(row.original)}
+            onClick={(event) => {
+              event.stopPropagation()
+              onDelete(row.original)
+            }}
           >
             <RiDeleteBinLine className="size-4" aria-hidden="true" />
           </Button>

@@ -79,6 +79,7 @@ export function AccountsTable({ accounts }: { accounts: AccountRead[] }) {
         })}
         data={accounts}
         emptyMessage="No accounts found."
+        enableRowSelection
         getRowId={(account) => String(account.id)}
         pageSize={20}
         toolbar={toolbar}
