@@ -1,6 +1,8 @@
 "use client"
 
 import { DataTableColumnHeader } from "@/components/ui/data-table/DataTableColumnHeader"
+import { Button } from "@/components/Button"
+import { RiDeleteBinLine, RiEditLine } from "@remixicon/react"
 import type { ConditionFilter } from "@/components/ui/data-table/DataTableFilter"
 import {
   createColumnHelper,
@@ -45,45 +47,79 @@ const filterBalance: FilterFn<AccountRead> = (
   }
 }
 
-export const accountColumns = [
-  columnHelper.accessor("id", {
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="ID" />
-    ),
-    enableSorting: true,
-    meta: {
-      className: "text-right tabular-nums",
-      displayName: "ID",
-    },
-  }),
-  columnHelper.accessor("name", {
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Name" />
-    ),
-    enableSorting: true,
-    enableHiding: false,
-    meta: {
-      className: "text-left",
-      displayName: "Name",
-    },
-  }),
-  columnHelper.accessor("balance", {
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Balance" />
-    ),
-    cell: ({ getValue }) => (
-      <span className="font-medium tabular-nums">
-        {balanceFormatter.format(getValue())}
-      </span>
-    ),
-    enableSorting: true,
-    filterFn: filterBalance,
-    meta: {
-      className: "text-right tabular-nums",
-      displayName: "Balance",
-    },
-  }),
-] as ColumnDef<AccountRead>[]
+export type AccountColumnActions = {
+  onEdit: (account: AccountRead) => void
+  onDelete: (account: AccountRead) => void
+}
+
+export function getAccountColumns({ onEdit, onDelete }: AccountColumnActions) {
+  return [
+    columnHelper.accessor("id", {
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="ID" />
+      ),
+      enableSorting: true,
+      meta: {
+        className: "text-right tabular-nums",
+        displayName: "ID",
+      },
+    }),
+    columnHelper.accessor("name", {
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Name" />
+      ),
+      enableSorting: true,
+      enableHiding: false,
+      meta: {
+        className: "text-left",
+        displayName: "Name",
+      },
+    }),
+    columnHelper.accessor("balance", {
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Balance" />
+      ),
+      cell: ({ getValue }) => (
+        <span className="font-medium tabular-nums">
+          {balanceFormatter.format(getValue())}
+        </span>
+      ),
+      enableSorting: true,
+      filterFn: filterBalance,
+      meta: {
+        className: "text-right tabular-nums",
+        displayName: "Balance",
+      },
+    }),
+    columnHelper.display({
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => (
+        <div className="flex justify-end gap-1">
+          <Button
+            type="button"
+            variant="ghost"
+            className="p-1.5"
+            aria-label={`Edit ${row.original.name}`}
+            onClick={() => onEdit(row.original)}
+          >
+            <RiEditLine className="size-4" aria-hidden="true" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            className="p-1.5 text-red-600 hover:text-red-700 dark:text-red-400"
+            aria-label={`Delete ${row.original.name}`}
+            onClick={() => onDelete(row.original)}
+          >
+            <RiDeleteBinLine className="size-4" aria-hidden="true" />
+          </Button>
+        </div>
+      ),
+      meta: { className: "text-right", displayName: "Actions" },
+    }),
+  ] as ColumnDef<AccountRead>[]
+}
 
 export function formatAccountBalance(value: number) {
   return balanceFormatter.format(value)
