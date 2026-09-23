@@ -132,7 +132,7 @@ export function Filterbar<TData>({
         {config.primaryAction && (
           <Button
             type="button"
-            className="hidden gap-x-2 px-2 py-1.5 text-sm sm:text-xs lg:flex"
+            className="flex gap-x-2 px-2 py-1.5 text-sm sm:text-xs"
             onClick={config.primaryAction.onClick}
           >
             {config.primaryAction.label}
