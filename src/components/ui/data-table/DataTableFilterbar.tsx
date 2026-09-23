@@ -29,6 +29,10 @@ export type DataTableToolbarConfig = {
   filters?: DataTableFilterConfig[]
   showViewOptions?: boolean
   onExport?: () => void
+  primaryAction?: {
+    label: string
+    onClick: () => void
+  }
 }
 
 interface DataTableToolbarProps<TData> {
@@ -68,7 +72,9 @@ export function Filterbar<TData>({
   )
 
   const hasLeftControls = visibleFilters.length > 0 || searchColumn
-  const hasRightControls = config.onExport || config.showViewOptions
+  const hasRightControls = Boolean(
+    config.onExport || config.showViewOptions || config.primaryAction,
+  )
 
   if (!hasLeftControls && !hasRightControls) {
     return null
@@ -111,7 +117,7 @@ export function Filterbar<TData>({
           </Button>
         )}
       </div>
-      <div className="flex items-center gap-2">
+      <div className="ml-auto flex items-center gap-2">
         {config.onExport && (
           <Button
             variant="secondary"
@@ -123,6 +129,15 @@ export function Filterbar<TData>({
           </Button>
         )}
         {config.showViewOptions && <ViewOptions table={table} />}
+        {config.primaryAction && (
+          <Button
+            type="button"
+            className="hidden gap-x-2 px-2 py-1.5 text-sm sm:text-xs lg:flex"
+            onClick={config.primaryAction.onClick}
+          >
+            {config.primaryAction.label}
+          </Button>
+        )}
       </div>
     </div>
   )

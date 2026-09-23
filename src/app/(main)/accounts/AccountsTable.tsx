@@ -1,7 +1,6 @@
 "use client"
 
 import { DataTable } from "@/components/ui/data-table/DataTable"
-import { Button } from "@/components/Button"
 import { useRouter } from "next/navigation"
 import { useState, useTransition } from "react"
 import type { DataTableToolbarConfig } from "@/components/ui/data-table/DataTableFilterbar"
@@ -17,7 +16,7 @@ const balanceConditions = [
   { value: "is-less-than", label: "is less than" },
 ]
 
-const toolbar = {
+const toolbarOptions = {
   search: {
     columnId: "name",
     placeholder: "Search accounts...",
@@ -41,6 +40,14 @@ export function AccountsTable({ accounts }: { accounts: AccountRead[] }) {
   const [actionError, setActionError] = useState<string>()
   const [isDeleting, startDeleteTransition] = useTransition()
 
+  const toolbar = {
+    ...toolbarOptions,
+    primaryAction: {
+      label: "Add account",
+      onClick: () => setIsCreateOpen(true),
+    },
+  } satisfies DataTableToolbarConfig
+
   function deleteAccount(account: AccountRead) {
     if (!window.confirm(`Delete account “${account.name}”?`)) return
 
@@ -59,13 +66,10 @@ export function AccountsTable({ accounts }: { accounts: AccountRead[] }) {
 
   return (
     <>
-      <div className="mb-4 flex items-center justify-between gap-4">
+      <div className="mb-4">
         <p className="text-sm text-gray-500 dark:text-gray-400">
           {accounts.length} account{accounts.length === 1 ? "" : "s"}
         </p>
-        <Button type="button" onClick={() => setIsCreateOpen(true)}>
-          Add account
-        </Button>
       </div>
       {actionError && (
         <p role="alert" className="mb-4 text-sm text-red-600 dark:text-red-400">
