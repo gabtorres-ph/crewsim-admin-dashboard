@@ -5,18 +5,22 @@ include:
 
 services:
   frontend:
+    image: bss-crewsim:local
     build:
       context: .
-      args:
-        NIXPACKS_NODE_VERSION: ${NIXPACKS_NODE_VERSION:-24}
-        VITE_USE_MOCK_API: ${VITE_USE_MOCK_API:-false}
+      dockerfile: Dockerfile
+      target: runner
     environment:
-      CORE_API_URL: ${CORE_API_URL:-http://api:8000}
+      # This URL is resolved by the Next.js server inside the Compose network.
+      # Do not inherit the host-oriented CORE_API_URL from the local .env file.
+      CORE_API_URL: http://api:8000
       CF_ACCESS_CLIENT_ID: ${CF_ACCESS_CLIENT_ID:-}
       CF_ACCESS_CLIENT_SECRET: ${CF_ACCESS_CLIENT_SECRET:-}
+    init: true
     ports:
       - "127.0.0.1:${FRONTEND_PORT:-5173}:8080"
     depends_on:
       api:
         condition: service_healthy
     restart: unless-stopped
+    stop_grace_period: 10s

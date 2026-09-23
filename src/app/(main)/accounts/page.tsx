@@ -1,6 +1,8 @@
 import { AccountsTable } from "./AccountsTable"
 import { fetchAccounts } from "./api"
 
+export const dynamic = "force-dynamic"
+
 export default async function AccountsPage() {
   const accounts = await fetchAccounts({ offset: 0, limit: 100 })
 
