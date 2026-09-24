@@ -21,15 +21,11 @@ export function DataTableColumnHeader<TData, TValue>({
   return (
     <div
       onClick={column.getToggleSortingHandler()}
-      className={cx(
-        column.columnDef.enableSorting === true
-          ? "-mx-2 inline-flex cursor-pointer select-none items-center gap-2 rounded-md px-2 py-1 hover:bg-gray-50 hover:dark:bg-gray-900"
-          : "",
-      )}
+      className="flex w-full min-w-0 cursor-pointer select-none items-center gap-2 rounded-md px-2 py-1 hover:bg-gray-50 hover:dark:bg-gray-900"
     >
-      <span>{title}</span>
+      <span className="min-w-0 truncate">{title}</span>
       {column.getCanSort() ? (
-        <div className="-space-y-2">
+        <div className="shrink-0 -space-y-2">
           <RiArrowUpSLine
             className={cx(
               "size-3.5 text-gray-900 dark:text-gray-50",
