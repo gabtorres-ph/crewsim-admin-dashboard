@@ -20,6 +20,11 @@ FROM base AS builder
 
 WORKDIR /app
 
+# NEXT_PUBLIC_* variables are embedded into the client bundle during `next build`.
+# Dokploy must pass this value as a Docker build argument.
+ARG NEXT_PUBLIC_DOCUMENTATION_URL
+ENV NEXT_PUBLIC_DOCUMENTATION_URL="$NEXT_PUBLIC_DOCUMENTATION_URL"
+
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 # Lint runs as a separate CI check; the current UI template has existing lint errors.
