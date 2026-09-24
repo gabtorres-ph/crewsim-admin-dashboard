@@ -23,6 +23,9 @@ import {
 import { useTheme } from "next-themes"
 import * as React from "react"
 
+// fetch this from an environment var
+const DOCUMENATATION_URL = process.env.NEXT_PUBLIC_DOCUMENTATION_URL
+
 export type DropdownUserProfileProps = {
   children: React.ReactNode
   align?: "center" | "start" | "end"
@@ -100,7 +103,12 @@ export function DropdownUserProfile({
                 aria-hidden="true"
               />
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem
+              onSelect={() => {
+                window.open(DOCUMENATATION_URL, "_blank",
+                "noopener,noreferrer")
+              }}
+            >
               Documentation
               <RiArrowRightUpLine
                 className="mb-1 ml-1 size-2.5 shrink-0 text-gray-500"
