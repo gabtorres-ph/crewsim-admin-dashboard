@@ -1,10 +1,9 @@
 "use client"
 
-import { DataTableColumnHeader } from "@/components/ui/data-table/DataTableColumnHeader"
-import { Button } from "@/components/Button"
 import { Checkbox } from "@/components/Checkbox"
-import { RiDeleteBinLine, RiEditLine } from "@remixicon/react"
+import { DataTableColumnHeader } from "@/components/ui/data-table/DataTableColumnHeader"
 import type { ConditionFilter } from "@/components/ui/data-table/DataTableFilter"
+import { DataTableRowActions } from "@/components/ui/data-table/DataTableRowActions"
 import {
   createColumnHelper,
   type ColumnDef,
@@ -126,32 +125,12 @@ export function getAccountColumns({ onEdit, onDelete }: AccountColumnActions) {
       id: "actions",
       header: "Actions",
       cell: ({ row }) => (
-        <div className="flex justify-start gap-1">
-          <Button
-            type="button"
-            variant="ghost"
-            className="p-1.5"
-            aria-label={`Edit ${row.original.name}`}
-            onClick={(event) => {
-              event.stopPropagation()
-              onEdit(row.original)
-            }}
-          >
-            <RiEditLine className="size-4" aria-hidden="true" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            className="p-1.5 text-red-600 hover:text-red-700 dark:text-red-400"
-            aria-label={`Delete ${row.original.name}`}
-            onClick={(event) => {
-              event.stopPropagation()
-              onDelete(row.original)
-            }}
-          >
-            <RiDeleteBinLine className="size-4" aria-hidden="true" />
-          </Button>
-        </div>
+        <DataTableRowActions
+          row={row}
+          rowLabel={row.original.name}
+          onEdit={onEdit}
+          onDelete={onDelete}
+        />
       ),
       meta: { className: "text-left", displayName: "Actions" },
     }),
