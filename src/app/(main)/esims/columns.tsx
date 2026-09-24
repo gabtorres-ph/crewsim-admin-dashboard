@@ -1,10 +1,9 @@
 "use client"
 
-import { RiDeleteBinLine, RiEditLine } from "@remixicon/react"
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table"
-import { Button } from "@/components/Button"
 import { Checkbox } from "@/components/Checkbox"
 import { DataTableColumnHeader } from "@/components/ui/data-table/DataTableColumnHeader"
+import { DataTableRowActions } from "@/components/ui/data-table/DataTableRowActions"
 import type { EsimRead } from "./types"
 
 const helper = createColumnHelper<EsimRead>()
@@ -84,32 +83,12 @@ export function getEsimColumns({
       id: "actions",
       header: "Actions",
       cell: ({ row }) => (
-        <div className="flex gap-1">
-          <Button
-            type="button"
-            variant="ghost"
-            className="p-1.5"
-            aria-label={`Edit ${row.original.imsi}`}
-            onClick={(event) => {
-              event.stopPropagation()
-              onEdit(row.original)
-            }}
-          >
-            <RiEditLine className="size-4" aria-hidden="true" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            className="p-1.5 text-red-600"
-            aria-label={`Delete ${row.original.imsi}`}
-            onClick={(event) => {
-              event.stopPropagation()
-              onDelete(row.original)
-            }}
-          >
-            <RiDeleteBinLine className="size-4" aria-hidden="true" />
-          </Button>
-        </div>
+        <DataTableRowActions
+          row={row}
+          rowLabel={row.original.name ?? row.original.imsi}
+          onEdit={onEdit}
+          onDelete={onDelete}
+        />
       ),
       meta: { displayName: "Actions" },
     }),
