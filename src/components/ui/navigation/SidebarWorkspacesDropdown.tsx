@@ -16,10 +16,10 @@ import { ModalAddWorkspace } from "./ModalAddWorkspace"
 
 const workspaces = [
   {
-    value: "retail-analytics",
-    name: "Retail analytics",
-    initials: "RA",
-    role: "Member",
+    value: "CrewSim",
+    name: "CrewSim",
+    initials: "CS",
+    role: "Admin",
     color: "bg-indigo-600 dark:bg-indigo-500",
   },
   // Add more workspaces...
@@ -160,7 +160,7 @@ export const WorkspacesDropdownMobile = () => {
               )}
               aria-hidden="true"
             >
-              RA
+              CS
             </span>
             <RiArrowRightSLine
               className="size-4 shrink-0 text-gray-500"
@@ -168,7 +168,7 @@ export const WorkspacesDropdownMobile = () => {
             />
             <div className="flex w-full items-center justify-between gap-x-3 truncate">
               <p className="truncate whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-50">
-                Retail analytics
+                CrewSim
               </p>
               <RiExpandUpDownLine
                 className="size-4 shrink-0 text-gray-500"
