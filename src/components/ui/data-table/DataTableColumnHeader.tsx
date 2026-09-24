@@ -21,7 +21,7 @@ export function DataTableColumnHeader<TData, TValue>({
   return (
     <div
       onClick={column.getToggleSortingHandler()}
-      className="flex w-full min-w-0 cursor-pointer select-none items-center gap-2 rounded-md px-2 py-1 hover:bg-gray-50 hover:dark:bg-gray-900"
+      className="flex w-full min-w-0 cursor-pointer select-none items-center gap-2 rounded-md py-1 hover:bg-gray-50 hover:dark:bg-gray-900"
     >
       <span className="min-w-0 truncate">{title}</span>
       {column.getCanSort() ? (
