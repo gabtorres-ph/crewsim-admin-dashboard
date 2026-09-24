@@ -14,7 +14,7 @@ import {
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>
   rowLabel?: string
-  onEdit: (data: TData) => void
+  onEdit?: (data: TData) => void
   onDelete: (data: TData) => void
 }
 
@@ -43,14 +43,16 @@ export function DataTableRowActions<TData>({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-40">
-        <DropdownMenuItem
-          onSelect={(event) => {
-            event.stopPropagation()
-            onEdit(row.original)
-          }}
-        >
-          Edit
-        </DropdownMenuItem>
+        {onEdit && (
+          <DropdownMenuItem
+            onSelect={(event) => {
+              event.stopPropagation()
+              onEdit(row.original)
+            }}
+          >
+            Edit
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem
           className="text-red-600 dark:text-red-500"
           onSelect={(event) => {

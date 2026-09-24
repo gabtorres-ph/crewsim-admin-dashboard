@@ -1,9 +1,8 @@
 "use client";
 
-import { Button } from "@/components/Button";
 import { Checkbox } from "@/components/Checkbox";
 import { DataTableColumnHeader } from "@/components/ui/data-table/DataTableColumnHeader";
-import { RiDeleteBinLine, RiEditLine } from "@remixicon/react";
+import { DataTableRowActions } from "@/components/ui/data-table/DataTableRowActions";
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
 import type { UserRead } from "./types";
 
@@ -89,32 +88,12 @@ export function getUserColumns({ onEdit, onDelete }: UserColumnActions) {
       id: "actions",
       header: "Actions",
       cell: ({ row }) => (
-        <div className="flex justify-start gap-1">
-          <Button
-            type="button"
-            variant="ghost"
-            className="p-1.5"
-            aria-label={`Edit ${row.original.email}`}
-            onClick={(event) => {
-              event.stopPropagation();
-              onEdit(row.original);
-            }}
-          >
-            <RiEditLine className="size-4" aria-hidden="true" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            className="p-1.5 text-red-600 hover:text-red-700 dark:text-red-400"
-            aria-label={`Delete ${row.original.email}`}
-            onClick={(event) => {
-              event.stopPropagation();
-              onDelete(row.original);
-            }}
-          >
-            <RiDeleteBinLine className="size-4" aria-hidden="true" />
-          </Button>
-        </div>
+        <DataTableRowActions
+          row={row}
+          rowLabel={row.original.email}
+          onEdit={onEdit}
+          onDelete={onDelete}
+        />
       ),
       meta: { className: "text-left", displayName: "Actions" },
     }),
