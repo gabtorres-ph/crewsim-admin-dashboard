@@ -34,7 +34,7 @@ export class StripeNotificationsApiError extends Error {
   }
 }
 
-const STRIPE_NOTIFICATION_PATH = "/api/stripe_notification";
+const STRIPE_NOTIFICATION_PATH = "/api/stripe/notifications";
 const DEFAULT_OFFSET = 0;
 const DEFAULT_LIMIT = 100;
 const ISO_DATETIME_PATTERN =

@@ -1,7 +1,7 @@
 /** A lossless decimal representation sent to and returned by the API. */
 export type DecimalString = string;
 
-/** Data accepted by POST /api/stripe_notification. */
+/** Data accepted by POST /api/stripe/notifications. */
 export type StripeNotificationCreate = {
   eventid: string;
   invoiceid: string;
@@ -20,7 +20,7 @@ export type StripeNotificationCreate = {
   amount_credit?: DecimalString | null;
 };
 
-/** Data required by PATCH /api/stripe_notification/{notificationId}. */
+/** Data required by PATCH /api/stripe/notifications/{notificationId}. */
 export type StripeNotificationUpdate = {
   eventid: string;
   invoiceid: string;

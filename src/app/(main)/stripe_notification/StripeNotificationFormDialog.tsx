@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/Button";
@@ -99,7 +99,7 @@ export function StripeNotificationFormDialog({
   const router = useRouter();
   const [values, setValues] = useState<StripeFormValues>(getInitialValues);
   const [error, setError] = useState<string>();
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -144,6 +144,7 @@ export function StripeNotificationFormDialog({
 
   function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (isPending) return;
     const requiredTextFields = [
       ["eventid", "Event ID"],
       ["invoiceid", "Invoice ID"],
@@ -193,8 +194,9 @@ export function StripeNotificationFormDialog({
     }
 
     setError(undefined);
-    startTransition(() => {
-      void (async () => {
+    setIsPending(true);
+    void (async () => {
+      try {
         const result = await createStripeNotificationAction({
           eventid: values.eventid.trim(),
           invoiceid: values.invoiceid.trim(),
@@ -214,8 +216,10 @@ export function StripeNotificationFormDialog({
         }
         onOpenChange(false);
         router.refresh();
-      })();
-    });
+      } finally {
+        setIsPending(false);
+      }
+    })();
   }
 
   return (
