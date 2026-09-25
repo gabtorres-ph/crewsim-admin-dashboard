@@ -2,10 +2,12 @@
 
 import { DataTable } from "@/components/ui/data-table/DataTable";
 import type { DataTableToolbarConfig } from "@/components/ui/data-table/DataTableFilterbar";
+import { useState } from "react";
+import { LanguageFormDialog } from "./LanguageFormDialog";
 import { languageColumns } from "./columns";
 import type { LanguageRead } from "./types";
 
-const toolbar = {
+const tableToolbar = {
   search: {
     columnId: "name",
     placeholder: "Search languages...",
@@ -14,6 +16,15 @@ const toolbar = {
 } satisfies DataTableToolbarConfig;
 
 export function LanguagesTable({ languages }: { languages: LanguageRead[] }) {
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const toolbar = {
+    ...tableToolbar,
+    primaryAction: {
+      label: "Add language",
+      onClick: () => setIsCreateOpen(true),
+    },
+  } satisfies DataTableToolbarConfig;
+
   return (
     <>
       <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
@@ -27,6 +38,7 @@ export function LanguagesTable({ languages }: { languages: LanguageRead[] }) {
         pageSize={20}
         toolbar={toolbar}
       />
+      <LanguageFormDialog open={isCreateOpen} onOpenChange={setIsCreateOpen} />
     </>
   );
 }
