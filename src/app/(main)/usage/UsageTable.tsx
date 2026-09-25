@@ -2,10 +2,11 @@
 
 import { DataTable } from "@/components/ui/data-table/DataTable";
 import type { DataTableToolbarConfig } from "@/components/ui/data-table/DataTableFilterbar";
+import { useRouter } from "next/navigation";
 import { usageColumns } from "./columns";
 import type { UsageRead } from "./types";
 
-const toolbar = {
+const tableToolbar = {
   search: {
     columnId: "session_id",
     placeholder: "Search usage records...",
@@ -14,6 +15,15 @@ const toolbar = {
 } satisfies DataTableToolbarConfig;
 
 export function UsageTable({ usage }: { usage: UsageRead[] }) {
+  const router = useRouter();
+  const toolbar = {
+    ...tableToolbar,
+    primaryAction: {
+      label: "Add usage record",
+      onClick: () => router.push("/usage/new"),
+    },
+  } satisfies DataTableToolbarConfig;
+
   return (
     <>
       <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
