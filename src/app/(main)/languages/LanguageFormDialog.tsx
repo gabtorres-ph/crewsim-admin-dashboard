@@ -41,9 +41,6 @@ export function LanguageFormDialog({
   const router = useRouter();
   const [name, setName] = useState("");
   const [iso1, setIso1] = useState("");
-  const [iso2b, setIso2b] = useState("");
-  const [iso2t, setIso2t] = useState("");
-  const [iso3, setIso3] = useState("");
   const [error, setError] = useState<string>();
   const [isPending, startTransition] = useTransition();
 
@@ -51,36 +48,24 @@ export function LanguageFormDialog({
     if (!open) return;
     setName("");
     setIso1("");
-    setIso2b("");
-    setIso2t("");
-    setIso3("");
     setError(undefined);
   }, [open]);
 
   function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const normalizedName = name.trim();
-    const normalizedIso3 = iso3.trim();
 
     if (!normalizedName || normalizedName.length > 150) {
       setError("Name must contain between 1 and 150 characters.");
       return;
     }
-    if (normalizedIso3.length !== 3) {
-      setError("ISO 639-3 must contain exactly 3 characters.");
-      return;
-    }
 
     let optionalValues: {
       iso1: string | null;
-      iso2b: string | null;
-      iso2t: string | null;
     };
     try {
       optionalValues = {
         iso1: optionalCode(iso1, 2, "ISO 639-1"),
-        iso2b: optionalCode(iso2b, 3, "ISO 639-2/B"),
-        iso2t: optionalCode(iso2t, 3, "ISO 639-2/T"),
       };
     } catch (validationError) {
       setError(
@@ -96,7 +81,6 @@ export function LanguageFormDialog({
       void (async () => {
         const result = await createLanguageAction({
           name: normalizedName,
-          iso3: normalizedIso3,
           ...optionalValues,
         });
         if (!result.ok) {
@@ -110,9 +94,7 @@ export function LanguageFormDialog({
   }
 
   const fields = [
-    ["language-iso1", "ISO 639-1", iso1, setIso1, 2, "Optional"],
-    ["language-iso2b", "ISO 639-2/B", iso2b, setIso2b, 3, "Optional"],
-    ["language-iso2t", "ISO 639-2/T", iso2t, setIso2t, 3, "Optional"],
+    ["language-iso1", "Code", iso1, setIso1, 2, "Optional"],
   ] as const;
 
   return (
@@ -137,21 +119,6 @@ export function LanguageFormDialog({
                 maxLength={150}
                 className="mt-2"
                 autoFocus
-                disabled={isPending}
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="language-iso3" className="font-medium">
-                ISO 639-3
-              </Label>
-              <Input
-                id="language-iso3"
-                value={iso3}
-                onChange={(event) => setIso3(event.target.value)}
-                minLength={3}
-                maxLength={3}
-                className="mt-2"
                 disabled={isPending}
                 required
               />

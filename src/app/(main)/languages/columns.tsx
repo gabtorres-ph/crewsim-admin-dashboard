@@ -24,33 +24,10 @@ export const languageColumns = [
   }),
   columnHelper.accessor("iso1", {
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="ISO 639-1" />
+      <DataTableColumnHeader column={column} title="Code" />
     ),
     cell: ({ getValue }) => display(getValue()),
     enableSorting: true,
-    meta: { displayName: "ISO 639-1" },
-  }),
-  columnHelper.accessor("iso2b", {
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="ISO 639-2/B" />
-    ),
-    cell: ({ getValue }) => display(getValue()),
-    enableSorting: true,
-    meta: { displayName: "ISO 639-2/B" },
-  }),
-  columnHelper.accessor("iso2t", {
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="ISO 639-2/T" />
-    ),
-    cell: ({ getValue }) => display(getValue()),
-    enableSorting: true,
-    meta: { displayName: "ISO 639-2/T" },
-  }),
-  columnHelper.accessor("iso3", {
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="ISO 639-3" />
-    ),
-    enableSorting: true,
-    meta: { displayName: "ISO 639-3" },
+    meta: { displayName: "Code" },
   }),
 ] as ColumnDef<LanguageRead>[];

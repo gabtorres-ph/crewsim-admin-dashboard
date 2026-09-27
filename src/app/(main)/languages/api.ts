@@ -155,17 +155,10 @@ function normalizePayload(
 ): LanguageCreate | LanguageUpdate {
   assertRecord(input, "Language payload");
   const payload: Partial<LanguageUpdate> = {
-    iso3: normalizeString(input.iso3, "iso3", 3),
     name: normalizeName(input.name),
   };
   if (required || input.iso1 !== undefined) {
     payload.iso1 = normalizeNullableString(input.iso1, "iso1", 2);
-  }
-  if (required || input.iso2b !== undefined) {
-    payload.iso2b = normalizeNullableString(input.iso2b, "iso2b", 3);
-  }
-  if (required || input.iso2t !== undefined) {
-    payload.iso2t = normalizeNullableString(input.iso2t, "iso2t", 3);
   }
   return payload as LanguageCreate | LanguageUpdate;
 }
