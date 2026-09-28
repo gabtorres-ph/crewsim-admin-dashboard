@@ -11,7 +11,6 @@ export type TimezoneUpdate = {
 /** Timezone representation returned by the API. */
 export type TimezoneRead = {
   name: string;
-  created_at: string;
 };
 
 export type TimezoneListParams = {

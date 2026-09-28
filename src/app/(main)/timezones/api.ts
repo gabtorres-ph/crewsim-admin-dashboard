@@ -35,8 +35,6 @@ export class TimezonesApiError extends Error {
 const TIMEZONES_PATH = "/api/timezones";
 const DEFAULT_OFFSET = 0;
 const DEFAULT_LIMIT = 100;
-const ISO_DATETIME_PATTERN =
-  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:?\d{2})?$/;
 
 function getApiBaseUrl(): string {
   const value = process.env.CORE_API_URL ?? process.env.CORE_API_INTERNAL_URL;
@@ -137,23 +135,11 @@ function normalizeTimezoneUpdate(input: TimezoneUpdate): TimezoneUpdate {
     : { name: normalizeTimezoneName(input.name) };
 }
 
-function normalizeCreatedAt(value: unknown): string {
-  if (
-    typeof value !== "string" ||
-    !ISO_DATETIME_PATTERN.test(value) ||
-    Number.isNaN(Date.parse(value))
-  ) {
-    throw new TypeError("created_at must be an ISO-8601 datetime string.");
-  }
-  return value;
-}
-
 function parseTimezone(value: unknown): TimezoneRead {
   assertRecord(value, "Timezone response");
   try {
     return {
       name: normalizeTimezoneName(value.name),
-      created_at: normalizeCreatedAt(value.created_at),
     };
   } catch {
     throw new TypeError("The Core API returned an invalid timezone record.");

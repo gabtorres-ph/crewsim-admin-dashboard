@@ -14,11 +14,4 @@ export const timezoneColumns = [
     enableSorting: true,
     meta: { displayName: "Name" },
   }),
-  columnHelper.accessor("created_at", {
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Created" />
-    ),
-    enableSorting: true,
-    meta: { displayName: "Created" },
-  }),
 ] as ColumnDef<TimezoneRead>[];
