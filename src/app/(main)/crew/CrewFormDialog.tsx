@@ -16,17 +16,41 @@ import {
 } from "@/components/Dialog";
 import { Input } from "@/components/Input";
 import { Label } from "@/components/Label";
-import { createCrewAction } from "./actions";
+import { createCrewAction, updateCrewAction } from "./actions";
+import type { CrewRead } from "./types";
 
 type CrewFormDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  crew?: CrewRead;
 };
 
+function toLocalDateTime(date: Date): string {
+  const offset = date.getTimezoneOffset() * 60_000;
+  return new Date(date.getTime() - offset).toISOString().slice(0, 16);
+}
+
 function currentLocalDateTime(): string {
-  const now = new Date();
-  const offset = now.getTimezoneOffset() * 60_000;
-  return new Date(now.getTime() - offset).toISOString().slice(0, 16);
+  return toLocalDateTime(new Date());
+}
+
+function textValue(value: string | number | null | undefined): string {
+  return value == null ? "" : String(value);
+}
+
+function advancedFieldsFrom(crew: CrewRead) {
+  return {
+    file1: textValue(crew.file1),
+    file2: textValue(crew.file2),
+    file1Hash: textValue(crew.file1_hash),
+    file2Hash: textValue(crew.file2_hash),
+    reason: textValue(crew.reason),
+    type: textValue(crew.type),
+    dhash: textValue(crew.dhash),
+    phash: textValue(crew.phash),
+    dhashDistance: textValue(crew.dhash_distance),
+    phashDistance: textValue(crew.phash_distance),
+  };
 }
 
 function nullableNumber(value: string): number | null {
@@ -47,8 +71,16 @@ const emptyAdvancedFields = {
   phashDistance: "",
 };
 
-export function CrewFormDialog({ open, onOpenChange }: CrewFormDialogProps) {
+export function CrewFormDialog({
+  open,
+  onOpenChange,
+  crew,
+}: CrewFormDialogProps) {
   const router = useRouter();
+  const isEditing = crew !== undefined;
+  const initialCreatedate = crew
+    ? toLocalDateTime(new Date(crew.createdate))
+    : undefined;
   const [uniqueId, setUniqueId] = useState("");
   const [isCrewId, setIsCrewId] = useState(false);
   const [createdate, setCreatedate] = useState(currentLocalDateTime);
@@ -63,17 +95,17 @@ export function CrewFormDialog({ open, onOpenChange }: CrewFormDialogProps) {
 
   useEffect(() => {
     if (!open) return;
-    setUniqueId("");
-    setIsCrewId(false);
-    setCreatedate(currentLocalDateTime());
-    setFirstname("");
-    setLastname("");
-    setAirline("");
-    setUserId("");
-    setConfidence("");
-    setAdvanced(emptyAdvancedFields);
+    setUniqueId(crew?.unique_id ?? "");
+    setIsCrewId(crew?.iscrewid ?? false);
+    setCreatedate(initialCreatedate ?? currentLocalDateTime());
+    setFirstname(textValue(crew?.firstname));
+    setLastname(textValue(crew?.lastname));
+    setAirline(textValue(crew?.airline));
+    setUserId(textValue(crew?.user_id));
+    setConfidence(textValue(crew?.confidence));
+    setAdvanced(crew ? advancedFieldsFrom(crew) : emptyAdvancedFields);
     setError(undefined);
-  }, [open]);
+  }, [open, crew, initialCreatedate]);
 
   function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -109,7 +141,7 @@ export function CrewFormDialog({ open, onOpenChange }: CrewFormDialogProps) {
     setError(undefined);
     startTransition(() => {
       void (async () => {
-        const result = await createCrewAction({
+        const payload = {
           unique_id: normalizedUniqueId,
           iscrewid: isCrewId,
           createdate: new Date(createdate).toISOString(),
@@ -128,7 +160,17 @@ export function CrewFormDialog({ open, onOpenChange }: CrewFormDialogProps) {
           phash: advanced.phash.trim() || null,
           dhash_distance: parsedDhashDistance,
           phash_distance: parsedPhashDistance,
-        });
+        };
+        const result = crew
+          ? await updateCrewAction(crew.id, {
+              ...payload,
+              // datetime-local drops seconds, so only send a date the user changed.
+              createdate:
+                createdate === initialCreatedate
+                  ? undefined
+                  : payload.createdate,
+            })
+          : await createCrewAction(payload);
         if (!result.ok) {
           setError(result.error);
           return;
@@ -144,9 +186,13 @@ export function CrewFormDialog({ open, onOpenChange }: CrewFormDialogProps) {
       <DialogContent className="sm:max-w-2xl">
         <form onSubmit={submit}>
           <DialogHeader>
-            <DialogTitle>Add crew member</DialogTitle>
+            <DialogTitle>
+              {isEditing ? `Edit crew member ${crew.id}` : "Add crew member"}
+            </DialogTitle>
             <DialogDescription className="mt-1 text-sm leading-6">
-              Create a crew record in the Core API.
+              {isEditing
+                ? "Update this crew record in the Core API."
+                : "Create a crew record in the Core API."}
             </DialogDescription>
           </DialogHeader>
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
@@ -313,7 +359,7 @@ export function CrewFormDialog({ open, onOpenChange }: CrewFormDialogProps) {
               </Button>
             </DialogClose>
             <Button type="submit" isLoading={isPending} loadingText="Saving">
-              Add crew member
+              {isEditing ? "Save changes" : "Add crew member"}
             </Button>
           </DialogFooter>
         </form>

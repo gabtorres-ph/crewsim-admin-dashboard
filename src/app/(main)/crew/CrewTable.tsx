@@ -20,7 +20,8 @@ const tableToolbar = {
 
 export function CrewTable({ crew }: { crew: CrewRead[] }) {
   const router = useRouter();
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingCrew, setEditingCrew] = useState<CrewRead>();
   const [viewingCrew, setViewingCrew] = useState<CrewRead>();
   const [actionError, setActionError] = useState<string>();
   const [isDeleting, startDeleteTransition] = useTransition();
@@ -29,7 +30,10 @@ export function CrewTable({ crew }: { crew: CrewRead[] }) {
     ...tableToolbar,
     primaryAction: {
       label: "Add crew member",
-      onClick: () => setIsCreateOpen(true),
+      onClick: () => {
+        setEditingCrew(undefined);
+        setIsFormOpen(true);
+      },
     },
   } satisfies DataTableToolbarConfig;
 
@@ -52,6 +56,10 @@ export function CrewTable({ crew }: { crew: CrewRead[] }) {
 
     return getCrewColumns({
       onView: setViewingCrew,
+      onEdit: (member) => {
+        setEditingCrew(member);
+        setIsFormOpen(true);
+      },
       onDelete: deleteCrewMember,
     });
   }, [router]);
@@ -70,11 +78,16 @@ export function CrewTable({ crew }: { crew: CrewRead[] }) {
         columns={columns}
         data={crew}
         emptyMessage="No crew members found."
+        enableRowSelection
         getRowId={(member) => String(member.id)}
         pageSize={20}
         toolbar={toolbar}
       />
-      <CrewFormDialog open={isCreateOpen} onOpenChange={setIsCreateOpen} />
+      <CrewFormDialog
+        open={isFormOpen}
+        onOpenChange={setIsFormOpen}
+        crew={editingCrew}
+      />
       <CrewDetailsDialog
         crew={viewingCrew}
         onOpenChange={(open) => {

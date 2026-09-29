@@ -1,5 +1,6 @@
 "use client";
 
+import { Checkbox } from "@/components/Checkbox";
 import { DataTableColumnHeader } from "@/components/ui/data-table/DataTableColumnHeader";
 import { DataTableRowActions } from "@/components/ui/data-table/DataTableRowActions";
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
@@ -11,11 +12,44 @@ export const display = (value: string | number | null | undefined) =>
 
 export type CrewColumnActions = {
   onView: (crew: CrewRead) => void;
+  onEdit: (crew: CrewRead) => void;
   onDelete: (crew: CrewRead) => void;
 };
 
-export function getCrewColumns({ onView, onDelete }: CrewColumnActions) {
+export function getCrewColumns({
+  onView,
+  onEdit,
+  onDelete,
+}: CrewColumnActions) {
   return [
+    columnHelper.display({
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected()
+              ? true
+              : table.getIsSomeRowsSelected()
+                ? "indeterminate"
+                : false
+          }
+          onCheckedChange={() => table.toggleAllPageRowsSelected()}
+          className="translate-y-0.5"
+          aria-label="Select all crew members"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={() => row.toggleSelected()}
+          className="translate-y-0.5"
+          aria-label={`Select crew member ${row.original.unique_id}`}
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+      meta: { displayName: "Select" },
+    }),
     columnHelper.accessor("id", {
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="ID" />
@@ -85,6 +119,7 @@ export function getCrewColumns({ onView, onDelete }: CrewColumnActions) {
           row={row}
           rowLabel={`crew member ${row.original.unique_id}`}
           onView={onView}
+          onEdit={onEdit}
           onDelete={onDelete}
         />
       ),
