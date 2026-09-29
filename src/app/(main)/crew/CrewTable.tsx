@@ -2,9 +2,12 @@
 
 import { DataTable } from "@/components/ui/data-table/DataTable";
 import type { DataTableToolbarConfig } from "@/components/ui/data-table/DataTableFilterbar";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useMemo, useState, useTransition } from "react";
+import { CrewDetailsDialog } from "./CrewDetailsDialog";
 import { CrewFormDialog } from "./CrewFormDialog";
-import { crewColumns } from "./columns";
+import { deleteCrewAction } from "./actions";
+import { getCrewColumns } from "./columns";
 import type { CrewRead } from "./types";
 
 const tableToolbar = {
@@ -16,7 +19,12 @@ const tableToolbar = {
 } satisfies DataTableToolbarConfig;
 
 export function CrewTable({ crew }: { crew: CrewRead[] }) {
+  const router = useRouter();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [viewingCrew, setViewingCrew] = useState<CrewRead>();
+  const [actionError, setActionError] = useState<string>();
+  const [isDeleting, startDeleteTransition] = useTransition();
+
   const toolbar = {
     ...tableToolbar,
     primaryAction: {
@@ -25,13 +33,41 @@ export function CrewTable({ crew }: { crew: CrewRead[] }) {
     },
   } satisfies DataTableToolbarConfig;
 
+  const columns = useMemo(() => {
+    function deleteCrewMember(member: CrewRead) {
+      if (!window.confirm(`Delete crew member ${member.unique_id}?`)) return;
+
+      setActionError(undefined);
+      startDeleteTransition(() => {
+        void (async () => {
+          const result = await deleteCrewAction(member.id);
+          if (!result.ok) {
+            setActionError(result.error);
+            return;
+          }
+          router.refresh();
+        })();
+      });
+    }
+
+    return getCrewColumns({
+      onView: setViewingCrew,
+      onDelete: deleteCrewMember,
+    });
+  }, [router]);
+
   return (
     <>
       <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
         {crew.length} crew member{crew.length === 1 ? "" : "s"}
       </p>
+      {actionError && (
+        <p role="alert" className="mb-4 text-sm text-red-600 dark:text-red-400">
+          {actionError}
+        </p>
+      )}
       <DataTable
-        columns={crewColumns}
+        columns={columns}
         data={crew}
         emptyMessage="No crew members found."
         getRowId={(member) => String(member.id)}
@@ -39,6 +75,17 @@ export function CrewTable({ crew }: { crew: CrewRead[] }) {
         toolbar={toolbar}
       />
       <CrewFormDialog open={isCreateOpen} onOpenChange={setIsCreateOpen} />
+      <CrewDetailsDialog
+        crew={viewingCrew}
+        onOpenChange={(open) => {
+          if (!open) setViewingCrew(undefined);
+        }}
+      />
+      {isDeleting && (
+        <span className="sr-only" role="status">
+          Deleting crew member
+        </span>
+      )}
     </>
   );
 }
