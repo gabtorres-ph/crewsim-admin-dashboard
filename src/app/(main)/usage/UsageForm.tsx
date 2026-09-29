@@ -7,11 +7,12 @@ import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
 import { Label } from "@/components/Label";
 import { createUsageAction, type UsageActionResult } from "./actions";
-import type { UsageCreate } from "./types";
+import type { UsageCreate, UsageRead } from "./types";
 
 type UsageFormValues = Record<keyof UsageCreate, string>;
 
 type UsageFormProps = {
+  usage?: UsageRead;
   initialValues?: Partial<UsageFormValues>;
   submitAction?: (input: UsageCreate) => Promise<UsageActionResult>;
   submitLabel?: string;
@@ -33,6 +34,23 @@ function currentLocalDateTime(): string {
   const now = new Date();
   const offset = now.getTimezoneOffset() * 60_000;
   return new Date(now.getTime() - offset).toISOString().slice(0, 16);
+}
+
+function toLocalDateTime(utcValue: string): string {
+  const hasTimezone = /(?:Z|[+-]\d{2}:?\d{2})$/.test(utcValue);
+  const date = new Date(hasTimezone ? utcValue : `${utcValue}Z`);
+  const offset = date.getTimezoneOffset() * 60_000;
+  return new Date(date.getTime() - offset).toISOString().slice(0, 19);
+}
+
+function toFormValues(usage: UsageRead): UsageFormValues {
+  const values = getInitialValues();
+  for (const key of Object.keys(values) as (keyof UsageFormValues)[]) {
+    const value = usage[key];
+    values[key] = value === null ? "" : String(value);
+  }
+  values.usage_date_utc = toLocalDateTime(usage.usage_date_utc);
+  return values;
 }
 
 function getInitialValues(): UsageFormValues {
@@ -90,7 +108,9 @@ function TextField({
         value={value}
         onChange={(event) => onChange(event.target.value)}
         required={required}
-        step={type === "number" ? "any" : undefined}
+        step={
+          type === "number" ? "any" : type === "datetime-local" ? 1 : undefined
+        }
         className="mt-2"
         disabled={disabled}
       />
@@ -132,6 +152,7 @@ function nullableInteger(value: string, label: string): number | null {
 }
 
 export function UsageForm({
+  usage,
   initialValues,
   submitAction,
   submitLabel = "Add usage record",
@@ -139,7 +160,7 @@ export function UsageForm({
 }: UsageFormProps) {
   const router = useRouter();
   const [values, setValues] = useState<UsageFormValues>(() => ({
-    ...getInitialValues(),
+    ...(usage ? toFormValues(usage) : getInitialValues()),
     ...initialValues,
   }));
   const [error, setError] = useState<string>();
@@ -202,8 +223,14 @@ export function UsageForm({
 
     let input: UsageCreate;
     try {
+      const usageDateUtc =
+        usage &&
+        values.usage_date_utc === toLocalDateTime(usage.usage_date_utc)
+          ? usage.usage_date_utc
+          : parsedDate.toISOString();
+
       input = {
-        usage_date_utc: parsedDate.toISOString(),
+        usage_date_utc: usageDateUtc,
         session_id: values.session_id.trim(),
         mcc: requiredInteger(values.mcc, "MCC"),
         mnc: requiredInteger(values.mnc, "MNC"),

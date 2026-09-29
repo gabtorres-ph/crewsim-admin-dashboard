@@ -2,11 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 
-import { createUsage, UsageApiError } from "./api";
-import type { UsageCreate, UsageRead } from "./types";
+import { createUsage, deleteUsage, updateUsage, UsageApiError } from "./api";
+import type { UsageCreate, UsageRead, UsageUpdate } from "./types";
 
 export type UsageActionResult =
-  | { ok: true; usage: UsageRead }
+  | { ok: true; usage?: UsageRead }
   | { ok: false; error: string };
 
 function getActionError(error: unknown): string {
@@ -22,6 +22,31 @@ export async function createUsageAction(
     const usage = await createUsage(input);
     revalidatePath("/usage");
     return { ok: true, usage };
+  } catch (error) {
+    return { ok: false, error: getActionError(error) };
+  }
+}
+
+export async function updateUsageAction(
+  usageId: number,
+  input: UsageUpdate,
+): Promise<UsageActionResult> {
+  try {
+    const usage = await updateUsage(usageId, input);
+    revalidatePath("/usage");
+    return { ok: true, usage };
+  } catch (error) {
+    return { ok: false, error: getActionError(error) };
+  }
+}
+
+export async function deleteUsageAction(
+  usageId: number,
+): Promise<UsageActionResult> {
+  try {
+    await deleteUsage(usageId);
+    revalidatePath("/usage");
+    return { ok: true };
   } catch (error) {
     return { ok: false, error: getActionError(error) };
   }
