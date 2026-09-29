@@ -30,6 +30,7 @@ Use this workflow for implementation, refactoring, debugging, and review tasks i
 - Add code comments only when they communicate essential intent or constraints that the code cannot express clearly.
 - Preserve all existing user-authored comments. Do not delete or rewrite them unless the user explicitly asks for that change.
 - Match the project's established patterns unless doing so would perpetuate a concrete defect or conflict with the user's request.
+- Explain every file edit for a junior developer: say what changed, why it was needed, and the principle or project pattern behind it. Put these explanations in the response, not in code comments, and keep each one short.
 
 ## Verification
 
