@@ -69,6 +69,7 @@ export function UsageTable({ usage }: { usage: UsageRead[] }) {
         columns={columns}
         data={usage}
         emptyMessage="No usage records found."
+        enableRowSelection
         getRowId={(record) => String(record.id)}
         pageSize={20}
         toolbar={toolbar}

@@ -1,5 +1,6 @@
 "use client";
 
+import { Checkbox } from "@/components/Checkbox";
 import { DataTableColumnHeader } from "@/components/ui/data-table/DataTableColumnHeader";
 import { DataTableRowActions } from "@/components/ui/data-table/DataTableRowActions";
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
@@ -20,6 +21,34 @@ export function getUsageColumns({
   onDelete,
 }: UsageColumnActions) {
   return [
+    columnHelper.display({
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected()
+              ? true
+              : table.getIsSomeRowsSelected()
+                ? "indeterminate"
+                : false
+          }
+          onCheckedChange={() => table.toggleAllPageRowsSelected()}
+          className="translate-y-0.5"
+          aria-label="Select all usage records"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={() => row.toggleSelected()}
+          className="translate-y-0.5"
+          aria-label={`Select usage record ${row.original.id}`}
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+      meta: { displayName: "Select" },
+    }),
     columnHelper.accessor("id", {
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="ID" />
