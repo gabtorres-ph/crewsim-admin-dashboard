@@ -11,6 +11,8 @@ export type CrewActionResult =
 
 export type CrewDeleteActionResult = { ok: true } | { ok: false; error: string };
 
+const MAX_BULK_DELETE = 100;
+
 function getActionError(error: unknown): string {
   if (error instanceof CrewApiError || error instanceof Error)
     return error.message;
@@ -52,4 +54,32 @@ export async function deleteCrewAction(
   } catch (error) {
     return { ok: false, error: getActionError(error) };
   }
+}
+
+export async function deleteCrewMembersAction(
+  crewIds: number[],
+): Promise<CrewDeleteActionResult> {
+  if (!Array.isArray(crewIds) || crewIds.length === 0) {
+    return { ok: false, error: "Select at least one crew member to delete." };
+  }
+  const uniqueIds = Array.from(new Set(crewIds));
+  if (uniqueIds.length > MAX_BULK_DELETE) {
+    return {
+      ok: false,
+      error: `You can delete at most ${MAX_BULK_DELETE} crew members at once.`,
+    };
+  }
+
+  const results = await Promise.allSettled(uniqueIds.map(deleteCrew));
+  const failures = results.filter(
+    (result): result is PromiseRejectedResult => result.status === "rejected",
+  );
+  if (failures.length < uniqueIds.length) revalidatePath("/crew");
+  if (failures.length === 0) return { ok: true };
+
+  const deletedCount = uniqueIds.length - failures.length;
+  return {
+    ok: false,
+    error: `Deleted ${deletedCount} of ${uniqueIds.length} crew members. ${getActionError(failures[0].reason)}`,
+  };
 }

@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
 import { CrewDetailsDialog } from "./CrewDetailsDialog";
 import { CrewFormDialog } from "./CrewFormDialog";
-import { deleteCrewAction } from "./actions";
+import { deleteCrewAction, deleteCrewMembersAction } from "./actions";
 import { getCrewColumns } from "./columns";
 import type { CrewRead } from "./types";
 
@@ -36,6 +36,27 @@ export function CrewTable({ crew }: { crew: CrewRead[] }) {
       },
     },
   } satisfies DataTableToolbarConfig;
+
+  function deleteSelectedCrew(members: CrewRead[]) {
+    const count = members.length;
+    if (
+      !window.confirm(
+        `Delete ${count} selected crew member${count === 1 ? "" : "s"}?`,
+      )
+    )
+      return;
+
+    setActionError(undefined);
+    startDeleteTransition(() => {
+      void (async () => {
+        const result = await deleteCrewMembersAction(
+          members.map((member) => member.id),
+        );
+        if (!result.ok) setActionError(result.error);
+        router.refresh();
+      })();
+    });
+  }
 
   const columns = useMemo(() => {
     function deleteCrewMember(member: CrewRead) {
@@ -79,6 +100,7 @@ export function CrewTable({ crew }: { crew: CrewRead[] }) {
         data={crew}
         emptyMessage="No crew members found."
         enableRowSelection
+        bulkActions={{ onDelete: deleteSelectedCrew }}
         getRowId={(member) => String(member.id)}
         pageSize={20}
         toolbar={toolbar}

@@ -9,7 +9,7 @@ import {
   TableRow,
 } from "@/components/Table"
 import { cx } from "@/lib/utils"
-import * as React from "react"
+import { useEffect, useState } from "react"
 
 import {
   DataTableBulkActions,
@@ -20,6 +20,7 @@ import { DataTablePagination } from "./DataTablePagination"
 
 import {
   ColumnDef,
+  RowSelectionState,
   TableOptions,
   flexRender,
   getCoreRowModel,
@@ -50,7 +51,9 @@ export function DataTable<TData>({
   enableRowSelection = false,
   bulkActions,
 }: DataTableProps<TData>) {
-  const [rowSelection, setRowSelection] = React.useState({})
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>(
+    {},
+  )
   const table = useReactTable({
     data,
     columns,
@@ -71,6 +74,17 @@ export function DataTable<TData>({
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
   })
+
+  // Drop selections for rows that disappeared, e.g. after a delete and refresh.
+  useEffect(() => {
+    const { rowsById } = table.getCoreRowModel()
+    setRowSelection((current: RowSelectionState) => {
+      const ids = Object.keys(current)
+      const remainingIds = ids.filter((id) => id in rowsById)
+      if (remainingIds.length === ids.length) return current
+      return Object.fromEntries(remainingIds.map((id) => [id, current[id]]))
+    })
+  }, [data, table])
 
   return (
     <>
