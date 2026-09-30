@@ -7,7 +7,7 @@ import {
   CommandBarSeperator,
   CommandBarValue,
 } from "@/components/CommandBar"
-import { RowSelectionState, Table } from "@tanstack/react-table"
+import { Table } from "@tanstack/react-table"
 
 export type DataTableBulkActions<TData> = {
   onEdit?: (rows: TData[]) => void
@@ -16,19 +16,18 @@ export type DataTableBulkActions<TData> = {
 
 type DataTableBulkEditorProps<TData> = {
   table: Table<TData>
-  rowSelection: RowSelectionState
   actions: DataTableBulkActions<TData>
 }
 
 function DataTableBulkEditor<TData>({
   table,
-  rowSelection,
   actions,
 }: DataTableBulkEditorProps<TData>) {
-  const hasSelectedRows = Object.keys(rowSelection).length > 0
   const selectedRows = table
-    .getFilteredSelectedRowModel()
+    .getSelectedRowModel()
     .rows.map((row) => row.original)
+  const selectedCount = selectedRows.length
+  const hasSelectedRows = selectedCount > 0
 
   if (!actions.onEdit && !actions.onDelete) {
     return null
@@ -38,7 +37,7 @@ function DataTableBulkEditor<TData>({
     <CommandBar open={hasSelectedRows}>
       <CommandBarBar>
         <CommandBarValue>
-          {Object.keys(rowSelection).length} selected
+          {selectedCount} selected
         </CommandBarValue>
         {actions.onEdit && (
           <>

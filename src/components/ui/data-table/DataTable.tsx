@@ -168,7 +168,6 @@ export function DataTable<TData>({
           {enableRowSelection && bulkActions && (
             <DataTableBulkEditor
               table={table}
-              rowSelection={rowSelection}
               actions={bulkActions}
             />
           )}
