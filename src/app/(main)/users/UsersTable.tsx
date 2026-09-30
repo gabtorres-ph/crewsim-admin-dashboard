@@ -6,6 +6,7 @@ import { DataTable } from "@/components/ui/data-table/DataTable";
 import type { DataTableToolbarConfig } from "@/components/ui/data-table/DataTableFilterbar";
 import { deleteUserAction } from "./actions";
 import { UserColumnActions, getUserColumns } from "./columns";
+import { UserDetailsDialog } from "./UserDetailsDialog";
 import { UserFormDialog } from "./UserFormDialog";
 import type { UserRead } from "./types";
 
@@ -19,6 +20,7 @@ const toolbarOptions = {
 
 export function UsersTable({ users }: { users: UserRead[] }) {
   const router = useRouter();
+  const [viewingUser, setViewingUser] = useState<UserRead>();
   const [editingUser, setEditingUser] = useState<UserRead>();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [error, setError] = useState<string>();
@@ -44,7 +46,13 @@ export function UsersTable({ users }: { users: UserRead[] }) {
     },
   } satisfies DataTableToolbarConfig;
 
+  function openEdit(user: UserRead) {
+    setViewingUser(undefined);
+    setEditingUser(user);
+  }
+
   const columnActions: UserColumnActions = {
+    onView: setViewingUser,
     onEdit: setEditingUser,
     onDelete: deleteUser,
   };
@@ -81,6 +89,13 @@ export function UsersTable({ users }: { users: UserRead[] }) {
         open={editingUser !== undefined}
         onOpenChange={(open) => {
           if (!open) setEditingUser(undefined);
+        }}
+      />
+      <UserDetailsDialog
+        user={viewingUser}
+        onEdit={openEdit}
+        onOpenChange={(open) => {
+          if (!open) setViewingUser(undefined);
         }}
       />
       {isDeleting && (

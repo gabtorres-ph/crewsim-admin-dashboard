@@ -9,11 +9,16 @@ import type { UserRead } from "./types";
 const columnHelper = createColumnHelper<UserRead>();
 
 export type UserColumnActions = {
+  onView: (user: UserRead) => void;
   onEdit: (user: UserRead) => void;
   onDelete: (user: UserRead) => void;
 };
 
-export function getUserColumns({ onEdit, onDelete }: UserColumnActions) {
+export function getUserColumns({
+  onView,
+  onEdit,
+  onDelete,
+}: UserColumnActions) {
   return [
     columnHelper.display({
       id: "select",
@@ -91,6 +96,7 @@ export function getUserColumns({ onEdit, onDelete }: UserColumnActions) {
         <DataTableRowActions
           row={row}
           rowLabel={row.original.email}
+          onView={onView}
           onEdit={onEdit}
           onDelete={onDelete}
         />
