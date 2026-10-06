@@ -4,7 +4,6 @@ import { DataTable } from "@/components/ui/data-table/DataTable";
 import type { DataTableToolbarConfig } from "@/components/ui/data-table/DataTableFilterbar";
 import { useMemo, useState } from "react";
 import { StripeNotificationDetailsDialog } from "./StripeNotificationDetailsDialog";
-import { StripeNotificationFormDialog } from "./StripeNotificationFormDialog";
 import { getStripeNotificationColumns } from "./columns";
 import type { StripeNotificationRead } from "./types";
 
@@ -21,20 +20,12 @@ export function StripeNotificationsTable({
 }: {
   notifications: StripeNotificationRead[];
 }) {
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [viewingNotification, setViewingNotification] =
     useState<StripeNotificationRead>();
   const columns = useMemo(
     () => getStripeNotificationColumns(setViewingNotification),
     [],
   );
-  const toolbar = {
-    ...tableToolbar,
-    primaryAction: {
-      label: "Add Stripe notification",
-      onClick: () => setIsCreateOpen(true),
-    },
-  } satisfies DataTableToolbarConfig;
 
   return (
     <>
@@ -48,11 +39,7 @@ export function StripeNotificationsTable({
         emptyMessage="No Stripe notifications found."
         getRowId={(notification) => String(notification.id)}
         pageSize={20}
-        toolbar={toolbar}
-      />
-      <StripeNotificationFormDialog
-        open={isCreateOpen}
-        onOpenChange={setIsCreateOpen}
+        toolbar={tableToolbar}
       />
       <StripeNotificationDetailsDialog
         notification={viewingNotification}

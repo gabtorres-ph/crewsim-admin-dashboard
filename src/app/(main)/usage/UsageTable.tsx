@@ -23,14 +23,6 @@ export function UsageTable({ usage }: { usage: UsageRead[] }) {
   const [actionError, setActionError] = useState<string>();
   const [isDeleting, startDeleteTransition] = useTransition();
 
-  const toolbar = {
-    ...tableToolbar,
-    primaryAction: {
-      label: "Add usage record",
-      onClick: () => router.push("/usage/new"),
-    },
-  } satisfies DataTableToolbarConfig;
-
   const columns = useMemo(() => {
     function deleteUsage(record: UsageRead) {
       if (!window.confirm(`Delete usage record ${record.id}?`)) return;
@@ -72,7 +64,7 @@ export function UsageTable({ usage }: { usage: UsageRead[] }) {
         enableRowSelection
         getRowId={(record) => String(record.id)}
         pageSize={20}
-        toolbar={toolbar}
+        toolbar={tableToolbar}
       />
       <UsageDetailsDialog
         usage={viewingUsage}
