@@ -5,6 +5,7 @@ import { useState, useTransition } from "react"
 import { DataTable } from "@/components/ui/data-table/DataTable"
 import type { DataTableToolbarConfig } from "@/components/ui/data-table/DataTableFilterbar"
 import { EsimFormDialog } from "./EsimFormDialog"
+import { EsimDetailsDialog } from "./EsimDetailsDialog"
 import { deleteEsimAction } from "./actions"
 import type { EsimRead } from "./types"
 import { getEsimColumns } from "./columns"
@@ -20,6 +21,7 @@ const toolbarOptions = {
 export function EsimsTable({ esims }: { esims: EsimRead[] }) {
   const router = useRouter()
   const [editing, setEditing] = useState<EsimRead>()
+  const [viewing, setViewing] = useState<EsimRead>()
   const [creating, setCreating] = useState(false)
   const [error, setError] = useState<string>()
   const [isDeleting, startDelete] = useTransition()
@@ -55,7 +57,11 @@ export function EsimsTable({ esims }: { esims: EsimRead[] }) {
         </p>
       )}
       <DataTable
-        columns={getEsimColumns({ onEdit: setEditing, onDelete: remove })}
+        columns={getEsimColumns({
+          onView: setViewing,
+          onEdit: setEditing,
+          onDelete: remove,
+        })}
         data={esims}
         emptyMessage="No eSIMs found."
         enableRowSelection
@@ -67,6 +73,12 @@ export function EsimsTable({ esims }: { esims: EsimRead[] }) {
         mode="create"
         open={creating}
         onOpenChange={setCreating}
+      />
+      <EsimDetailsDialog
+        esim={viewing}
+        onOpenChange={(open) => {
+          if (!open) setViewing(undefined)
+        }}
       />
       <EsimFormDialog
         mode="edit"

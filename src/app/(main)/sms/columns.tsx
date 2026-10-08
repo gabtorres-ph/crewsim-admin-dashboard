@@ -1,6 +1,7 @@
 "use client";
 
 import { DataTableColumnHeader } from "@/components/ui/data-table/DataTableColumnHeader";
+import { DataTableRowActions } from "@/components/ui/data-table/DataTableRowActions";
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
 import type { SmsRead } from "./types";
 
@@ -95,3 +96,21 @@ export const smsColumns = [
     meta: { className: "tabular-nums", displayName: "Retries" },
   }),
 ] as ColumnDef<SmsRead>[];
+
+export function getSmsColumns(onView: (message: SmsRead) => void) {
+  return [
+    ...smsColumns,
+    columnHelper.display({
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => (
+        <DataTableRowActions
+          row={row}
+          rowLabel={`SMS message ${row.original.id}`}
+          onView={onView}
+        />
+      ),
+      meta: { displayName: "Actions" },
+    }),
+  ] as ColumnDef<SmsRead>[];
+}

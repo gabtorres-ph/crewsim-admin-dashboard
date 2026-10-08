@@ -9,9 +9,11 @@ import type { EsimRead } from "./types"
 const helper = createColumnHelper<EsimRead>()
 const text = (value: string | null) => value ?? "—"
 export function getEsimColumns({
+  onView,
   onEdit,
   onDelete,
 }: {
+  onView: (esim: EsimRead) => void
   onEdit: (esim: EsimRead) => void
   onDelete: (esim: EsimRead) => void
 }) {
@@ -86,6 +88,7 @@ export function getEsimColumns({
         <DataTableRowActions
           row={row}
           rowLabel={row.original.name ?? row.original.imsi}
+          onView={onView}
           onEdit={onEdit}
           onDelete={onDelete}
         />
