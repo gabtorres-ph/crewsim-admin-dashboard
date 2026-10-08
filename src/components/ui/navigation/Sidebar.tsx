@@ -18,6 +18,7 @@ import {
   RiLinkM,
   RiListCheck,
   RiSettings5Line,
+  RiFileListLine
 } from "@remixicon/react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -43,6 +44,10 @@ const navigation = [
   { name: "Timezones", href: siteConfig.baseLinks.timezones, icon: RiTimeZoneLine },
 
 ] as const
+
+const logs = [
+  { name: "API Logs", href: siteConfig.baseLinks.utilities.apiLogs, icon: RiFileListLine }
+]
 
 const templates = [
   { name: "Overview", href: siteConfig.baseLinks.overview, icon: RiHome2Line },
@@ -119,6 +124,30 @@ export function Sidebar() {
               ))}
             </ul>
           </div>
+            <div>
+              <span className="text-xs font-medium leading-6 text-gray-500">
+                Utilities
+              </span>
+            <ul role="list" className="space-y-0.5">
+              {logs.map((item) => (
+                <li key={item.name}>
+                  <Link
+                    href={item.href}
+                    className={cx(
+                      isActive(item.href)
+                        ? "text-indigo-600 dark:text-indigo-400"
+                        : "text-gray-700 hover:text-gray-900 dark:text-gray-400 hover:dark:text-gray-50",
+                      "flex items-center gap-x-2.5 rounded-md px-2 py-1.5 text-sm font-medium transition hover:bg-gray-100 hover:dark:bg-gray-900",
+                      focusRing,
+                    )}
+                  >
+                    <item.icon className="size-4 shrink-0" aria-hidden="true" />
+                    {item.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            </div>
             <div>
               <span className="text-xs font-medium leading-6 text-gray-500">
                 Tremor Template Options

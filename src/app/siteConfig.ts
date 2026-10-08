@@ -19,6 +19,9 @@ export const siteConfig = {
     timezones: "/timezones",
     overview: "/overview",
     details: "/details",
+    utilities: {
+      apiLogs: "/utilities/api-logs"
+    },
     settings: {
       general: "/settings/general",
       billing: "/settings/billing",
