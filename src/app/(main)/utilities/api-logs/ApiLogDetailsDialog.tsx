@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 
 import { Button } from "@/components/Button";
 import {
@@ -12,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/Dialog";
+import { Textarea } from "@/components/Textarea";
 import { getRequestLogAction } from "./actions";
 import { display, formatTimestamp } from "./columns";
 import type { RequestLogEntry } from "./types";
@@ -56,6 +57,8 @@ type ResponseBodyResult = { requestId: string } & (
   | { status: "error"; error: string }
 );
 
+type ResponseBodyState = ResponseBodyResult | { status: "loading" };
+
 function formatResponseBody(body: unknown, contentType: string | null): string {
   if (typeof body !== "string") return JSON.stringify(body, null, 2);
   if (!contentType?.toLowerCase().includes("json")) return body;
@@ -66,14 +69,69 @@ function formatResponseBody(body: unknown, contentType: string | null): string {
   }
 }
 
+type ResponseBodySectionProps = {
+  state: ResponseBodyState;
+  contentType: string | null;
+  truncated: boolean | null;
+};
+
+function ResponseBodySection({
+  state,
+  contentType,
+  truncated,
+}: ResponseBodySectionProps) {
+  const headingId = useId();
+  const mutedText = "mt-2 text-sm text-gray-500 dark:text-gray-400";
+
+  return (
+    <section>
+      <h3
+        id={headingId}
+        className="text-sm font-semibold text-gray-900 dark:text-gray-50"
+      >
+        Response body
+      </h3>
+      {state.status === "loading" && (
+        <p className={mutedText}>Loading response body…</p>
+      )}
+      {state.status === "error" && (
+        <p role="alert" className="mt-2 text-sm text-red-600 dark:text-red-500">
+          {state.error}
+        </p>
+      )}
+      {state.status === "loaded" &&
+        (state.body == null || state.body === "" ? (
+          <p className={mutedText}>No response body</p>
+        ) : (
+          <>
+            <Textarea
+              readOnly
+              rows={12}
+              aria-labelledby={headingId}
+              className="mt-2 font-mono text-xs sm:text-xs"
+              value={formatResponseBody(state.body, contentType)}
+            />
+            {truncated && (
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                Body was truncated by the logger.
+              </p>
+            )}
+          </>
+        ))}
+    </section>
+  );
+}
+
 export function ApiLogDetailsDialog({
   log,
   onOpenChange,
 }: ApiLogDetailsDialogProps) {
   const requestId = log?.request_id;
   const [bodyResult, setBodyResult] = useState<ResponseBodyResult>();
-  const responseBody =
-    bodyResult?.requestId === requestId ? bodyResult : { status: "loading" };
+  const responseBody: ResponseBodyState =
+    bodyResult && bodyResult.requestId === requestId
+      ? bodyResult
+      : { status: "loading" };
 
   useEffect(() => {
     if (!requestId) return;
@@ -135,6 +193,11 @@ export function ApiLogDetailsDialog({
                   </dl>
                 </section>
               ))}
+              <ResponseBodySection
+                state={responseBody}
+                contentType={log.resp_content_type}
+                truncated={log.resp_body_truncated}
+              />
             </div>
             <DialogFooter className="mt-6">
               <DialogClose asChild>
