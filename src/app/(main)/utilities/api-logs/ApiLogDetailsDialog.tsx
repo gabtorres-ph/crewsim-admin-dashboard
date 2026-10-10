@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 import { Button } from "@/components/Button";
 import {
   Dialog,
@@ -10,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/Dialog";
+import { getRequestLogAction } from "./actions";
 import { display, formatTimestamp } from "./columns";
 import type { RequestLogEntry } from "./types";
 
@@ -48,10 +51,57 @@ type ApiLogDetailsDialogProps = {
   onOpenChange: (open: boolean) => void;
 };
 
+type ResponseBodyResult = { requestId: string } & (
+  | { status: "loaded"; body: unknown }
+  | { status: "error"; error: string }
+);
+
+function formatResponseBody(body: unknown, contentType: string | null): string {
+  if (typeof body !== "string") return JSON.stringify(body, null, 2);
+  if (!contentType?.toLowerCase().includes("json")) return body;
+  try {
+    return JSON.stringify(JSON.parse(body), null, 2);
+  } catch {
+    return body;
+  }
+}
+
 export function ApiLogDetailsDialog({
   log,
   onOpenChange,
 }: ApiLogDetailsDialogProps) {
+  const requestId = log?.request_id;
+  const [bodyResult, setBodyResult] = useState<ResponseBodyResult>();
+  const responseBody =
+    bodyResult?.requestId === requestId ? bodyResult : { status: "loading" };
+
+  useEffect(() => {
+    if (!requestId) return;
+    let ignore = false;
+
+    getRequestLogAction(requestId)
+      .then((result) => {
+        if (ignore) return;
+        setBodyResult(
+          result.ok
+            ? { requestId, status: "loaded", body: result.log.response_body }
+            : { requestId, status: "error", error: result.error },
+        );
+      })
+      .catch(() => {
+        if (ignore) return;
+        setBodyResult({
+          requestId,
+          status: "error",
+          error: "The response body could not be loaded.",
+        });
+      });
+
+    return () => {
+      ignore = true;
+    };
+  }, [requestId]);
+
   return (
     <Dialog open={log !== undefined} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] sm:max-w-2xl">
