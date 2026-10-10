@@ -20,6 +20,12 @@ export type RequestLogEntry = {
   resp_body_gzip: boolean | null;
 };
 
+/** Request log representation returned by GET /api/utils/request-logs/{request_id}. */
+export type RequestLogDetail = {
+  request_id: string;
+  response_body: unknown;
+};
+
 export type RequestLogListResponse = {
   items: RequestLogEntry[];
   total: number;
