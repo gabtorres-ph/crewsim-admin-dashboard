@@ -1,12 +1,14 @@
 import "server-only";
 
 import type {
+  RequestLogDetail,
   RequestLogEntry,
   RequestLogListParams,
   RequestLogListResponse,
 } from "./types";
 
 export type {
+  RequestLogDetail,
   RequestLogEntry,
   RequestLogListParams,
   RequestLogListResponse,
@@ -196,6 +198,17 @@ function parseRequestLogList(value: unknown): RequestLogListResponse {
   };
 }
 
+function parseRequestLogDetail(value: unknown): RequestLogDetail {
+  assertRecord(value, "Request log detail response");
+  if (!Object.hasOwn(value, "response_body")) {
+    throw new TypeError("The Core API returned a request log without a response body field.");
+  }
+  return {
+    request_id: readString(value.request_id, "request_id"),
+    response_body: value.response_body,
+  };
+}
+
 function normalizeListParams(params: RequestLogListParams): {
   page: number;
   limit: number;
@@ -222,4 +235,13 @@ export async function fetchRequestLogs(
     limit: String(limit),
   });
   return parseRequestLogList(await request(`${REQUEST_LOGS_PATH}?${query}`));
+}
+
+export async function fetchRequestLog(
+  requestId: string,
+): Promise<RequestLogDetail> {
+  if (!requestId) throw new RangeError("Request log ID must not be empty.");
+  return parseRequestLogDetail(
+    await request(`${REQUEST_LOGS_PATH}/${encodeURIComponent(requestId)}`),
+  );
 }
