@@ -1,13 +1,11 @@
+import { fetchAllOffsetPages } from "@/lib/fetchAllPages";
 import { StripeNotificationsTable } from "./StripeNotificationsTable";
 import { fetchStripeNotifications } from "./api";
 
 export const dynamic = "force-dynamic";
 
 export default async function StripeNotificationsPage() {
-  const notifications = await fetchStripeNotifications({
-    offset: 0,
-    limit: 100,
-  });
+  const notifications = await fetchAllOffsetPages(fetchStripeNotifications);
 
   return (
     <>

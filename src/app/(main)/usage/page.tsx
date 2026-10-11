@@ -1,10 +1,11 @@
+import { fetchAllOffsetPages } from "@/lib/fetchAllPages";
 import { UsageTable } from "./UsageTable";
 import { fetchUsage } from "./api";
 
 export const dynamic = "force-dynamic";
 
 export default async function UsagePage() {
-  const usage = await fetchUsage({ offset: 0, limit: 100 });
+  const usage = await fetchAllOffsetPages(fetchUsage);
 
   return (
     <>

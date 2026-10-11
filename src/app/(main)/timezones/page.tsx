@@ -1,10 +1,11 @@
+import { fetchAllOffsetPages } from "@/lib/fetchAllPages";
 import { TimezonesTable } from "./TimezonesTable";
 import { fetchTimezones } from "./api";
 
 export const dynamic = "force-dynamic";
 
 export default async function TimezonesPage() {
-  const timezones = await fetchTimezones({ offset: 0, limit: 100 });
+  const timezones = await fetchAllOffsetPages(fetchTimezones);
 
   return (
     <>

@@ -1,10 +1,11 @@
+import { fetchAllOffsetPages } from "@/lib/fetchAllPages";
 import { LanguagesTable } from "./LanguagesTable";
 import { fetchLanguages } from "./api";
 
 export const dynamic = "force-dynamic";
 
 export default async function LanguagesPage() {
-  const languages = await fetchLanguages({ offset: 0, limit: 100 });
+  const languages = await fetchAllOffsetPages(fetchLanguages);
 
   return (
     <>

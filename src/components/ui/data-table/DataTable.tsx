@@ -20,7 +20,10 @@ import { DataTablePagination } from "./DataTablePagination"
 
 import {
   ColumnDef,
+  ColumnFiltersState,
+  PaginationState,
   RowSelectionState,
+  SortingState,
   TableOptions,
   flexRender,
   getCoreRowModel,
@@ -54,26 +57,61 @@ export function DataTable<TData>({
   const [rowSelection, setRowSelection] = useState<RowSelectionState>(
     {},
   )
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize,
+  })
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  const [sorting, setSorting] = useState<SortingState>([])
+
+  function goToFirstPage() {
+    setPagination((current) =>
+      current.pageIndex === 0 ? current : { ...current, pageIndex: 0 },
+    )
+  }
+
   const table = useReactTable({
     data,
     columns,
     getRowId,
     state: {
       rowSelection,
+      pagination,
+      columnFilters,
+      sorting,
     },
-    initialState: {
-      pagination: {
-        pageIndex: 0,
-        pageSize: pageSize,
-      },
-    },
+    // Keep the current page when data refreshes after an edit or delete;
+    // filter and sort changes return to the first page explicitly instead.
+    autoResetPageIndex: false,
     enableRowSelection,
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onRowSelectionChange: setRowSelection,
+    onPaginationChange: setPagination,
+    onColumnFiltersChange: (updater) => {
+      setColumnFilters(updater)
+      goToFirstPage()
+    },
+    onSortingChange: (updater) => {
+      setSorting(updater)
+      goToFirstPage()
+    },
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
   })
+
+  const pageCount = table.getPageCount()
+
+  // Step back when the current page no longer exists, e.g. after deleting
+  // every row on the last page.
+  useEffect(() => {
+    const lastPageIndex = Math.max(0, pageCount - 1)
+    setPagination((current) =>
+      current.pageIndex > lastPageIndex
+        ? { ...current, pageIndex: lastPageIndex }
+        : current,
+    )
+  }, [pageCount])
 
   // Drop selections for rows that disappeared, e.g. after a delete and refresh.
   useEffect(() => {
@@ -174,7 +212,6 @@ export function DataTable<TData>({
         </div>
         <DataTablePagination
           table={table}
-          pageSize={pageSize}
           showSelectionCount={enableRowSelection}
         />
       </div>

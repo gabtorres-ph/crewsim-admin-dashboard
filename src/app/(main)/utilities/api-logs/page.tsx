@@ -1,10 +1,13 @@
+import { fetchAllNumberedPages } from "@/lib/fetchAllPages";
 import { ApiLogsTable } from "./ApiLogsTable";
 import { fetchRequestLogs } from "./api";
 
 export const dynamic = "force-dynamic";
 
 export default async function ApiLogsPage() {
-  const { items, total } = await fetchRequestLogs({ page: 1, limit: 100 });
+  const { items, total } = await fetchAllNumberedPages(fetchRequestLogs, {
+    batchSize: 1000,
+  });
 
   return (
     <>

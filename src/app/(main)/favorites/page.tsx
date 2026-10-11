@@ -1,10 +1,11 @@
+import { fetchAllOffsetPages } from "@/lib/fetchAllPages"
 import { FavoritesTable } from "./FavoritesTable"
 import { fetchFavorites } from "./api"
 
 export const dynamic = "force-dynamic"
 
 export default async function FavoritesPage() {
-  const favorites = await fetchFavorites({ offset: 0, limit: 100 })
+  const favorites = await fetchAllOffsetPages(fetchFavorites)
 
   return (
     <>

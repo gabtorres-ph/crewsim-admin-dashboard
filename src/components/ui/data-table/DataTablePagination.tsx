@@ -10,13 +10,11 @@ import { Table } from "@tanstack/react-table"
 
 interface DataTablePaginationProps<TData> {
   table: Table<TData>
-  pageSize: number
   showSelectionCount?: boolean
 }
 
 export function DataTablePagination<TData>({
   table,
-  pageSize,
   showSelectionCount = false,
 }: DataTablePaginationProps<TData>) {
   const paginationButtons = [
@@ -51,7 +49,7 @@ export function DataTablePagination<TData>({
   ]
 
   const totalRows = table.getFilteredRowModel().rows.length
-  const currentPage = table.getState().pagination.pageIndex
+  const { pageIndex: currentPage, pageSize } = table.getState().pagination
   const firstRowIndex = totalRows === 0 ? 0 : currentPage * pageSize + 1
   const lastRowIndex = Math.min(totalRows, firstRowIndex + pageSize - 1)
 

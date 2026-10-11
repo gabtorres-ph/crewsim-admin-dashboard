@@ -1,10 +1,11 @@
+import { fetchAllOffsetPages } from "@/lib/fetchAllPages";
 import { SmsTable } from "./SmsTable";
 import { fetchSms } from "./api";
 
 export const dynamic = "force-dynamic";
 
 export default async function SmsPage() {
-  const messages = await fetchSms({ offset: 0, limit: 100 });
+  const messages = await fetchAllOffsetPages(fetchSms);
 
   return (
     <>

@@ -1,10 +1,11 @@
+import { fetchAllOffsetPages } from "@/lib/fetchAllPages";
 import { PackagesTable } from "./PackagesTable";
 import { fetchPackages } from "./api";
 
 export const dynamic = "force-dynamic";
 
 export default async function PackagesPage() {
-  const packages = await fetchPackages({ offset: 0, limit: 100 });
+  const packages = await fetchAllOffsetPages(fetchPackages);
 
   return (
     <>
