@@ -14,10 +14,6 @@ import {
   RiTranslate2, 
   RiMoneyEuroCircleLine,
   RiTimeZoneLine,
-  RiHome2Line,
-  RiLinkM,
-  RiListCheck,
-  RiSettings5Line,
   RiFileListLine
 } from "@remixicon/react"
 import Link from "next/link"
