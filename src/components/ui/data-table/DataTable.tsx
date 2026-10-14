@@ -40,6 +40,7 @@ interface DataTableProps<TData> {
   getRowId?: TableOptions<TData>["getRowId"]
   emptyMessage?: string
   toolbar?: DataTableToolbarConfig
+  showPagination?: boolean
   enableRowSelection?: boolean
   bulkActions?: DataTableBulkActions<TData>
 }
@@ -51,6 +52,7 @@ export function DataTable<TData>({
   getRowId,
   emptyMessage = "No results.",
   toolbar,
+  showPagination = true,
   enableRowSelection = false,
   bulkActions,
 }: DataTableProps<TData>) {
@@ -210,10 +212,12 @@ export function DataTable<TData>({
             />
           )}
         </div>
-        <DataTablePagination
-          table={table}
-          showSelectionCount={enableRowSelection}
-        />
+        {showPagination && (
+          <DataTablePagination
+            table={table}
+            showSelectionCount={enableRowSelection}
+          />
+        )}
       </div>
     </>
   )

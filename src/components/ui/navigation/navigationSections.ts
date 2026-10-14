@@ -13,6 +13,7 @@ import {
   RiMoneyEuroCircleLine,
   RiTimeZoneLine,
   RiFileListLine,
+  RiNotification3Line,
 } from "@remixicon/react"
 
 // todo wire account page here
@@ -29,6 +30,7 @@ export const navigationSections = [
       { name: "Crew", href: siteConfig.baseLinks.crew, icon: RiPlaneLine },
       { name: "SMS", href: siteConfig.baseLinks.sms, icon: RiMessage2Line },
       { name: "Stripe Notification", href: siteConfig.baseLinks.stripe_notification, icon: RiBankCardLine },
+      { name: "SIM Notifications", href: siteConfig.baseLinks.sim_notification, icon: RiNotification3Line },
       { name: "Languages", href: siteConfig.baseLinks.languages, icon: RiTranslate2 },
       { name: "Currencies", href: siteConfig.baseLinks.currencies, icon: RiMoneyEuroCircleLine },
       { name: "Timezones", href: siteConfig.baseLinks.timezones, icon: RiTimeZoneLine },

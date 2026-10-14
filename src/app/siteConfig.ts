@@ -14,6 +14,7 @@ export const siteConfig = {
     sms: "/sms",
     email: "/email",
     stripe_notification: "/stripe_notification",
+    sim_notification: "/sim_notification",
     languages: "/languages",
     currencies: "/currencies",
     timezones: "/timezones",
