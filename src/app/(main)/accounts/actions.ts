@@ -4,11 +4,15 @@ import { revalidatePath } from "next/cache"
 
 import {
   AccountsApiError,
-  createAccount,
   deleteAccount,
+  refreshAccounts,
   updateAccount,
 } from "./api"
-import type { AccountCreate, AccountRead, AccountUpdate } from "./types"
+import type {
+  AccountRead,
+  AccountRefreshResult,
+  AccountUpdate,
+} from "./types"
 
 export type AccountActionResult =
   | { ok: true; account?: AccountRead }
@@ -20,13 +24,15 @@ function getActionError(error: unknown): string {
   return "The account request failed."
 }
 
-export async function createAccountAction(
-  input: AccountCreate,
-): Promise<AccountActionResult> {
+export type AccountRefreshActionResult =
+  | { ok: true; summary: AccountRefreshResult }
+  | { ok: false; error: string }
+
+export async function refreshAccountsAction(): Promise<AccountRefreshActionResult> {
   try {
-    const account = await createAccount(input)
+    const summary = await refreshAccounts()
     revalidatePath("/accounts")
-    return { ok: true, account }
+    return { ok: true, summary }
   } catch (error) {
     return { ok: false, error: getActionError(error) }
   }

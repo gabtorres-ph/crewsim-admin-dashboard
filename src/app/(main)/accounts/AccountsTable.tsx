@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { useState, useTransition } from "react"
 import type { DataTableToolbarConfig } from "@/components/ui/data-table/DataTableFilterbar"
 import { AccountFormDialog } from "./AccountFormDialog"
-import { deleteAccountAction } from "./actions"
+import { deleteAccountAction, refreshAccountsAction } from "./actions"
 import { formatAccountBalance, getAccountColumns } from "./columns"
 import type { AccountRead } from "./types"
 
@@ -36,17 +36,38 @@ const toolbarOptions = {
 export function AccountsTable({ accounts }: { accounts: AccountRead[] }) {
   const router = useRouter()
   const [editingAccount, setEditingAccount] = useState<AccountRead>()
-  const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [actionError, setActionError] = useState<string>()
+  const [refreshSummary, setRefreshSummary] = useState<string>()
   const [isDeleting, startDeleteTransition] = useTransition()
+  const [isRefreshing, startRefreshTransition] = useTransition()
 
   const toolbar = {
     ...toolbarOptions,
     primaryAction: {
-      label: "Add account",
-      onClick: () => setIsCreateOpen(true),
+      label: "Refresh",
+      onClick: refreshAccounts,
+      loading: isRefreshing,
     },
   } satisfies DataTableToolbarConfig
+
+  function refreshAccounts() {
+    setActionError(undefined)
+    setRefreshSummary(undefined)
+    startRefreshTransition(() => {
+      void (async () => {
+        const result = await refreshAccountsAction()
+        if (!result.ok) {
+          setActionError(result.error)
+          return
+        }
+        const { fetched, created, updated, deleted } = result.summary
+        setRefreshSummary(
+          `Refreshed: ${fetched} fetched, ${created} created, ${updated} updated, ${deleted} deleted.`,
+        )
+        router.refresh()
+      })()
+    })
+  }
 
   function deleteAccount(account: AccountRead) {
     if (!window.confirm(`Delete account “${account.name}”?`)) return
@@ -76,6 +97,11 @@ export function AccountsTable({ accounts }: { accounts: AccountRead[] }) {
           {actionError}
         </p>
       )}
+      {refreshSummary && (
+        <p role="status" className="mb-4 text-sm text-gray-500 dark:text-gray-400">
+          {refreshSummary}
+        </p>
+      )}
       <DataTable
         columns={getAccountColumns({
           onEdit: setEditingAccount,
@@ -89,18 +115,17 @@ export function AccountsTable({ accounts }: { accounts: AccountRead[] }) {
         toolbar={toolbar}
       />
       <AccountFormDialog
-        mode="create"
-        open={isCreateOpen}
-        onOpenChange={setIsCreateOpen}
-      />
-      <AccountFormDialog
-        mode="edit"
         account={editingAccount}
         open={editingAccount !== undefined}
         onOpenChange={(open) => {
           if (!open) setEditingAccount(undefined)
         }}
       />
+      {isRefreshing && (
+        <span className="sr-only" role="status">
+          Refreshing accounts
+        </span>
+      )}
       {isDeleting && (
         <span className="sr-only" role="status">
           Deleting account

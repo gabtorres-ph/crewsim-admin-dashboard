@@ -32,6 +32,7 @@ export type DataTableToolbarConfig = {
   primaryAction?: {
     label: string
     onClick: () => void
+    loading?: boolean
   }
 }
 
@@ -134,6 +135,8 @@ export function Filterbar<TData>({
             type="button"
             className="flex gap-x-2 px-2 py-1.5 text-sm sm:text-xs"
             onClick={config.primaryAction.onClick}
+            isLoading={config.primaryAction.loading}
+            loadingText="Refreshing"
           >
             {config.primaryAction.label}
           </Button>

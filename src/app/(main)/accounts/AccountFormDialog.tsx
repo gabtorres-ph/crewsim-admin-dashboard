@@ -16,18 +16,16 @@ import {
 import { Input } from "@/components/Input"
 import { Label } from "@/components/Label"
 
-import { createAccountAction, updateAccountAction } from "./actions"
+import { updateAccountAction } from "./actions"
 import type { AccountRead } from "./types"
 
 type AccountFormDialogProps = {
-  mode: "create" | "edit"
   account?: AccountRead
   open: boolean
   onOpenChange: (open: boolean) => void
 }
 
 export function AccountFormDialog({
-  mode,
   account,
   open,
   onOpenChange,
@@ -63,16 +61,10 @@ export function AccountFormDialog({
     setError(undefined)
     startTransition(() => {
       void (async () => {
-        const result =
-          mode === "create"
-            ? await createAccountAction({
-                name: normalizedName,
-                balance: normalizedBalance,
-              })
-            : await updateAccountAction(account!.id, {
-                name: normalizedName,
-                balance: normalizedBalance,
-              })
+        const result = await updateAccountAction(account!.id, {
+          name: normalizedName,
+          balance: normalizedBalance,
+        })
 
         if (!result.ok) {
           setError(result.error)
@@ -90,9 +82,7 @@ export function AccountFormDialog({
       <DialogContent className="sm:max-w-lg">
         <form onSubmit={submit}>
           <DialogHeader>
-            <DialogTitle>
-              {mode === "create" ? "Add account" : "Edit account"}
-            </DialogTitle>
+            <DialogTitle>Edit account</DialogTitle>
             <DialogDescription className="mt-1 text-sm leading-6">
               Changes are sent to the local Core API immediately.
             </DialogDescription>
@@ -150,7 +140,7 @@ export function AccountFormDialog({
               isLoading={isPending}
               loadingText="Saving"
             >
-              {mode === "create" ? "Add account" : "Save changes"}
+              Save changes
             </Button>
           </DialogFooter>
         </form>

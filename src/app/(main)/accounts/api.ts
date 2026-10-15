@@ -1,16 +1,16 @@
 import "server-only";
 
 import type {
-  AccountCreate,
   AccountListParams,
   AccountRead,
+  AccountRefreshResult,
   AccountUpdate,
 } from "./types";
 
 export type {
-  AccountCreate,
   AccountListParams,
   AccountRead,
+  AccountRefreshResult,
   AccountUpdate,
 } from "./types";
 
@@ -61,8 +61,12 @@ function getApiBaseUrl(): string {
   return url.toString().replace(/\/$/, "");
 }
 
-function getRequestHeaders(hasBody: boolean): Headers {
-  const headers = new Headers({ Accept: "application/json" });
+function getRequestHeaders(hasBody: boolean, sendAccept: boolean): Headers {
+  const headers = new Headers();
+
+  if (sendAccept) {
+    headers.set("Accept", "application/json");
+  }
 
   if (hasBody) {
     headers.set("Content-Type", "application/json");
@@ -79,12 +83,16 @@ function getRequestHeaders(hasBody: boolean): Headers {
   return headers;
 }
 
-async function request(path: string, init: RequestInit = {}): Promise<unknown> {
+async function request(
+  path: string,
+  init: RequestInit = {},
+  { sendAccept = true }: { sendAccept?: boolean } = {},
+): Promise<unknown> {
   const hasBody = init.body !== undefined;
   const response = await fetch(`${getApiBaseUrl()}${path}`, {
     ...init,
     cache: "no-store",
-    headers: getRequestHeaders(hasBody),
+    headers: getRequestHeaders(hasBody, sendAccept),
   });
 
   if (!response.ok) {
@@ -132,15 +140,6 @@ function getApiErrorMessage(
   }
 
   return `Accounts API request failed with status ${status}${statusText ? ` ${statusText}` : ""}.`;
-}
-
-function normalizeAccountCreate(input: AccountCreate): AccountCreate {
-  assertRecord(input, "Account create payload");
-
-  return {
-    name: normalizeName(input.name),
-    balance: normalizeBalance(input.balance),
-  };
 }
 
 function normalizeAccountUpdate(input: AccountUpdate): AccountUpdate {
@@ -207,6 +206,35 @@ function parseAccount(value: unknown): AccountRead {
   };
 }
 
+const REFRESH_RESULT_KEYS = [
+  "fetched",
+  "created",
+  "updated",
+  "unchanged",
+  "deleted",
+  "delinked_esims",
+] as const;
+
+function parseAccountRefreshResult(value: unknown): AccountRefreshResult {
+  if (!isRecord(value)) {
+    throw new TypeError("The Core API returned an invalid refresh result.");
+  }
+
+  const result = {} as AccountRefreshResult;
+
+  for (const key of REFRESH_RESULT_KEYS) {
+    const count = value[key];
+
+    if (!Number.isInteger(count) || (count as number) < 0) {
+      throw new TypeError("The Core API returned an invalid refresh result.");
+    }
+
+    result[key] = count as number;
+  }
+
+  return result;
+}
+
 function parseAccountList(value: unknown): AccountRead[] {
   if (!Array.isArray(value)) {
     throw new TypeError("The Core API returned an invalid account list.");
@@ -259,16 +287,18 @@ export async function fetchAccount(accountId: number): Promise<AccountRead> {
   return parseAccount(body);
 }
 
-/** Creates an account after applying the backend's input rules locally. */
-export async function createAccount(
-  input: AccountCreate,
-): Promise<AccountRead> {
-  const body = await request(ACCOUNT_PATH, {
-    method: "POST",
-    body: JSON.stringify(normalizeAccountCreate(input)),
-  });
+/**
+ * Asks the Core API to pull accounts from the third-party source of truth.
+ * The request carries no body, query parameters or Accept header.
+ */
+export async function refreshAccounts(): Promise<AccountRefreshResult> {
+  const body = await request(
+    `${ACCOUNT_PATH}/refresh`,
+    { method: "POST" },
+    { sendAccept: false },
+  );
 
-  return parseAccount(body);
+  return parseAccountRefreshResult(body);
 }
 
 /** Partially updates the fields supplied by the caller. */
