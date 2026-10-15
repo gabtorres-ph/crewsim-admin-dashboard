@@ -17,17 +17,26 @@ import { getRequestLogAction } from "./actions";
 import { display, formatTimestamp } from "./columns";
 import type { RequestLogEntry } from "./types";
 
-type DetailField = [keyof RequestLogEntry, string];
+type DetailField = [
+  keyof Omit<
+    RequestLogEntry,
+    "body" | "response_body" | "client_ip_candidates" | "outbound"
+  >,
+  string,
+];
 
 const detailSections: { title: string; fields: DetailField[] }[] = [
   {
     title: "Request",
     fields: [
       ["request_id", "Request ID"],
+      ["direction", "Direction"],
+      ["url", "URL"],
       ["method", "Method"],
       ["path", "Path"],
       ["user_id", "User ID"],
       ["caller_ip", "Caller IP"],
+      ["caller_ip_source", "Caller IP source"],
       ["content_type", "Content type"],
       ["req_body_len", "Body size (bytes)"],
       ["req_body_truncated", "Body truncated"],
@@ -59,7 +68,7 @@ type ResponseBodyResult = { requestId: string } & (
 
 type ResponseBodyState = ResponseBodyResult | { status: "loading" };
 
-function formatResponseBody(body: unknown, contentType: string | null): string {
+function formatBody(body: unknown, contentType: string | null): string {
   if (typeof body !== "string") return JSON.stringify(body, null, 2);
   if (!contentType?.toLowerCase().includes("json")) return body;
   try {
@@ -67,6 +76,40 @@ function formatResponseBody(body: unknown, contentType: string | null): string {
   } catch {
     return body;
   }
+}
+
+function RequestBodySection({ log }: { log: RequestLogEntry }) {
+  const headingId = useId();
+  const hasBody = log.body != null && log.body !== "";
+
+  return (
+    <section>
+      <h3
+        id={headingId}
+        className="text-sm font-semibold text-gray-900 dark:text-gray-50"
+      >
+        Request body
+      </h3>
+      {hasBody ? (
+        <Textarea
+          readOnly
+          rows={12}
+          aria-labelledby={headingId}
+          className="mt-2 font-mono text-xs sm:text-xs"
+          value={formatBody(log.body, log.content_type)}
+        />
+      ) : (
+        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+          No request body
+        </p>
+      )}
+      {log.req_body_truncated && (
+        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+          Body was truncated by the logger.
+        </p>
+      )}
+    </section>
+  );
 }
 
 type ResponseBodySectionProps = {
@@ -109,7 +152,7 @@ function ResponseBodySection({
               rows={12}
               aria-labelledby={headingId}
               className="mt-2 font-mono text-xs sm:text-xs"
-              value={formatResponseBody(state.body, contentType)}
+              value={formatBody(state.body, contentType)}
             />
             {truncated && (
               <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
@@ -175,23 +218,28 @@ export function ApiLogDetailsDialog({
             </DialogHeader>
             <div className="mt-6 space-y-6">
               {detailSections.map((section) => (
-                <section key={section.title}>
-                  <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-50">
-                    {section.title}
-                  </h3>
-                  <dl className="mt-2 grid gap-x-6 gap-y-3 sm:grid-cols-2">
-                    {section.fields.map(([key, label]) => (
-                      <div key={key} className="min-w-0">
-                        <dt className="text-xs text-gray-500 dark:text-gray-400">
-                          {label}
-                        </dt>
-                        <dd className="mt-0.5 break-words text-sm text-gray-900 dark:text-gray-50">
-                          {display(log[key])}
-                        </dd>
-                      </div>
-                    ))}
-                  </dl>
-                </section>
+                <div key={section.title} className="space-y-6">
+                  <section>
+                    <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-50">
+                      {section.title}
+                    </h3>
+                    <dl className="mt-2 grid gap-x-6 gap-y-3 sm:grid-cols-2">
+                      {section.fields.map(([key, label]) => (
+                        <div key={key} className="min-w-0">
+                          <dt className="text-xs text-gray-500 dark:text-gray-400">
+                            {label}
+                          </dt>
+                          <dd className="mt-0.5 break-words text-sm text-gray-900 dark:text-gray-50">
+                            {display(log[key])}
+                          </dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </section>
+                  {section.title === "Request" && (
+                    <RequestBodySection log={log} />
+                  )}
+                </div>
               ))}
               <ResponseBodySection
                 state={responseBody}

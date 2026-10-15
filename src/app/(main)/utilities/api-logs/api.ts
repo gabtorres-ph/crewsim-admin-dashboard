@@ -71,11 +71,7 @@ async function request(path: string): Promise<unknown> {
   if (!response.ok) {
     const body = await readJson(response);
     const detail = isRecord(body) ? (body as ApiErrorBody).detail : undefined;
-    throw new RequestLogsApiError(
-      response.status,
-      response.statusText,
-      detail,
-    );
+    throw new RequestLogsApiError(response.status, response.statusText, detail);
   }
 
   const body = await readJson(response);
@@ -139,10 +135,49 @@ function readBoolean(value: unknown, field: string): boolean {
   return value;
 }
 
+function readDirection(value: unknown): RequestLogEntry["direction"] {
+  if (value !== "inbound" && value !== "outbound") {
+    throw new TypeError("direction must be inbound or outbound.");
+  }
+  return value;
+}
+
 function readNullableBoolean(value: unknown, field: string): boolean | null {
   return value === null || value === undefined
     ? null
     : readBoolean(value, field);
+}
+
+function readRequiredValue(
+  value: Record<string, unknown>,
+  field: string,
+): unknown {
+  if (!Object.hasOwn(value, field)) {
+    throw new TypeError(`${field} is required.`);
+  }
+  return value[field];
+}
+
+function readClientIpCandidates(
+  value: unknown,
+): RequestLogEntry["client_ip_candidates"] {
+  if (!Array.isArray(value)) {
+    throw new TypeError("client_ip_candidates must be an array.");
+  }
+  return value.map((candidate) => {
+    assertRecord(candidate, "client_ip_candidates entry");
+    return {
+      source: readString(candidate.source, "client_ip_candidates.source"),
+      ip: readString(candidate.ip, "client_ip_candidates.ip"),
+    };
+  });
+}
+
+function readOutbound(value: unknown): RequestLogEntry["outbound"] {
+  if (!Array.isArray(value) || !value.every(isRecord)) {
+    throw new TypeError("outbound must be an array of objects.");
+  }
+  return value;
 }
 
 function parseRequestLog(value: unknown): RequestLogEntry {
@@ -150,22 +185,28 @@ function parseRequestLog(value: unknown): RequestLogEntry {
   try {
     return {
       request_id: readString(value.request_id, "request_id"),
+      direction: readDirection(value.direction),
+      url: readNullableString(value.url, "url"),
       ts: readInteger(value.ts, "ts"),
       timestamp: readNullableString(value.timestamp, "timestamp"),
       caller_ip: readString(value.caller_ip, "caller_ip"),
+      caller_ip_source: readString(value.caller_ip_source, "caller_ip_source"),
+      client_ip_candidates: readClientIpCandidates(value.client_ip_candidates),
       user_id: readString(value.user_id, "user_id"),
       method: readString(value.method, "method"),
       path: readString(value.path, "path"),
       status: readInteger(value.status, "status"),
       duration_ms: readInteger(value.duration_ms, "duration_ms"),
+      body: readRequiredValue(value, "body"),
+      response_body: readRequiredValue(value, "response_body"),
       content_type: readNullableString(value.content_type, "content_type"),
       req_body_len: readInteger(value.req_body_len, "req_body_len"),
       req_body_truncated: readBoolean(
         value.req_body_truncated,
         "req_body_truncated",
       ),
-      req_body_gzip: readNullableBoolean(value.req_body_gzip, "req_body_gzip")
-        ?? false,
+      req_body_key: readString(value.req_body_key, "req_body_key"),
+      req_body_gzip: readBoolean(value.req_body_gzip, "req_body_gzip"),
       resp_content_type: readNullableString(
         value.resp_content_type,
         "resp_content_type",
@@ -175,10 +216,12 @@ function parseRequestLog(value: unknown): RequestLogEntry {
         value.resp_body_truncated,
         "resp_body_truncated",
       ),
+      resp_body_key: readNullableString(value.resp_body_key, "resp_body_key"),
       resp_body_gzip: readNullableBoolean(
         value.resp_body_gzip,
         "resp_body_gzip",
       ),
+      outbound: readOutbound(value.outbound),
     };
   } catch {
     throw new TypeError("The Core API returned an invalid request log record.");
@@ -201,7 +244,9 @@ function parseRequestLogList(value: unknown): RequestLogListResponse {
 function parseRequestLogDetail(value: unknown): RequestLogDetail {
   assertRecord(value, "Request log detail response");
   if (!Object.hasOwn(value, "response_body")) {
-    throw new TypeError("The Core API returned a request log without a response body field.");
+    throw new TypeError(
+      "The Core API returned a request log without a response body field.",
+    );
   }
   return {
     request_id: readString(value.request_id, "request_id"),
