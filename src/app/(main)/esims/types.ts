@@ -15,6 +15,16 @@ export type EsimCreate = {
   imei?: string | null
   imei_device?: string | null
   allow_data?: boolean | null
+  mobileplanid?: number | null
+  activationdate?: string | null
+  lastusagedate?: string | null
+  subscriber_status?: string | null
+  lastnetworkdate?: string | null
+  lastmcc?: string | null
+  lastmnc?: string | null
+  lastcellid?: number | null
+  lastlac?: number | null
+  lastrat?: string | null
 }
 
 /** Data accepted by PATCH /api/esims/{id}. */
@@ -38,6 +48,16 @@ export type EsimRead = {
   imei: string | null
   imei_device: string | null
   allow_data: boolean | null
+  mobileplanid: number | null
+  activationdate: string | null
+  lastusagedate: string | null
+  subscriber_status: string | null
+  lastnetworkdate: string | null
+  lastmcc: string | null
+  lastmnc: string | null
+  lastcellid: number | null
+  lastlac: number | null
+  lastrat: string | null
 }
 
 export type EsimListParams = {

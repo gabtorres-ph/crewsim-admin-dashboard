@@ -103,6 +103,22 @@ function normalizeNullableString(value: unknown, field: string, max = 255): stri
   return normalized
 }
 
+function normalizeNullableInteger(value: unknown, field: string): number | null {
+  if (value === null) return null
+  if (typeof value !== "number" || !Number.isInteger(value)) {
+    throw new TypeError(`${field} must be an integer or null.`)
+  }
+  return value
+}
+
+function normalizeNullableDatetime(value: unknown, field: string): string | null {
+  if (value === null) return null
+  if (typeof value !== "string" || Number.isNaN(Date.parse(value))) {
+    throw new TypeError(`${field} must be an ISO-8601 datetime or null.`)
+  }
+  return new Date(value).toISOString()
+}
+
 function normalizeCreate(input: EsimCreate): EsimCreate {
   assertRecord(input, "eSIM create payload")
   assertPositiveId(input.account_id, "Account ID")
@@ -141,6 +157,15 @@ function normalizeCreate(input: EsimCreate): EsimCreate {
   if (input.allow_data !== undefined) {
     if (input.allow_data !== null && typeof input.allow_data !== "boolean") throw new TypeError("allow_data must be a boolean or null.")
     payload.allow_data = input.allow_data
+  }
+  for (const field of ["mobileplanid", "lastcellid", "lastlac"] as const) {
+    if (input[field] !== undefined) payload[field] = normalizeNullableInteger(input[field], field)
+  }
+  for (const field of ["activationdate", "lastusagedate", "lastnetworkdate"] as const) {
+    if (input[field] !== undefined) payload[field] = normalizeNullableDatetime(input[field], field)
+  }
+  for (const field of ["subscriber_status", "lastmcc", "lastmnc", "lastrat"] as const) {
+    if (input[field] !== undefined) payload[field] = normalizeNullableString(input[field], field)
   }
   return payload
 }
@@ -184,6 +209,15 @@ function normalizeUpdate(input: EsimUpdate): EsimUpdate {
     if (typeof input.use_account_for_charging !== "boolean") throw new TypeError("use_account_for_charging must be a boolean.")
     payload.use_account_for_charging = input.use_account_for_charging
   }
+  for (const field of ["mobileplanid", "lastcellid", "lastlac"] as const) {
+    if (input[field] !== undefined) payload[field] = normalizeNullableInteger(input[field], field)
+  }
+  for (const field of ["activationdate", "lastusagedate", "lastnetworkdate"] as const) {
+    if (input[field] !== undefined) payload[field] = normalizeNullableDatetime(input[field], field)
+  }
+  for (const field of ["subscriber_status", "lastmcc", "lastmnc", "lastrat"] as const) {
+    if (input[field] !== undefined) payload[field] = normalizeNullableString(input[field], field)
+  }
   return payload
 }
 
@@ -203,7 +237,13 @@ function parseEsim(value: unknown): EsimRead {
     (value.balance !== null && (typeof value.balance !== "number" || !Number.isFinite(value.balance))) ||
     typeof value.use_account_for_charging !== "boolean" ||
     !nullableString("smdpserver") || !nullableString("activationcode") || !nullableString("imei") ||
-    !nullableString("imei_device") || (value.allow_data !== null && typeof value.allow_data !== "boolean")
+    !nullableString("imei_device") || (value.allow_data !== null && typeof value.allow_data !== "boolean") ||
+    (value.mobileplanid !== null && (typeof value.mobileplanid !== "number" || !Number.isInteger(value.mobileplanid))) ||
+    !nullableString("activationdate") || !nullableString("lastusagedate") || !nullableString("subscriber_status") ||
+    !nullableString("lastnetworkdate") || !nullableString("lastmcc") || !nullableString("lastmnc") ||
+    (value.lastcellid !== null && (typeof value.lastcellid !== "number" || !Number.isInteger(value.lastcellid))) ||
+    (value.lastlac !== null && (typeof value.lastlac !== "number" || !Number.isInteger(value.lastlac))) ||
+    !nullableString("lastrat")
   ) throw new TypeError("The Core API returned an invalid eSIM.")
   return value as EsimRead
 }

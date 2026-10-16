@@ -45,6 +45,21 @@ const detailSections: { title: string; fields: DetailField[] }[] = [
       ["use_account_for_charging", "Use account for charging"],
     ],
   },
+  {
+    title: "Plan and network activity",
+    fields: [
+      ["mobileplanid", "Mobile plan ID"],
+      ["activationdate", "Activation date"],
+      ["lastusagedate", "Last usage date"],
+      ["subscriber_status", "Subscriber status"],
+      ["lastnetworkdate", "Last network date"],
+      ["lastmcc", "Last MCC"],
+      ["lastmnc", "Last MNC"],
+      ["lastcellid", "Last cell ID"],
+      ["lastlac", "Last LAC"],
+      ["lastrat", "Last RAT"],
+    ],
+  },
 ];
 
 function display(value: EsimRead[keyof EsimRead]) {

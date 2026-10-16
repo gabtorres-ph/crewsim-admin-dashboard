@@ -76,6 +76,11 @@ export function getEsimColumns({
       cell: ({ getValue }) => text(getValue()),
       meta: { displayName: "Network" },
     }),
+    helper.accessor("subscriber_status", {
+      header: "Subscriber status",
+      cell: ({ getValue }) => text(getValue()),
+      meta: { displayName: "Subscriber status" },
+    }),
     helper.accessor("balance", {
       header: "Balance",
       cell: ({ getValue }) => (getValue() === null ? "—" : getValue()),
