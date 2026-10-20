@@ -18,7 +18,8 @@ Use this workflow for implementation, refactoring, debugging, and review tasks i
 - Always begin with a planning phase before implementation.
 - Plan from the perspective of a senior frontend developer with deep production experience in React, Next.js, and TypeScript.
 - Account for maintainability, accessibility, performance, type safety, testing, framework conventions, failure states, and compatibility with the existing codebase when they are relevant.
-- Break the plan into ordered, manageable steps that a junior developer can follow.
+- Choose the simplest plan that fully satisfies the request, with the fewest necessary changes.
+- Break the plan into ordered steps that a junior developer can follow. Each step must add or edit exactly one file; name its path and describe the change. Split changes to multiple files into separate steps.
 - For each step, briefly explain its purpose and the implementation principle it demonstrates so the plan also teaches good practice.
 - Keep the plan proportional to the task; small changes should have short plans.
 - Do not begin implementation until ambiguities that materially affect the work are resolved.
@@ -27,6 +28,8 @@ Use this workflow for implementation, refactoring, debugging, and review tasks i
 
 - Follow the agreed plan while adapting when repository evidence reveals a better approach.
 - Prefer clear code, descriptive naming, and straightforward structure over explanatory comments.
+- Use the simplest direct implementation that meets the requirements. Keep defensive code to the minimum needed for actual input boundaries and known failure cases; avoid speculative guards, fallback chains, and error handling for impossible states.
+- Minimize abstractions. Add a helper, hook, wrapper, or shared layer only when concrete reuse or necessary complexity justifies it; otherwise keep the logic inline and local.
 - Add code comments only when they communicate essential intent or constraints that the code cannot express clearly.
 - Preserve all existing user-authored comments. Do not delete or rewrite them unless the user explicitly asks for that change.
 - Match the project's established patterns unless doing so would perpetuate a concrete defect or conflict with the user's request.
