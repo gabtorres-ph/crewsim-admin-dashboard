@@ -296,6 +296,15 @@ export async function refreshEsimsForAccount(accountId: number): Promise<EsimRef
   return body.map(parseEsimRefreshResult)
 }
 
+export async function refreshEsimByImsi(imsi: string): Promise<EsimRefreshResult> {
+  if (typeof imsi !== "string" || !/^[0-9]{5,15}$/.test(imsi)) {
+    throw new RangeError("IMSI must contain between 5 and 15 digits.")
+  }
+  return parseEsimRefreshResult(
+    await request(`${ESIM_PATH}/${encodeURIComponent(imsi)}/refresh`, { method: "POST" }),
+  )
+}
+
 export async function fetchEsims(params: EsimListParams = {}): Promise<EsimRead[]> {
   const offset = params.offset ?? DEFAULT_OFFSET
   const limit = params.limit ?? DEFAULT_LIMIT

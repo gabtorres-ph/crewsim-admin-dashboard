@@ -1,7 +1,7 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
-import { createEsim, deleteEsim, EsimsApiError, updateEsim } from "./api"
+import { createEsim, deleteEsim, EsimsApiError, refreshEsimByImsi, updateEsim } from "./api"
 import type { EsimCreate, EsimRead, EsimUpdate } from "./types"
 
 export type EsimActionResult = { ok: true; esim?: EsimRead } | { ok: false; error: string }
@@ -21,4 +21,14 @@ export async function updateEsimAction(id: number, input: EsimUpdate): Promise<E
 
 export async function deleteEsimAction(id: number): Promise<EsimActionResult> {
   try { await deleteEsim(id); revalidatePath("/esims"); return { ok: true } } catch (error) { return { ok: false, error: getActionError(error) } }
+}
+
+export async function refreshEsimAction(imsi: string): Promise<EsimActionResult> {
+  try {
+    await refreshEsimByImsi(imsi)
+    revalidatePath("/esims")
+    return { ok: true }
+  } catch (error) {
+    return { ok: false, error: getActionError(error) }
+  }
 }

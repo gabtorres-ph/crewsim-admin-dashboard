@@ -1,12 +1,12 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { useState, useTransition } from "react"
+import { useRef, useState, useTransition } from "react"
 import { DataTable } from "@/components/ui/data-table/DataTable"
 import type { DataTableToolbarConfig } from "@/components/ui/data-table/DataTableFilterbar"
 import { EsimFormDialog } from "./EsimFormDialog"
 import { EsimDetailsDialog } from "./EsimDetailsDialog"
-import { deleteEsimAction } from "./actions"
+import { deleteEsimAction, refreshEsimAction } from "./actions"
 import type { EsimRead } from "./types"
 import { getEsimColumns } from "./columns"
 
@@ -24,7 +24,35 @@ export function EsimsTable({ esims }: { esims: EsimRead[] }) {
   const [viewing, setViewing] = useState<EsimRead>()
   const [creating, setCreating] = useState(false)
   const [error, setError] = useState<string>()
+  const [refreshSummary, setRefreshSummary] = useState<string>()
+  const [refreshingEsimIds, setRefreshingEsimIds] = useState<ReadonlySet<number>>(() => new Set())
+  const refreshingEsimIdsRef = useRef(new Set<number>())
   const [isDeleting, startDelete] = useTransition()
+
+  async function refresh(esim: EsimRead) {
+    if (refreshingEsimIdsRef.current.has(esim.id)) return
+
+    refreshingEsimIdsRef.current.add(esim.id)
+    setRefreshingEsimIds(new Set(refreshingEsimIdsRef.current))
+    setError(undefined)
+    setRefreshSummary(undefined)
+
+    try {
+      const result = await refreshEsimAction(esim.imsi)
+      if (!result.ok) {
+        setError(`Could not refresh eSIM “${esim.name ?? esim.imsi}”: ${result.error}`)
+        return
+      }
+      setRefreshSummary(`Refreshed eSIM “${esim.name ?? esim.imsi}”.`)
+      router.refresh()
+    } catch {
+      setError(`Could not refresh eSIM “${esim.name ?? esim.imsi}”. Please try again.`)
+    } finally {
+      refreshingEsimIdsRef.current.delete(esim.id)
+      setRefreshingEsimIds(new Set(refreshingEsimIdsRef.current))
+    }
+  }
+
   function remove(esim: EsimRead) {
     if (!window.confirm(`Delete eSIM “${esim.name ?? esim.imsi}”?`)) return
     setError(undefined)
@@ -56,11 +84,23 @@ export function EsimsTable({ esims }: { esims: EsimRead[] }) {
           {error}
         </p>
       )}
+      {refreshSummary && (
+        <p role="status" className="mb-4 text-sm text-gray-500 dark:text-gray-400">
+          {refreshSummary}
+        </p>
+      )}
+      {refreshingEsimIds.size > 0 && (
+        <p role="status" className="mb-4 text-sm text-gray-500 dark:text-gray-400">
+          Refreshing {refreshingEsimIds.size} eSIM{refreshingEsimIds.size === 1 ? "" : "s"}…
+        </p>
+      )}
       <DataTable
         columns={getEsimColumns({
           onView: setViewing,
           onEdit: setEditing,
           onDelete: remove,
+          onRefresh: refresh,
+          refreshingEsimIds,
         })}
         data={esims}
         emptyMessage="No eSIMs found."

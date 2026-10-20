@@ -12,10 +12,14 @@ export function getEsimColumns({
   onView,
   onEdit,
   onDelete,
+  onRefresh,
+  refreshingEsimIds,
 }: {
   onView: (esim: EsimRead) => void
   onEdit: (esim: EsimRead) => void
   onDelete: (esim: EsimRead) => void
+  onRefresh: (esim: EsimRead) => void
+  refreshingEsimIds: ReadonlySet<number>
 }) {
   return [
     helper.display({
@@ -96,6 +100,14 @@ export function getEsimColumns({
           onView={onView}
           onEdit={onEdit}
           onDelete={onDelete}
+          customActions={[
+            {
+              id: "refresh",
+              label: refreshingEsimIds.has(row.original.id) ? "Refreshing…" : "Refresh",
+              onSelect: onRefresh,
+              disabled: refreshingEsimIds.has(row.original.id),
+            },
+          ]}
         />
       ),
       meta: { displayName: "Actions" },
