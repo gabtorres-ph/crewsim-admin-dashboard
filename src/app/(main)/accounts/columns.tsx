@@ -50,9 +50,16 @@ const filterBalance: FilterFn<AccountRead> = (
 export type AccountColumnActions = {
   onEdit: (account: AccountRead) => void
   onDelete: (account: AccountRead) => void
+  onRefreshEsims?: (account: AccountRead) => void
+  refreshingAccountIds?: ReadonlySet<number>
 }
 
-export function getAccountColumns({ onEdit, onDelete }: AccountColumnActions) {
+export function getAccountColumns({
+  onEdit,
+  onDelete,
+  onRefreshEsims,
+  refreshingAccountIds,
+}: AccountColumnActions) {
   return [
     columnHelper.display({
       id: "select",
@@ -130,6 +137,20 @@ export function getAccountColumns({ onEdit, onDelete }: AccountColumnActions) {
           rowLabel={row.original.name}
           onEdit={onEdit}
           onDelete={onDelete}
+          customActions={
+            onRefreshEsims
+              ? [
+                  {
+                    id: "refresh-esims",
+                    label: refreshingAccountIds?.has(row.original.id)
+                      ? "Refreshing eSIMs…"
+                      : "Refresh eSIMs",
+                    onSelect: onRefreshEsims,
+                    disabled: refreshingAccountIds?.has(row.original.id) ?? false,
+                  },
+                ]
+              : []
+          }
         />
       ),
       meta: { className: "text-left", displayName: "Actions" },

@@ -64,3 +64,28 @@ export type EsimListParams = {
   offset?: number
   limit?: number
 }
+
+/** Saved eSIM returned by POST /api/esims/refresh/{account_id}. */
+export type EsimRefreshResult = {
+  id: number
+  imsi: string
+  account_id: number | null
+  isesim: boolean | null
+  balance: number | null
+  use_account_for_charging: boolean | null
+  smdpserver: string | null
+  activationcode: string | null
+  allow_data: boolean | null
+  mobileplanid: number | null
+  activationdate: string | null
+  lastusagedate: string | null
+  subscriber_status: string | null
+  lastnetworkdate: string | null
+  lastmcc: string | null
+  lastmnc: string | null
+  lastcellid: number | null
+  lastlac: number | null
+  imei: string | null
+  imei_device: string | null
+  lastrat: string | null
+}

@@ -11,12 +11,20 @@ import {
   DropdownMenuTrigger,
 } from "@/components/Dropdown"
 
+export type DataTableRowAction<TData> = {
+  id: string
+  label: string
+  onSelect: (data: TData) => void
+  disabled?: boolean
+}
+
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>
   rowLabel?: string
   onView?: (data: TData) => void
   onEdit?: (data: TData) => void
   onDelete?: (data: TData) => void
+  customActions?: readonly DataTableRowAction<TData>[]
 }
 
 export function DataTableRowActions<TData>({
@@ -25,6 +33,7 @@ export function DataTableRowActions<TData>({
   onView,
   onEdit,
   onDelete,
+  customActions = [],
 }: DataTableRowActionsProps<TData>) {
   return (
     <DropdownMenu>
@@ -65,6 +74,18 @@ export function DataTableRowActions<TData>({
             Edit
           </DropdownMenuItem>
         )}
+        {customActions.map((action) => (
+          <DropdownMenuItem
+            key={action.id}
+            disabled={action.disabled}
+            onSelect={(event) => {
+              event.stopPropagation()
+              action.onSelect(row.original)
+            }}
+          >
+            {action.label}
+          </DropdownMenuItem>
+        ))}
         {onDelete && (
           <DropdownMenuItem
             className="text-red-600 dark:text-red-500"

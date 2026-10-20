@@ -1,8 +1,8 @@
 import "server-only"
 
-import type { EsimCreate, EsimListParams, EsimRead, EsimUpdate } from "./types"
+import type { EsimCreate, EsimListParams, EsimRead, EsimRefreshResult, EsimUpdate } from "./types"
 
-export type { EsimCreate, EsimListParams, EsimRead, EsimUpdate } from "./types"
+export type { EsimCreate, EsimListParams, EsimRead, EsimRefreshResult, EsimUpdate } from "./types"
 
 type ApiErrorBody = { detail?: unknown }
 
@@ -11,15 +11,26 @@ export class EsimsApiError extends Error {
   readonly detail: unknown
 
   constructor(status: number, statusText: string, detail?: unknown) {
-    super(
-      typeof detail === "string" && detail.length > 0
-        ? detail
-        : `eSIMs API request failed with status ${status}${statusText ? ` ${statusText}` : ""}.`,
-    )
+    super(getApiErrorMessage(status, statusText, detail))
     this.name = "EsimsApiError"
     this.status = status
     this.detail = detail
   }
+}
+
+function getApiErrorMessage(status: number, statusText: string, detail: unknown): string {
+  if (typeof detail === "string" && detail.trim()) return detail
+  if (isRecord(detail) && typeof detail.message === "string" && detail.message.trim()) {
+    return detail.message
+  }
+  if (Array.isArray(detail)) {
+    const messages = detail
+      .filter(isRecord)
+      .map((issue) => issue.msg)
+      .filter((message): message is string => typeof message === "string" && message.trim().length > 0)
+    if (messages.length > 0) return messages.join("; ")
+  }
+  return `eSIMs API request failed with status ${status}${statusText ? ` ${statusText}` : ""}.`
 }
 
 const ESIM_PATH = "/api/esims"
@@ -251,6 +262,38 @@ function parseEsim(value: unknown): EsimRead {
 function parseEsimList(value: unknown): EsimRead[] {
   if (!Array.isArray(value)) throw new TypeError("The Core API returned an invalid eSIM list.")
   return value.map(parseEsim)
+}
+
+function parseEsimRefreshResult(value: unknown): EsimRefreshResult {
+  assertRecord(value, "eSIM refresh response")
+  const nullableStringFields = [
+    "smdpserver", "activationcode", "subscriber_status", "lastmcc", "lastmnc",
+    "imei", "imei_device", "lastrat",
+  ] as const
+  const nullableBooleanFields = ["isesim", "use_account_for_charging", "allow_data"] as const
+  const nullableIntegerFields = ["mobileplanid", "lastcellid", "lastlac"] as const
+  const nullableDatetimeFields = ["activationdate", "lastusagedate", "lastnetworkdate"] as const
+
+  if (
+    typeof value.id !== "number" || !Number.isInteger(value.id) || value.id <= 0 ||
+    typeof value.imsi !== "string" ||
+    (value.account_id !== null && (typeof value.account_id !== "number" || !Number.isInteger(value.account_id) || value.account_id <= 0)) ||
+    (value.balance !== null && (typeof value.balance !== "number" || !Number.isFinite(value.balance))) ||
+    nullableStringFields.some((field) => value[field] !== null && typeof value[field] !== "string") ||
+    nullableBooleanFields.some((field) => value[field] !== null && typeof value[field] !== "boolean") ||
+    nullableIntegerFields.some((field) => value[field] !== null && (typeof value[field] !== "number" || !Number.isInteger(value[field]))) ||
+    nullableDatetimeFields.some((field) => value[field] !== null && (typeof value[field] !== "string" || Number.isNaN(Date.parse(value[field]))))
+  ) throw new TypeError("The Core API returned an invalid eSIM refresh result.")
+
+  return value as EsimRefreshResult
+}
+
+/** Refreshes and saves the eSIMs for an existing local account. */
+export async function refreshEsimsForAccount(accountId: number): Promise<EsimRefreshResult[]> {
+  assertPositiveId(accountId, "Account ID")
+  const body = await request(`${ESIM_PATH}/refresh/${accountId}`, { method: "POST" })
+  if (!Array.isArray(body)) throw new TypeError("The Core API returned an invalid eSIM refresh list.")
+  return body.map(parseEsimRefreshResult)
 }
 
 export async function fetchEsims(params: EsimListParams = {}): Promise<EsimRead[]> {

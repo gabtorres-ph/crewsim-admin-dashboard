@@ -2,10 +2,14 @@
 
 import { DataTable } from "@/components/ui/data-table/DataTable"
 import { useRouter } from "next/navigation"
-import { useState, useTransition } from "react"
+import { useRef, useState, useTransition } from "react"
 import type { DataTableToolbarConfig } from "@/components/ui/data-table/DataTableFilterbar"
 import { AccountFormDialog } from "./AccountFormDialog"
-import { deleteAccountAction, refreshAccountsAction } from "./actions"
+import {
+  deleteAccountAction,
+  refreshAccountEsims,
+  refreshAccountsAction,
+} from "./actions"
 import { formatAccountBalance, getAccountColumns } from "./columns"
 import type { AccountRead } from "./types"
 
@@ -38,6 +42,10 @@ export function AccountsTable({ accounts }: { accounts: AccountRead[] }) {
   const [editingAccount, setEditingAccount] = useState<AccountRead>()
   const [actionError, setActionError] = useState<string>()
   const [refreshSummary, setRefreshSummary] = useState<string>()
+  const [refreshingAccountIds, setRefreshingAccountIds] = useState<
+    ReadonlySet<number>
+  >(() => new Set())
+  const refreshingAccountIdsRef = useRef(new Set<number>())
   const [isDeleting, startDeleteTransition] = useTransition()
   const [isRefreshing, startRefreshTransition] = useTransition()
 
@@ -67,6 +75,31 @@ export function AccountsTable({ accounts }: { accounts: AccountRead[] }) {
         router.refresh()
       })()
     })
+  }
+
+  async function refreshEsims(account: AccountRead) {
+    if (refreshingAccountIdsRef.current.has(account.id)) return
+
+    refreshingAccountIdsRef.current.add(account.id)
+    setRefreshingAccountIds(new Set(refreshingAccountIdsRef.current))
+    setActionError(undefined)
+    setRefreshSummary(undefined)
+
+    try {
+      const result = await refreshAccountEsims(account.id)
+      if (!result.ok) {
+        setActionError(`Could not refresh eSIMs for “${account.name}”: ${result.error}`)
+        return
+      }
+      setRefreshSummary(
+        `Refreshed ${result.refreshedCount} eSIM${result.refreshedCount === 1 ? "" : "s"} for “${account.name}”.`,
+      )
+    } catch {
+      setActionError(`Could not refresh eSIMs for “${account.name}”. Please try again.`)
+    } finally {
+      refreshingAccountIdsRef.current.delete(account.id)
+      setRefreshingAccountIds(new Set(refreshingAccountIdsRef.current))
+    }
   }
 
   function deleteAccount(account: AccountRead) {
@@ -102,10 +135,18 @@ export function AccountsTable({ accounts }: { accounts: AccountRead[] }) {
           {refreshSummary}
         </p>
       )}
+      {refreshingAccountIds.size > 0 && (
+        <p role="status" className="mb-4 text-sm text-gray-500 dark:text-gray-400">
+          Refreshing eSIMs for {refreshingAccountIds.size} account
+          {refreshingAccountIds.size === 1 ? "" : "s"}…
+        </p>
+      )}
       <DataTable
         columns={getAccountColumns({
           onEdit: setEditingAccount,
           onDelete: deleteAccount,
+          onRefreshEsims: refreshEsims,
+          refreshingAccountIds,
         })}
         data={accounts}
         emptyMessage="No accounts found."

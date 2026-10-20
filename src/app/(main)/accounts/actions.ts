@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache"
 
+import { refreshEsimsForAccount } from "../esims/api"
 import {
   AccountsApiError,
   deleteAccount,
@@ -18,14 +19,18 @@ export type AccountActionResult =
   | { ok: true; account?: AccountRead }
   | { ok: false; error: string }
 
-function getActionError(error: unknown): string {
+function getActionError(error: unknown, fallback = "The account request failed."): string {
   if (error instanceof AccountsApiError) return error.message
   if (error instanceof Error) return error.message
-  return "The account request failed."
+  return fallback
 }
 
 export type AccountRefreshActionResult =
   | { ok: true; summary: AccountRefreshResult }
+  | { ok: false; error: string }
+
+export type AccountEsimRefreshActionResult =
+  | { ok: true; refreshedCount: number }
   | { ok: false; error: string }
 
 export async function refreshAccountsAction(): Promise<AccountRefreshActionResult> {
@@ -60,5 +65,17 @@ export async function deleteAccountAction(
     return { ok: true }
   } catch (error) {
     return { ok: false, error: getActionError(error) }
+  }
+}
+
+export async function refreshAccountEsims(
+  accountId: number,
+): Promise<AccountEsimRefreshActionResult> {
+  try {
+    const esims = await refreshEsimsForAccount(accountId)
+    revalidatePath("/esims")
+    return { ok: true, refreshedCount: esims.length }
+  } catch (error) {
+    return { ok: false, error: getActionError(error, "The eSIM refresh request failed.") }
   }
 }
