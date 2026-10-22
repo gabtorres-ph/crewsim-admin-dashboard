@@ -65,6 +65,51 @@ export type EsimListParams = {
   limit?: number
 }
 
+/** Data accepted by POST /api/esims/move-to-account. */
+export type EsimMoveRequest = {
+  source_account_id: number
+  destination_account_id: number
+  imsis: string[]
+}
+
+/** One item in the bare array returned by a successful account move. */
+export type EsimMoveResult = {
+  imsi: string
+  account_id: number
+}
+
+export type EsimMoveValidationIssue = {
+  loc: (string | number)[]
+  msg: string
+  type: string
+}
+
+/** Completed moves remain committed; the failed IMSI's provider state may be uncertain. */
+export type EsimMoveProgress = {
+  moved_imsis: string[]
+  failed_imsi: string
+  not_attempted_imsis: string[]
+}
+
+export type EsimMoveProviderErrorDetail = {
+  message: string
+  category: string
+  provider_code: number | null
+} & (
+  | EsimMoveProgress
+  | {
+      moved_imsis?: never
+      failed_imsi?: never
+      not_attempted_imsis?: never
+    }
+)
+
+/** Documented HTTP failures; missing progress fields do not imply that no move occurred. */
+export type EsimMoveFailure =
+  | { status: 422; detail: string | EsimMoveValidationIssue[] }
+  | { status: 404 | 409 | 503; detail: string }
+  | { status: 502; detail: EsimMoveProviderErrorDetail }
+
 /** Saved eSIM returned by POST /api/esims/refresh/{account_id}. */
 export type EsimRefreshResult = {
   id: number

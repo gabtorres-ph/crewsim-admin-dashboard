@@ -1,13 +1,13 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { useRef, useState, useTransition } from "react"
+import { useEffect, useRef, useState, useTransition } from "react"
 import { DataTable } from "@/components/ui/data-table/DataTable"
 import type { DataTableToolbarConfig } from "@/components/ui/data-table/DataTableFilterbar"
 import { EsimFormDialog } from "./EsimFormDialog"
 import { EsimDetailsDialog } from "./EsimDetailsDialog"
 import { deleteEsimAction, refreshEsimAction } from "./actions"
-import type { EsimRead } from "./types"
+import type { EsimMoveResult, EsimRead } from "./types"
 import { getEsimColumns } from "./columns"
 
 const toolbarOptions = {
@@ -20,6 +20,7 @@ const toolbarOptions = {
 
 export function EsimsTable({ esims }: { esims: EsimRead[] }) {
   const router = useRouter()
+  const [tableEsims, setTableEsims] = useState(esims)
   const [editing, setEditing] = useState<EsimRead>()
   const [viewing, setViewing] = useState<EsimRead>()
   const [creating, setCreating] = useState(false)
@@ -28,6 +29,19 @@ export function EsimsTable({ esims }: { esims: EsimRead[] }) {
   const [refreshingEsimIds, setRefreshingEsimIds] = useState<ReadonlySet<number>>(() => new Set())
   const refreshingEsimIdsRef = useRef(new Set<number>())
   const [isDeleting, startDelete] = useTransition()
+
+  useEffect(() => {
+    setTableEsims(esims)
+  }, [esims])
+
+  function applyMoveResults(results: EsimMoveResult[]) {
+    const accountIdsByImsi = new Map(results.map((result) => [result.imsi, result.account_id]))
+    setTableEsims((currentEsims) => currentEsims.map((esim) => {
+      const accountId = accountIdsByImsi.get(esim.imsi)
+      return accountId === undefined ? esim : { ...esim, account_id: accountId }
+    }))
+    router.refresh()
+  }
 
   async function refresh(esim: EsimRead) {
     if (refreshingEsimIdsRef.current.has(esim.id)) return
@@ -76,7 +90,7 @@ export function EsimsTable({ esims }: { esims: EsimRead[] }) {
     <>
       <div className="mb-4">
         <p className="text-sm text-gray-500 dark:text-gray-400">
-          {esims.length} eSIM{esims.length === 1 ? "" : "s"}
+          {tableEsims.length} eSIM{tableEsims.length === 1 ? "" : "s"}
         </p>
       </div>
       {error && (
@@ -102,7 +116,7 @@ export function EsimsTable({ esims }: { esims: EsimRead[] }) {
           onRefresh: refresh,
           refreshingEsimIds,
         })}
-        data={esims}
+        data={tableEsims}
         emptyMessage="No eSIMs found."
         enableRowSelection
         getRowId={(esim) => String(esim.id)}
@@ -124,6 +138,7 @@ export function EsimsTable({ esims }: { esims: EsimRead[] }) {
         mode="edit"
         esim={editing}
         open={editing !== undefined}
+        onMoveCompleted={applyMoveResults}
         onOpenChange={(open) => {
           if (!open) setEditing(undefined)
         }}

@@ -2,10 +2,12 @@
 
 import { revalidatePath } from "next/cache"
 
+import { fetchAllOffsetPages } from "@/lib/fetchAllPages"
 import { refreshEsimsForAccount } from "../esims/api"
 import {
   AccountsApiError,
   deleteAccount,
+  fetchAccounts,
   refreshAccounts,
   updateAccount,
 } from "./api"
@@ -32,6 +34,19 @@ export type AccountRefreshActionResult =
 export type AccountEsimRefreshActionResult =
   | { ok: true; refreshedCount: number }
   | { ok: false; error: string }
+
+export type AccountOptionsActionResult =
+  | { ok: true; accounts: Pick<AccountRead, "id" | "name">[] }
+  | { ok: false; error: string }
+
+export async function fetchAccountOptionsAction(): Promise<AccountOptionsActionResult> {
+  try {
+    const accounts = await fetchAllOffsetPages(fetchAccounts)
+    return { ok: true, accounts: accounts.map(({ id, name }) => ({ id, name })) }
+  } catch (error) {
+    return { ok: false, error: getActionError(error, "Could not load accounts.") }
+  }
+}
 
 export async function refreshAccountsAction(): Promise<AccountRefreshActionResult> {
   try {

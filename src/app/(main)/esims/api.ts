@@ -1,8 +1,28 @@
 import "server-only"
 
-import type { EsimCreate, EsimListParams, EsimRead, EsimRefreshResult, EsimUpdate } from "./types"
+import type {
+  EsimCreate,
+  EsimListParams,
+  EsimMoveFailure,
+  EsimMoveProviderErrorDetail,
+  EsimMoveRequest,
+  EsimMoveResult,
+  EsimMoveValidationIssue,
+  EsimRead,
+  EsimRefreshResult,
+  EsimUpdate,
+} from "./types"
 
-export type { EsimCreate, EsimListParams, EsimRead, EsimRefreshResult, EsimUpdate } from "./types"
+export type {
+  EsimCreate,
+  EsimListParams,
+  EsimMoveFailure,
+  EsimMoveRequest,
+  EsimMoveResult,
+  EsimRead,
+  EsimRefreshResult,
+  EsimUpdate,
+} from "./types"
 
 type ApiErrorBody = { detail?: unknown }
 
@@ -15,6 +35,17 @@ export class EsimsApiError extends Error {
     this.name = "EsimsApiError"
     this.status = status
     this.detail = detail
+  }
+}
+
+export class EsimMoveApiError extends EsimsApiError {
+  readonly failure: EsimMoveFailure | undefined
+
+  constructor(error: EsimsApiError) {
+    super(error.status, "", error.detail)
+    this.name = "EsimMoveApiError"
+    this.message = error.message
+    this.failure = parseEsimMoveFailure(error.status, error.detail)
   }
 }
 
@@ -33,7 +64,8 @@ function getApiErrorMessage(status: number, statusText: string, detail: unknown)
   return `eSIMs API request failed with status ${status}${statusText ? ` ${statusText}` : ""}.`
 }
 
-const ESIM_PATH = "/api/esims"
+const API_PREFIX = (process.env.CORE_API_PREFIX ?? "/api").replace(/\/+$/, "")
+const ESIM_PATH = `${API_PREFIX}/esims`
 const DEFAULT_OFFSET = 0
 const DEFAULT_LIMIT = 100
 
@@ -71,7 +103,7 @@ async function request(path: string, init: RequestInit = {}): Promise<unknown> {
   })
 
   if (!response.ok) {
-    const body = await readJson(response)
+    const body = await readJson(response).catch(() => undefined)
     const detail = isRecord(body) ? (body as ApiErrorBody).detail : undefined
     throw new EsimsApiError(response.status, response.statusText, detail)
   }
@@ -181,7 +213,8 @@ function normalizeCreate(input: EsimCreate): EsimCreate {
   return payload
 }
 
-function normalizeUpdate(input: EsimUpdate): EsimUpdate {
+/** Validates and normalizes an eSIM update before a multi-request save begins. */
+export function normalizeEsimUpdate(input: EsimUpdate): EsimUpdate {
   assertRecord(input, "eSIM update payload")
   const payload: EsimUpdate = {}
   if (input.user_id !== undefined) {
@@ -230,6 +263,76 @@ function normalizeUpdate(input: EsimUpdate): EsimUpdate {
     if (input[field] !== undefined) payload[field] = normalizeNullableString(input[field], field)
   }
   return payload
+}
+
+function normalizeEsimMove(input: EsimMoveRequest): EsimMoveRequest {
+  assertRecord(input, "eSIM move payload")
+  assertPositiveId(input.source_account_id, "Source account ID")
+  assertPositiveId(input.destination_account_id, "Destination account ID")
+  if (input.source_account_id === input.destination_account_id) {
+    throw new RangeError("Source and destination accounts must differ.")
+  }
+  if (!Array.isArray(input.imsis) || input.imsis.length === 0) {
+    throw new RangeError("At least one IMSI is required.")
+  }
+  for (const imsi of input.imsis) {
+    if (typeof imsi !== "string" || !/^[0-9]{5,15}$/.test(imsi)) {
+      throw new RangeError("Each IMSI must be a string containing between 5 and 15 ASCII digits.")
+    }
+  }
+  if (new Set(input.imsis).size !== input.imsis.length) {
+    throw new RangeError("IMSIs must be unique.")
+  }
+  return {
+    source_account_id: input.source_account_id,
+    destination_account_id: input.destination_account_id,
+    imsis: [...input.imsis],
+  }
+}
+
+function parseEsimMoveResults(value: unknown, input: EsimMoveRequest): EsimMoveResult[] {
+  if (!Array.isArray(value) || value.length !== input.imsis.length) {
+    throw new TypeError("The Core API returned an invalid eSIM move result list.")
+  }
+  return value.map((result, index) => {
+    if (
+      !isRecord(result) ||
+      typeof result.imsi !== "string" || result.imsi !== input.imsis[index] ||
+      typeof result.account_id !== "number" || result.account_id !== input.destination_account_id
+    ) throw new TypeError("The Core API returned an invalid eSIM move result.")
+    return { imsi: result.imsi, account_id: result.account_id }
+  })
+}
+
+function parseEsimMoveFailure(status: number, detail: unknown): EsimMoveFailure | undefined {
+  if (status === 422) {
+    if (typeof detail === "string") return { status, detail }
+    if (
+      Array.isArray(detail) && detail.every((issue) =>
+        isRecord(issue) && Array.isArray(issue.loc) &&
+        issue.loc.every((part: unknown) => typeof part === "string" || typeof part === "number") &&
+        typeof issue.msg === "string" && typeof issue.type === "string",
+      )
+    ) return { status, detail: detail as EsimMoveValidationIssue[] }
+  }
+  if ((status === 404 || status === 409 || status === 503) && typeof detail === "string") {
+    return { status, detail }
+  }
+  if (
+    status === 502 && isRecord(detail) &&
+    typeof detail.message === "string" && typeof detail.category === "string" &&
+    (detail.provider_code === null || (typeof detail.provider_code === "number" && Number.isInteger(detail.provider_code)))
+  ) {
+    const withoutProgress = detail.moved_imsis === undefined && detail.failed_imsi === undefined && detail.not_attempted_imsis === undefined
+    const withProgress =
+      Array.isArray(detail.moved_imsis) && detail.moved_imsis.every((imsi: unknown) => typeof imsi === "string") &&
+      typeof detail.failed_imsi === "string" &&
+      Array.isArray(detail.not_attempted_imsis) && detail.not_attempted_imsis.every((imsi: unknown) => typeof imsi === "string")
+    if (withoutProgress || withProgress) {
+      return { status, detail: detail as EsimMoveProviderErrorDetail }
+    }
+  }
+  return undefined
 }
 
 function parseEsim(value: unknown): EsimRead {
@@ -323,9 +426,24 @@ export async function createEsim(input: EsimCreate): Promise<EsimRead> {
   return parseEsim(await request(ESIM_PATH, { method: "POST", body: JSON.stringify(normalizeCreate(input)) }))
 }
 
+/** Moves through the provider and commits each IMSI separately; never retry automatically. */
+export async function moveEsimsToAccount(input: EsimMoveRequest): Promise<EsimMoveResult[]> {
+  const payload = normalizeEsimMove(input)
+  try {
+    const body = await request(`${ESIM_PATH}/move-to-account`, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    })
+    return parseEsimMoveResults(body, payload)
+  } catch (error) {
+    if (error instanceof EsimsApiError) throw new EsimMoveApiError(error)
+    throw error
+  }
+}
+
 export async function updateEsim(id: number, input: EsimUpdate): Promise<EsimRead> {
   assertPositiveId(id, "eSIM ID")
-  return parseEsim(await request(`${ESIM_PATH}/${id}`, { method: "PATCH", body: JSON.stringify(normalizeUpdate(input)) }))
+  return parseEsim(await request(`${ESIM_PATH}/${id}`, { method: "PATCH", body: JSON.stringify(normalizeEsimUpdate(input)) }))
 }
 
 export async function deleteEsim(id: number): Promise<void> {
