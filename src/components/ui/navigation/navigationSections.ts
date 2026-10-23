@@ -14,6 +14,7 @@ import {
   RiTimeZoneLine,
   RiFileListLine,
   RiNotification3Line,
+  RiGlobeLine,
 } from "@remixicon/react"
 
 // todo wire account page here
@@ -33,6 +34,7 @@ export const navigationSections = [
       { name: "SIM Notifications", href: siteConfig.baseLinks.sim_notification, icon: RiNotification3Line },
       { name: "Languages", href: siteConfig.baseLinks.languages, icon: RiTranslate2 },
       { name: "Currencies", href: siteConfig.baseLinks.currencies, icon: RiMoneyEuroCircleLine },
+      { name: "Roaming Plans", href: siteConfig.baseLinks.roamingPlans, icon: RiGlobeLine },
       { name: "Timezones", href: siteConfig.baseLinks.timezones, icon: RiTimeZoneLine },
     ],
   },

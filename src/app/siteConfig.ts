@@ -17,6 +17,7 @@ export const siteConfig = {
     sim_notification: "/sim_notification",
     languages: "/languages",
     currencies: "/currencies",
+    roamingPlans: "/roaming-plans",
     timezones: "/timezones",
     overview: "/overview",
     details: "/details",
