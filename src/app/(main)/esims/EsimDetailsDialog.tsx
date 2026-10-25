@@ -21,7 +21,7 @@ const detailSections: { title: string; fields: DetailField[] }[] = [
       ["createdate", "Created"],
       ["imsi", "IMSI"],
       ["name", "Name"],
-      ["user_id", "User ID"],
+      ["user_id", "User email"],
       ["account_id", "Account ID"],
     ],
   },
@@ -70,13 +70,19 @@ function display(value: EsimRead[keyof EsimRead]) {
 
 type EsimDetailsDialogProps = {
   esim: EsimRead | undefined;
+  userEmailsById: ReadonlyMap<number, string>;
   onOpenChange: (open: boolean) => void;
 };
 
 export function EsimDetailsDialog({
   esim,
+  userEmailsById,
   onOpenChange,
 }: EsimDetailsDialogProps) {
+  const userEmail = esim?.user_id == null
+    ? "Unassigned"
+    : userEmailsById.get(esim.user_id) ?? "User unavailable";
+
   return (
     <Dialog open={esim !== undefined} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] sm:max-w-2xl">
@@ -101,7 +107,7 @@ export function EsimDetailsDialog({
                           {label}
                         </dt>
                         <dd className="mt-0.5 break-words text-sm text-gray-900 dark:text-gray-50">
-                          {display(esim[key])}
+                          {key === "user_id" ? userEmail : display(esim[key])}
                         </dd>
                       </div>
                     ))}

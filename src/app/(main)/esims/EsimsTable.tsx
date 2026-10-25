@@ -1,7 +1,8 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { useEffect, useRef, useState, useTransition } from "react"
+import { useEffect, useMemo, useRef, useState, useTransition } from "react"
+import { Button } from "@/components/Button"
 import { DataTable } from "@/components/ui/data-table/DataTable"
 import type { DataTableToolbarConfig } from "@/components/ui/data-table/DataTableFilterbar"
 import { EsimFormDialog } from "./EsimFormDialog"
@@ -18,8 +19,17 @@ const toolbarOptions = {
   showViewOptions: true,
 } satisfies DataTableToolbarConfig
 
-export function EsimsTable({ esims }: { esims: EsimRead[] }) {
+export function EsimsTable({ esims, users, usersError }: {
+  esims: EsimRead[]
+  users: { id: number; email: string }[]
+  usersError?: string
+}) {
   const router = useRouter()
+  const userEmailsById = useMemo(
+    () => new Map(users.map(({ id, email }) => [id, email])),
+    [users],
+  )
+  const [isRetryingUsers, startUsersRetry] = useTransition()
   const [tableEsims, setTableEsims] = useState(esims)
   const [editing, setEditing] = useState<EsimRead>()
   const [viewing, setViewing] = useState<EsimRead>()
@@ -108,6 +118,23 @@ export function EsimsTable({ esims }: { esims: EsimRead[] }) {
           Refreshing {refreshingEsimIds.size} eSIM{refreshingEsimIds.size === 1 ? "" : "s"}…
         </p>
       )}
+      {usersError && (
+        <div className="mb-4 flex items-center gap-2">
+          <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+            {usersError}
+          </p>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => startUsersRetry(() => router.refresh())}
+            disabled={isRetryingUsers}
+            isLoading={isRetryingUsers}
+            loadingText="Retrying"
+          >
+            Retry
+          </Button>
+        </div>
+      )}
       <DataTable
         columns={getEsimColumns({
           onView: setViewing,
@@ -115,6 +142,7 @@ export function EsimsTable({ esims }: { esims: EsimRead[] }) {
           onDelete: remove,
           onRefresh: refresh,
           refreshingEsimIds,
+          userEmailsById,
         })}
         data={tableEsims}
         emptyMessage="No eSIMs found."
@@ -130,6 +158,7 @@ export function EsimsTable({ esims }: { esims: EsimRead[] }) {
       />
       <EsimDetailsDialog
         esim={viewing}
+        userEmailsById={userEmailsById}
         onOpenChange={(open) => {
           if (!open) setViewing(undefined)
         }}
@@ -137,6 +166,8 @@ export function EsimsTable({ esims }: { esims: EsimRead[] }) {
       <EsimFormDialog
         mode="edit"
         esim={editing}
+        users={users}
+        usersError={usersError}
         open={editing !== undefined}
         onMoveCompleted={applyMoveResults}
         onOpenChange={(open) => {

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useTransition } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/Button"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/Dialog"
@@ -76,13 +76,20 @@ function describeSaveFailure(result: EsimSaveActionResult): string {
 type EsimFormDialogProps = {
   mode: "create" | "edit"
   esim?: EsimRead
+  users?: { id: number; email: string }[]
+  usersError?: string
   open: boolean
   onOpenChange: (open: boolean) => void
   onMoveCompleted?: (results: EsimMoveResult[]) => void
 }
 
-export function EsimFormDialog({ mode, esim, open, onOpenChange, onMoveCompleted }: EsimFormDialogProps) {
+export function EsimFormDialog({ mode, esim, users = [], usersError, open, onOpenChange, onMoveCompleted }: EsimFormDialogProps) {
   const router = useRouter()
+  const [userId, setUserId] = useState("unassigned")
+  const sortedUsers = useMemo(
+    () => [...users].sort((left, right) => left.email.localeCompare(right.email) || left.id - right.id),
+    [users],
+  )
   const [accountId, setAccountId] = useState("")
   const [savedAccountId, setSavedAccountId] = useState<number>()
   const [accounts, setAccounts] = useState<AccountOption[]>([])
@@ -105,12 +112,14 @@ export function EsimFormDialog({ mode, esim, open, onOpenChange, onMoveCompleted
   const [lastLac, setLastLac] = useState("")
   const [lastRat, setLastRat] = useState("")
   const [error, setError] = useState<string>()
-  const [isPending, startTransition] = useTransition()
+  const [isPending, setIsPending] = useState(false)
+  const savingRef = useRef(false)
 
   useEffect(() => {
     if (!open) return
     setAccountId(esim?.account_id.toString() ?? "")
     setSavedAccountId(esim?.account_id)
+    setUserId(esim?.user_id?.toString() ?? "unassigned")
     setImsi(esim?.imsi ?? "")
     setName(esim?.name ?? "")
     setToken(esim?.token ?? "")
@@ -166,8 +175,15 @@ export function EsimFormDialog({ mode, esim, open, onOpenChange, onMoveCompleted
     !selectedAccountExists ||
     reconciliationRequired
 
-  function submit(event: React.FormEvent<HTMLFormElement>) {
+  const currentUserMissing = esim?.user_id != null && !users.some((user) => user.id === esim.user_id)
+  const selectedUserExists = users.some((user) => String(user.id) === userId)
+  const userSelectionUnavailable = mode === "edit" && (
+    Boolean(usersError) || (!selectedUserExists && !(userId === "unassigned" && esim?.user_id === null))
+  )
+
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (savingRef.current) return
     if (reconciliationRequired) return setError("Refresh the page and reopen this eSIM before attempting another account transfer.")
     const normalizedAccountId = Number(accountId)
     const normalizedName = name.trim()
@@ -177,11 +193,14 @@ export function EsimFormDialog({ mode, esim, open, onOpenChange, onMoveCompleted
 
     if (mode === "edit") {
       if (!esim || savedAccountId === undefined) return setError("The saved eSIM is unavailable. Close and reopen the dialog.")
+      if (userSelectionUnavailable) return setError(usersError || "Select an available user email before saving.")
       setError(undefined)
-      startTransition(() => { void (async () => {
+      savingRef.current = true
+      setIsPending(true)
+      try {
         const result = await saveEsimAction(
           { ...esim, account_id: savedAccountId },
-          { account_id: normalizedAccountId, name: normalizedName || null },
+          { account_id: normalizedAccountId, name: normalizedName || null, user_id: userId === "unassigned" ? null : Number(userId) },
         )
         if (result.move.status === "completed") {
           setSavedAccountId(result.move.results[0].account_id)
@@ -196,7 +215,14 @@ export function EsimFormDialog({ mode, esim, open, onOpenChange, onMoveCompleted
         }
         onOpenChange(false)
         router.refresh()
-      })() })
+      } catch {
+        setReconciliationRequired(true)
+        setError("The save outcome could not be confirmed. Refresh the page and reopen this eSIM before saving again.")
+        router.refresh()
+      } finally {
+        savingRef.current = false
+        setIsPending(false)
+      }
       return
     }
 
@@ -219,21 +245,47 @@ export function EsimFormDialog({ mode, esim, open, onOpenChange, onMoveCompleted
     if ([subscriber_status, lastmcc, lastmnc, lastrat].some((value) => value === undefined)) return setError("Subscriber status, MCC, MNC, and RAT must contain 1 to 255 characters when provided.")
     const input: EsimCreate = { account_id: normalizedAccountId, imsi: normalizedImsi, name: normalizedName || null, token: normalizedToken || null, use_account_for_charging: charging, mobileplanid, activationdate, lastusagedate, subscriber_status, lastnetworkdate, lastmcc, lastmnc, lastcellid, lastlac, lastrat }
     setError(undefined)
-    startTransition(() => { void (async () => {
+    savingRef.current = true
+    setIsPending(true)
+    try {
       const result = await createEsimAction(input)
       if (!result.ok) return setError(result.error)
       onOpenChange(false)
       router.refresh()
-    })() })
+    } catch {
+      setReconciliationRequired(true)
+      setError("The create outcome could not be confirmed. Refresh the page before trying again.")
+      router.refresh()
+    } finally {
+      savingRef.current = false
+      setIsPending(false)
+    }
   }
 
-  return <Dialog open={open} onOpenChange={onOpenChange}><DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl"><form onSubmit={submit}><DialogHeader>
+  return <Dialog open={open} onOpenChange={(nextOpen) => { if (!savingRef.current) onOpenChange(nextOpen) }}><DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl"><form onSubmit={submit}><DialogHeader>
     <DialogTitle>{mode === "create" ? "Add eSIM" : "Edit eSIM"}</DialogTitle>
     <DialogDescription className="mt-1 text-sm leading-6">Changes are sent to the Core API immediately.</DialogDescription>
     <div className={mode === "create" ? "mt-4 grid gap-4 sm:grid-cols-2" : "mt-4"}>
       <Field label="Account ID" id="esim-account-id"><Select value={accountId} onValueChange={(value) => { setAccountId(value); setError(undefined) }} disabled={isPending || isLoadingAccounts || reconciliationRequired}><SelectTrigger id="esim-account-id" aria-describedby="esim-account-help"><SelectValue placeholder={isLoadingAccounts ? "Loading accounts…" : "Select an account"} /></SelectTrigger><SelectContent>{currentAccountMissing && <SelectItem value={String(savedAccountId)} disabled>Current account unavailable (ID: {savedAccountId})</SelectItem>}{sortedAccounts.map((account) => <SelectItem key={account.id} value={String(account.id)}>{account.name || "Unnamed account"} (ID: {account.id})</SelectItem>)}</SelectContent></Select><div id="esim-account-help" className="mt-2 text-sm text-gray-500 dark:text-gray-400">{isLoadingAccounts ? "Loading available accounts…" : accountsError ? <><span>{accountsError}</span><Button type="button" variant="ghost" className="ml-2 px-1 py-0" onClick={() => setAccountLoadAttempt((attempt) => attempt + 1)} disabled={isPending}>Retry</Button></> : sortedAccounts.length === 0 ? "No accounts are available. Create or refresh an account, then try again." : currentAccountMissing ? "The current account is unavailable. Select another account before saving." : "Select the account for this eSIM."}</div></Field>
       {mode === "create" && <Field label="IMSI" id="esim-imsi"><Input id="esim-imsi" value={imsi} onChange={(event) => setImsi(event.target.value)} className="mt-2" disabled={isPending} /></Field>}
     </div>
+    {mode === "edit" && (
+      <Field label="User email" id="esim-user-id" className="mt-4">
+        <Select value={userId} onValueChange={(value) => { setUserId(value); setError(undefined) }} disabled={isPending || Boolean(usersError) || users.length === 0 || reconciliationRequired}>
+          <SelectTrigger id="esim-user-id" aria-describedby="esim-user-help">
+            <SelectValue placeholder="Select a user email" />
+          </SelectTrigger>
+          <SelectContent>
+            {esim?.user_id === null && <SelectItem value="unassigned">Unassigned</SelectItem>}
+            {currentUserMissing && <SelectItem value={String(esim?.user_id)} disabled>Current user unavailable (ID: {esim?.user_id})</SelectItem>}
+            {sortedUsers.map((user) => <SelectItem key={user.id} value={String(user.id)}>{user.email}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        <p id="esim-user-help" className="mt-2 text-sm text-gray-500 dark:text-gray-400" role={usersError ? "alert" : undefined}>
+          {usersError ? `${usersError} Close this dialog to use Retry.` : users.length === 0 ? "No users are available." : currentUserMissing ? "The current user is unavailable. Select another user before saving." : "Select the user email for this eSIM."}
+        </p>
+      </Field>
+    )}
     <Field label={mode === "edit" ? "eSIM Name" : "Name"} id="esim-name" className="mt-4"><Input id="esim-name" value={name} onChange={(event) => setName(event.target.value)} placeholder="Optional label" className="mt-2" disabled={isPending} autoFocus /></Field>
     {mode === "create" && <>
     <Field label="Token" id="esim-token" className="mt-4"><Input id="esim-token" value={token} onChange={(event) => setToken(event.target.value)} placeholder="Optional, max 8 characters" className="mt-2" disabled={isPending} /></Field>
@@ -252,7 +304,7 @@ export function EsimFormDialog({ mode, esim, open, onOpenChange, onMoveCompleted
     </div></fieldset>
     </>}
     {error && <p role="alert" className="mt-3 text-sm text-red-600 dark:text-red-400">{error}</p>}
-  </DialogHeader><DialogFooter className="mt-6"><DialogClose asChild><Button type="button" variant="secondary" className="mt-2 w-full sm:mt-0 sm:w-fit" disabled={isPending}>Cancel</Button></DialogClose><Button type="submit" className="w-full sm:w-fit" disabled={accountSelectionUnavailable} isLoading={isPending} loadingText="Saving">{mode === "create" ? "Add eSIM" : "Save changes"}</Button></DialogFooter></form></DialogContent></Dialog>
+  </DialogHeader><DialogFooter className="mt-6"><DialogClose asChild><Button type="button" variant="secondary" className="mt-2 w-full sm:mt-0 sm:w-fit" disabled={isPending}>Cancel</Button></DialogClose><Button type="submit" className="w-full sm:w-fit" disabled={isPending || accountSelectionUnavailable || userSelectionUnavailable} isLoading={isPending} loadingText="Saving">{mode === "create" ? "Add eSIM" : "Save changes"}</Button></DialogFooter></form></DialogContent></Dialog>
 }
 
 function Field({ label, id, className, children }: { label: string; id: string; className?: string; children: React.ReactNode }) {

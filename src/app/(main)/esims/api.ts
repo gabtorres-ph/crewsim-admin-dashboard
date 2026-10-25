@@ -335,6 +335,9 @@ function parseEsimMoveFailure(status: number, detail: unknown): EsimMoveFailure 
   return undefined
 }
 
+// TODO: Have the Core API include nullable user_email in eSIM list, detail, and
+// update responses using a join; then validate it here and add it to EsimRead.
+// This lets read-only views show emails without fetching the entire user list.
 function parseEsim(value: unknown): EsimRead {
   assertRecord(value, "eSIM response")
   const nullableString = (field: string) => value[field] === null || typeof value[field] === "string"
@@ -441,6 +444,9 @@ export async function moveEsimsToAccount(input: EsimMoveRequest): Promise<EsimMo
   }
 }
 
+// TODO: Verify the Core API persists user_id and validates that the selected user
+// exists and is assignable. Confirm whether null may clear an assignment before
+// exposing an Unassigned option in the edit form.
 export async function updateEsim(id: number, input: EsimUpdate): Promise<EsimRead> {
   assertPositiveId(id, "eSIM ID")
   return parseEsim(await request(`${ESIM_PATH}/${id}`, { method: "PATCH", body: JSON.stringify(normalizeEsimUpdate(input)) }))

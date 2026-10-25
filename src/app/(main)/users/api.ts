@@ -172,6 +172,9 @@ function parseUserList(value: unknown): UserRead[] {
   return value.map(parseUser)
 }
 
+// TODO: Add backend support for lightweight, searchable, paginated user options
+// containing only { id, email }, then add a dedicated fetcher for the eSIM select.
+// Use server-side search for large lists instead of fetching every full user.
 export async function fetchUsers(params: UserListParams = {}): Promise<UserRead[]> {
   const offset = params.offset ?? DEFAULT_OFFSET
   const limit = params.limit ?? DEFAULT_LIMIT

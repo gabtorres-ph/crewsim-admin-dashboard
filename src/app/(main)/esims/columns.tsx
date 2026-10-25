@@ -22,12 +22,14 @@ export function getEsimColumns({
   onDelete,
   onRefresh,
   refreshingEsimIds,
+  userEmailsById,
 }: {
   onView: (esim: EsimRead) => void
   onEdit: (esim: EsimRead) => void
   onDelete: (esim: EsimRead) => void
   onRefresh: (esim: EsimRead) => void
   refreshingEsimIds: ReadonlySet<number>
+  userEmailsById: ReadonlyMap<number, string>
 }) {
   return [
     helper.display({
@@ -58,12 +60,14 @@ export function getEsimColumns({
       enableHiding: false,
       meta: { displayName: "Select" },
     }),
-    helper.accessor("user_id", {
+    helper.accessor((esim) => esim.user_id === null ? "Unassigned" : userEmailsById.get(esim.user_id) ?? "User unavailable", {
+      id: "user_email",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="User ID" />
+        <DataTableColumnHeader column={column} title="User email" />
       ),
-      cell: ({ getValue }) => displayNullable(getValue()),
-      meta: { className: "tabular-nums", displayName: "User ID" },
+      cell: ({ getValue }) => getValue(),
+      sortingFn: "text",
+      meta: { displayName: "User email" },
     }),
     helper.accessor("name", {
       header: ({ column }) => (
