@@ -47,8 +47,5 @@ export const navigationSections = [
 ] as const
 
 export function isNavItemActive(pathname: string, itemHref: string) {
-  if (itemHref === siteConfig.baseLinks.settings.general) {
-    return pathname.startsWith("/settings")
-  }
   return pathname === itemHref || pathname.startsWith(itemHref)
 }

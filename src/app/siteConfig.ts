@@ -12,22 +12,14 @@ export const siteConfig = {
     usage: "/usage",
     crew: "/crew",
     sms: "/sms",
-    email: "/email",
     stripe_notification: "/stripe_notification",
     sim_notification: "/sim_notification",
     languages: "/languages",
     currencies: "/currencies",
     roamingPlans: "/roaming-plans",
     timezones: "/timezones",
-    overview: "/overview",
-    details: "/details",
     utilities: {
       apiLogs: "/utilities/api-logs"
-    },
-    settings: {
-      general: "/settings/general",
-      billing: "/settings/billing",
-      users: "/settings/users",
     },
   },
 }
