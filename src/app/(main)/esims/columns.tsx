@@ -7,7 +7,15 @@ import { DataTableRowActions } from "@/components/ui/data-table/DataTableRowActi
 import type { EsimRead } from "./types"
 
 const helper = createColumnHelper<EsimRead>()
-const text = (value: string | null) => value ?? "—"
+const displayNullable = (value: string | number | null) => value ?? "—"
+
+function formatActivationDate(value: string | null): string {
+  if (!value) return "—"
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return value
+  return `${date.toISOString().slice(0, 16).replace("T", " ")} UTC`
+}
+
 export function getEsimColumns({
   onView,
   onEdit,
@@ -50,11 +58,19 @@ export function getEsimColumns({
       enableHiding: false,
       meta: { displayName: "Select" },
     }),
-    helper.accessor("id", {
+    helper.accessor("user_id", {
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="ID" />
+        <DataTableColumnHeader column={column} title="User ID" />
       ),
-      meta: { className: "tabular-nums", displayName: "ID" },
+      cell: ({ getValue }) => displayNullable(getValue()),
+      meta: { className: "tabular-nums", displayName: "User ID" },
+    }),
+    helper.accessor("name", {
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Name" />
+      ),
+      cell: ({ getValue }) => displayNullable(getValue()),
+      meta: { displayName: "Name" },
     }),
     helper.accessor("imsi", {
       header: ({ column }) => (
@@ -62,33 +78,31 @@ export function getEsimColumns({
       ),
       meta: { displayName: "IMSI" },
     }),
-    helper.accessor("account_id", {
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Account" />
-      ),
-      meta: { className: "tabular-nums", displayName: "Account" },
-    }),
-    helper.accessor("name", {
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Name" />
-      ),
-      cell: ({ getValue }) => text(getValue()),
-      meta: { displayName: "Name" },
-    }),
-    helper.accessor("networkstatus", {
-      header: "Network",
-      cell: ({ getValue }) => text(getValue()),
-      meta: { displayName: "Network" },
-    }),
-    helper.accessor("subscriber_status", {
-      header: "Subscriber status",
-      cell: ({ getValue }) => text(getValue()),
-      meta: { displayName: "Subscriber status" },
-    }),
     helper.accessor("balance", {
       header: "Balance",
-      cell: ({ getValue }) => (getValue() === null ? "—" : getValue()),
+      cell: ({ getValue }) => displayNullable(getValue()),
       meta: { className: "tabular-nums", displayName: "Balance" },
+    }),
+    helper.accessor("networkstatus", {
+      header: "Network Status",
+      cell: ({ getValue }) => displayNullable(getValue()),
+      meta: { displayName: "Network Status" },
+    }),
+    helper.accessor("activationdate", {
+      header: "Activation Date",
+      cell: ({ getValue }) => formatActivationDate(getValue()),
+      meta: { className: "tabular-nums", displayName: "Activation Date" },
+    }),
+    helper.accessor("account_id", {
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Account ID" />
+      ),
+      meta: { className: "tabular-nums", displayName: "Account ID" },
+    }),
+    helper.accessor("imei_device", {
+      header: "IMEI Device",
+      cell: ({ getValue }) => displayNullable(getValue()),
+      meta: { displayName: "IMEI Device" },
     }),
     helper.display({
       id: "actions",
