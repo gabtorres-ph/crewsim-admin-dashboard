@@ -7,6 +7,8 @@ import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
 import type { UserRead } from "./types";
 
 const columnHelper = createColumnHelper<UserRead>();
+const displayBoolean = (value: boolean | null) =>
+  value === null ? "—" : value ? "Yes" : "No";
 
 export type UserColumnActions = {
   onView: (user: UserRead) => void;
@@ -68,14 +70,14 @@ export function getUserColumns({
         cell: ({ getValue }) => getValue<string>() || "—",
       },
     ),
-    columnHelper.accessor("language", {
+    columnHelper.accessor("lang_iso1", {
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Language" />
       ),
       enableSorting: true,
       meta: { className: "text-left", displayName: "Language" },
     }),
-    columnHelper.accessor("currency", {
+    columnHelper.accessor("currency_code", {
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Currency" />
       ),
@@ -88,6 +90,22 @@ export function getUserColumns({
       ),
       enableSorting: true,
       meta: { className: "text-left", displayName: "Timezone" },
+    }),
+    columnHelper.accessor("newsletter", {
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Newsletter" />
+      ),
+      cell: ({ getValue }) => displayBoolean(getValue()),
+      enableSorting: true,
+      meta: { className: "text-left", displayName: "Newsletter" },
+    }),
+    columnHelper.accessor("smsnotification", {
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="SMS notifications" />
+      ),
+      cell: ({ getValue }) => displayBoolean(getValue()),
+      enableSorting: true,
+      meta: { className: "text-left", displayName: "SMS notifications" },
     }),
     columnHelper.display({
       id: "actions",

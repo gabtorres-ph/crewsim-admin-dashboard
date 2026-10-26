@@ -102,11 +102,22 @@ function normalizeRequiredString(value: unknown, field: string): string {
   return normalized
 }
 
+function normalizeFixedLengthString(value: unknown, field: string, length: number): string {
+  if (typeof value !== "string") throw new TypeError(`${field} must be a string.`)
+  const normalized = value.trim()
+  if (normalized.length !== length) {
+    throw new RangeError(`${field} must contain exactly ${length} characters after trimming.`)
+  }
+  return normalized
+}
+
 function normalizeNullableString(value: unknown, field: string, max = 255): string | null {
   if (value === null) return null
   if (typeof value !== "string") throw new TypeError(`${field} must be a string or null.`)
   const normalized = value.trim()
-  if (normalized.length > max) throw new RangeError(`${field} must contain at most ${max} characters.`)
+  if (normalized.length < 1 || normalized.length > max) {
+    throw new RangeError(`${field} must contain between 1 and ${max} characters after trimming.`)
+  }
   return normalized
 }
 
@@ -133,8 +144,14 @@ function normalizePayload(input: UserCreate | UserUpdate, required: boolean): Us
   assertRecord(input, "User payload")
   const payload: UserCreate | UserUpdate = {}
 
-  for (const field of ["email", "language", "currency", "timezone"] as const) {
+  for (const field of ["email", "timezone"] as const) {
     if (required || input[field] !== undefined) payload[field] = normalizeRequiredString(input[field], field)
+  }
+  if (required || input.lang_iso1 !== undefined) {
+    payload.lang_iso1 = normalizeFixedLengthString(input.lang_iso1, "lang_iso1", 2)
+  }
+  if (required || input.currency_code !== undefined) {
+    payload.currency_code = normalizeFixedLengthString(input.currency_code, "currency_code", 3)
   }
 
   for (const field of ["firstname", "lastname", "airline", "position", "stripeid", "logtoid"] as const) {
@@ -142,7 +159,6 @@ function normalizePayload(input: UserCreate | UserUpdate, required: boolean): Us
   }
   if (input.referralcode !== undefined) {
     const referralcode = normalizeNullableString(input.referralcode, "referralcode", 8)
-    if (referralcode !== null && referralcode.length < 1) throw new RangeError("referralcode must contain between 1 and 8 characters.")
     payload.referralcode = referralcode
   }
   if (input.referredby !== undefined) payload.referredby = normalizeNullablePositiveId(input.referredby)
@@ -157,10 +173,13 @@ function normalizePayload(input: UserCreate | UserUpdate, required: boolean): Us
 
 function parseUser(value: unknown): UserRead {
   assertRecord(value, "User response")
-  const requiredStrings = ["email", "language", "currency", "timezone"]
+  const requiredStrings = ["email", "lang_iso1", "currency_code", "timezone"]
   const nullableStrings = ["firstname", "lastname", "airline", "position", "referralcode", "stripeid", "logtoid", "createdate", "rateus"]
   if (typeof value.id !== "number" || !Number.isInteger(value.id) || value.id <= 0) throw new TypeError("The Core API returned an invalid user ID.")
   if (requiredStrings.some((field) => typeof value[field] !== "string")) throw new TypeError("The Core API returned an invalid user.")
+  if ((value.lang_iso1 as string).trim().length !== 2 || (value.currency_code as string).trim().length !== 3) {
+    throw new TypeError("The Core API returned invalid user locale settings.")
+  }
   if (nullableStrings.some((field) => value[field] !== null && typeof value[field] !== "string")) throw new TypeError("The Core API returned an invalid user.")
   if (value.referredby !== null && (typeof value.referredby !== "number" || !Number.isInteger(value.referredby) || value.referredby <= 0)) throw new TypeError("The Core API returned an invalid user referral.")
   if (["newsletter", "smsnotification"].some((field) => value[field] !== null && typeof value[field] !== "boolean")) throw new TypeError("The Core API returned invalid user notification settings.")

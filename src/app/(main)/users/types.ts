@@ -1,8 +1,8 @@
 /** Data required by POST /api/users. */
 export type UserCreate = {
   email: string
-  language: string
-  currency: string
+  lang_iso1: string
+  currency_code: string
   timezone: string
   firstname?: string | null
   lastname?: string | null
@@ -25,8 +25,8 @@ export type UserUpdate = Partial<UserCreate>
 export type UserRead = {
   id: number
   email: string
-  language: string
-  currency: string
+  lang_iso1: string
+  currency_code: string
   timezone: string
   firstname: string | null
   lastname: string | null

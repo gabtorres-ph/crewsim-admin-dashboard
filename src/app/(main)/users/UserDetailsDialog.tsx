@@ -29,8 +29,8 @@ const detailSections: { title: string; fields: DetailField[] }[] = [
   {
     title: "Preferences and notifications",
     fields: [
-      ["language", "Language"],
-      ["currency", "Currency"],
+      ["lang_iso1", "Language"],
+      ["currency_code", "Currency"],
       ["timezone", "Timezone"],
       ["newsletter", "Newsletter"],
       ["smsnotification", "SMS notifications"],

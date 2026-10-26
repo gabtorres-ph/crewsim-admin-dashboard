@@ -60,6 +60,11 @@ type Item = {
   label: string
 }
 
+function keepActionsLast(items: Item[]): Item[] {
+  const actions = items.filter((item) => item.id === "actions")
+  return [...items.filter((item) => item.id !== "actions"), ...actions]
+}
+
 const itemKey = Symbol("item")
 
 type ItemData = {
@@ -98,16 +103,17 @@ type DraggableState =
 const idleState: DraggableState = { type: "idle" }
 const draggingState: DraggableState = { type: "dragging" }
 
-function ListItem({
+function ListItem<TData>({
   item,
   index,
   column,
 }: {
   item: Item
   index: number
-  column: Column<any, unknown> | undefined
+  column: Column<TData, unknown> | undefined
 }) {
   const { registerItem, instanceId } = useListContext()
+  const isActionsColumn = item.id === "actions"
 
   const ref = React.useRef<HTMLDivElement>(null)
   const [closestEdge, setClosestEdge] = React.useState<Edge | null>(null)
@@ -223,7 +229,12 @@ function ListItem({
             variant="ghost"
             className="-mr-1 px-0 py-1"
             ref={dragHandleRef}
-            aria-label={`Reorder ${item.label}`}
+            aria-label={
+              isActionsColumn
+                ? `${item.label} is fixed as the last column`
+                : `Reorder ${item.label}`
+            }
+            disabled={isActionsColumn}
           >
             <RiDraggable className="size-5 text-gray-400 dark:text-gray-600" />
           </Button>
@@ -272,10 +283,12 @@ interface DataTableViewOptionsProps<TData> {
 }
 
 function ViewOptions<TData>({ table }: DataTableViewOptionsProps<TData>) {
-  const tableColumns: Item[] = table.getAllColumns().map((column) => ({
-    id: column.id,
-    label: column.columnDef.meta?.displayName as string,
-  }))
+  const tableColumns: Item[] = keepActionsLast(
+    table.getAllColumns().map((column) => ({
+      id: column.id,
+      label: column.columnDef.meta?.displayName as string,
+    })),
+  )
   const [{ items, lastCardMoved }, setListState] = React.useState<ListState>({
     items: tableColumns,
     lastCardMoved: null,
@@ -313,17 +326,21 @@ function ViewOptions<TData>({ table }: DataTableViewOptionsProps<TData>) {
 
       setListState((listState) => {
         const item = listState.items[startIndex]
-
-        return {
-          items: reorder({
+        if (item.id === "actions") return listState
+        const reorderedItems = keepActionsLast(
+          reorder({
             list: listState.items,
             startIndex,
             finishIndex,
           }),
+        )
+
+        return {
+          items: reorderedItems,
           lastCardMoved: {
             item,
             previousIndex: startIndex,
-            currentIndex: finishIndex,
+            currentIndex: reorderedItems.findIndex(({ id }) => id === item.id),
             numberOfItems: listState.items.length,
           },
         }
