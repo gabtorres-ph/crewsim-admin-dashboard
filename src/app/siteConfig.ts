@@ -17,6 +17,7 @@ export const siteConfig = {
     languages: "/languages",
     currencies: "/currencies",
     roamingPlans: "/roaming-plans",
+    roamingPlanDetails: "/roaming-plan-details",
     timezones: "/timezones",
     utilities: {
       apiLogs: "/utilities/api-logs"

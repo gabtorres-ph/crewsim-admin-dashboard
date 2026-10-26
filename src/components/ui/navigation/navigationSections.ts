@@ -35,6 +35,7 @@ export const navigationSections = [
       { name: "Languages", href: siteConfig.baseLinks.languages, icon: RiTranslate2 },
       { name: "Currencies", href: siteConfig.baseLinks.currencies, icon: RiMoneyEuroCircleLine },
       { name: "Roaming Plans", href: siteConfig.baseLinks.roamingPlans, icon: RiGlobeLine },
+      { name: "Roaming Plan Details", href: siteConfig.baseLinks.roamingPlanDetails, icon: RiGlobeLine },
       { name: "Timezones", href: siteConfig.baseLinks.timezones, icon: RiTimeZoneLine },
     ],
   },
