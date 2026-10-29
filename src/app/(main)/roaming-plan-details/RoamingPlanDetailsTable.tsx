@@ -24,9 +24,14 @@ export function RoamingPlanDetailsTable({
   async function handleRefresh() {
     if (isRefreshing) return;
 
-    const parsedTariffId = Number(tariffId);
-    if (!Number.isInteger(parsedTariffId) || parsedTariffId < 1) {
-      setError("Enter a positive integer tariff ID before refreshing.");
+    const normalizedTariffId = tariffId.trim();
+    const parsedTariffId =
+      normalizedTariffId === "" ? undefined : Number(normalizedTariffId);
+    if (
+      parsedTariffId !== undefined &&
+      (!Number.isInteger(parsedTariffId) || parsedTariffId < 1)
+    ) {
+      setError("Customer tariff ID must be blank or a positive integer.");
       setSummary(undefined);
       return;
     }
@@ -43,7 +48,9 @@ export function RoamingPlanDetailsTable({
       }
 
       setSummary(
-        `Roaming plan details refreshed for tariff ${parsedTariffId}.`,
+        parsedTariffId === undefined
+          ? "Roaming plan details refreshed."
+          : `Roaming plan details refreshed for customer tariff ${parsedTariffId}.`,
       );
       router.refresh();
     } catch {
@@ -74,7 +81,7 @@ export function RoamingPlanDetailsTable({
         </p>
         <div className="w-full sm:w-48">
           <Label htmlFor="roaming-plan-details-tariff-id">
-            Tariff ID to refresh
+            Customer tariff ID (optional)
           </Label>
           <Input
             id="roaming-plan-details-tariff-id"
@@ -82,7 +89,7 @@ export function RoamingPlanDetailsTable({
             min={1}
             step={1}
             inputMode="numeric"
-            placeholder="e.g. 658"
+            placeholder="Refresh all"
             value={tariffId}
             onChange={(event) => setTariffId(event.target.value)}
             disabled={isRefreshing}

@@ -39,7 +39,13 @@ function decimalScalePower(exponent: number): bigint {
   return value;
 }
 
-function compareDecimalStrings(left: string, right: string): number {
+function compareDecimalStrings(
+  left: string | null,
+  right: string | null,
+): number {
+  if (left === null) return right === null ? 0 : 1;
+  if (right === null) return -1;
+
   const leftParts = decimalParts(left);
   const rightParts = decimalParts(right);
   const scale = Math.max(leftParts.scale, rightParts.scale);
@@ -57,9 +63,9 @@ export const roamingPlanDetailColumns = [
     meta: { className: "tabular-nums", displayName: "Rule ID" },
   }),
   columnHelper.accessor("roaming_plan_id", {
-    header: header("Tariff ID"),
+    header: header("Roaming plan ID"),
     enableSorting: true,
-    meta: { className: "tabular-nums", displayName: "Tariff ID" },
+    meta: { className: "tabular-nums", displayName: "Roaming plan ID" },
   }),
   columnHelper.accessor("network_id", {
     header: header("Network ID"),
@@ -114,6 +120,7 @@ export const roamingPlanDetailColumns = [
   }),
   columnHelper.accessor("data_rate", {
     header: header("Data rate"),
+    cell: ({ getValue }) => getValue() ?? "—",
     sortingFn: (left, right) =>
       compareDecimalStrings(left.original.data_rate, right.original.data_rate),
     enableSorting: true,

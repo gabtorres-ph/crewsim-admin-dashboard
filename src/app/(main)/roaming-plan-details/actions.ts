@@ -8,7 +8,7 @@ export type RoamingPlanDetailsRefreshActionResult =
   | { ok: false; error: string };
 
 export async function refreshRoamingPlanDetailsAction(
-  tariffId: number,
+  tariffId?: number,
 ): Promise<RoamingPlanDetailsRefreshActionResult> {
   try {
     await refreshRoamingPlanDetails(tariffId);

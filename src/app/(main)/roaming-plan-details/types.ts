@@ -14,7 +14,7 @@ export type RoamingPlanDetailRead = {
   mcc_mncs: RoamingNetworkCode[];
   tadigs: string[];
   active: boolean;
-  data_rate: string;
+  data_rate: string | null;
   start_date: string;
 };
 

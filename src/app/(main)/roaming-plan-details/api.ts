@@ -110,8 +110,9 @@ function parseRoamingPlanDetail(value: unknown): RoamingPlanDetailRead {
     !Array.isArray(value.tadigs) ||
     !value.tadigs.every((tadig) => typeof tadig === "string") ||
     typeof value.active !== "boolean" ||
-    typeof value.data_rate !== "string" ||
-    !DECIMAL_PATTERN.test(value.data_rate) ||
+    (value.data_rate !== null &&
+      (typeof value.data_rate !== "string" ||
+        !DECIMAL_PATTERN.test(value.data_rate))) ||
     typeof value.start_date !== "string"
   ) {
     throw new TypeError(
@@ -165,14 +166,15 @@ export async function fetchRoamingPlanDetails(
 }
 
 export async function refreshRoamingPlanDetails(
-  tariffId: number,
+  tariffId?: number,
 ): Promise<void> {
-  if (!Number.isInteger(tariffId) || tariffId < 1) {
+  if (tariffId !== undefined && (!Number.isInteger(tariffId) || tariffId < 1)) {
     throw new RangeError("Tariff ID must be a positive integer.");
   }
 
-  const query = new URLSearchParams({ tariff_id: String(tariffId) });
-  await request(`${ROAMING_PLAN_DETAILS_PATH}/refresh?${query}`, {
+  const query =
+    tariffId === undefined ? "" : `?tariff_id=${encodeURIComponent(tariffId)}`;
+  await request(`${ROAMING_PLAN_DETAILS_PATH}/refresh${query}`, {
     method: "POST",
     allowEmpty: true,
   });
