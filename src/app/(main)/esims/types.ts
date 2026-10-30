@@ -65,6 +65,18 @@ export type EsimListParams = {
   limit?: number
 }
 
+/** One stored period returned by GET /api/network-status/{imsi}. */
+export type NetworkStatusRecord = {
+  id: number
+  sim_id: number
+  imsi: string
+  status: string
+  start: string
+  end: string | null
+  profile_type: string
+  status_modification: string
+}
+
 /** Data accepted by POST /api/esims/move-to-account. */
 export type EsimMoveRequest = {
   source_account_id: number

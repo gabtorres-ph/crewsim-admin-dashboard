@@ -6,6 +6,7 @@ import {
   deleteEsim,
   EsimMoveApiError,
   EsimsApiError,
+  fetchNetworkStatusHistory,
   moveEsimsToAccount,
   normalizeEsimUpdate,
   refreshEsimByImsi,
@@ -17,9 +18,14 @@ import type {
   EsimMoveResult,
   EsimRead,
   EsimUpdate,
+  NetworkStatusRecord,
 } from "./types"
 
 export type EsimActionResult = { ok: true; esim?: EsimRead } | { ok: false; error: string }
+
+export type NetworkStatusActionResult =
+  | { ok: true; records: NetworkStatusRecord[] }
+  | { ok: false; error: string }
 
 type EsimMoveSaveStatus =
   | { status: "not-required" }
@@ -154,6 +160,16 @@ export async function refreshEsimAction(imsi: string): Promise<EsimActionResult>
     await refreshEsimByImsi(imsi)
     revalidatePath("/esims")
     return { ok: true }
+  } catch (error) {
+    return { ok: false, error: getActionError(error) }
+  }
+}
+
+export async function getNetworkStatusHistoryAction(
+  imsi: string,
+): Promise<NetworkStatusActionResult> {
+  try {
+    return { ok: true, records: await fetchNetworkStatusHistory(imsi) }
   } catch (error) {
     return { ok: false, error: getActionError(error) }
   }

@@ -21,6 +21,7 @@ export function getEsimColumns({
   onEdit,
   onDelete,
   onRefresh,
+  onNetworkStatus,
   refreshingEsimIds,
   userEmailsById,
 }: {
@@ -28,6 +29,7 @@ export function getEsimColumns({
   onEdit: (esim: EsimRead) => void
   onDelete: (esim: EsimRead) => void
   onRefresh: (esim: EsimRead) => void
+  onNetworkStatus: (esim: EsimRead) => void
   refreshingEsimIds: ReadonlySet<number>
   userEmailsById: ReadonlyMap<number, string>
 }) {
@@ -119,6 +121,11 @@ export function getEsimColumns({
           onEdit={onEdit}
           onDelete={onDelete}
           customActions={[
+            {
+              id: "network-status",
+              label: "Network Status",
+              onSelect: onNetworkStatus,
+            },
             {
               id: "refresh",
               label: refreshingEsimIds.has(row.original.id) ? "Refreshing…" : "Refresh",

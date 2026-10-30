@@ -7,6 +7,7 @@ import { DataTable } from "@/components/ui/data-table/DataTable"
 import type { DataTableToolbarConfig } from "@/components/ui/data-table/DataTableFilterbar"
 import { EsimFormDialog } from "./EsimFormDialog"
 import { EsimDetailsDialog } from "./EsimDetailsDialog"
+import { EsimNetworkStatusDialog } from "./EsimNetworkStatusDialog"
 import { deleteEsimAction, refreshEsimAction } from "./actions"
 import type { EsimMoveResult, EsimRead } from "./types"
 import { getEsimColumns } from "./columns"
@@ -33,6 +34,8 @@ export function EsimsTable({ esims, users, usersError }: {
   const [tableEsims, setTableEsims] = useState(esims)
   const [editing, setEditing] = useState<EsimRead>()
   const [viewing, setViewing] = useState<EsimRead>()
+  const [viewingNetworkStatus, setViewingNetworkStatus] = useState<EsimRead>()
+  const [networkStatusReloadKey, setNetworkStatusReloadKey] = useState(0)
   const [creating, setCreating] = useState(false)
   const [error, setError] = useState<string>()
   const [refreshSummary, setRefreshSummary] = useState<string>()
@@ -68,6 +71,7 @@ export function EsimsTable({ esims, users, usersError }: {
         return
       }
       setRefreshSummary(`Refreshed eSIM “${esim.name ?? esim.imsi}”.`)
+      setNetworkStatusReloadKey((current) => current + 1)
       router.refresh()
     } catch {
       setError(`Could not refresh eSIM “${esim.name ?? esim.imsi}”. Please try again.`)
@@ -141,6 +145,7 @@ export function EsimsTable({ esims, users, usersError }: {
           onEdit: setEditing,
           onDelete: remove,
           onRefresh: refresh,
+          onNetworkStatus: setViewingNetworkStatus,
           refreshingEsimIds,
           userEmailsById,
         })}
@@ -161,6 +166,13 @@ export function EsimsTable({ esims, users, usersError }: {
         userEmailsById={userEmailsById}
         onOpenChange={(open) => {
           if (!open) setViewing(undefined)
+        }}
+      />
+      <EsimNetworkStatusDialog
+        esim={viewingNetworkStatus}
+        reloadKey={networkStatusReloadKey}
+        onOpenChange={(open) => {
+          if (!open) setViewingNetworkStatus(undefined)
         }}
       />
       <EsimFormDialog

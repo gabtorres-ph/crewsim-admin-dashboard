@@ -11,6 +11,7 @@ import type {
   EsimRead,
   EsimRefreshResult,
   EsimUpdate,
+  NetworkStatusRecord,
 } from "./types"
 
 export type {
@@ -22,6 +23,7 @@ export type {
   EsimRead,
   EsimRefreshResult,
   EsimUpdate,
+  NetworkStatusRecord,
 } from "./types"
 
 type ApiErrorBody = { detail?: unknown }
@@ -66,6 +68,7 @@ function getApiErrorMessage(status: number, statusText: string, detail: unknown)
 
 const API_PREFIX = (process.env.CORE_API_PREFIX ?? "/api").replace(/\/+$/, "")
 const ESIM_PATH = `${API_PREFIX}/esims`
+const NETWORK_STATUS_PATH = `${API_PREFIX}/network-status`
 const DEFAULT_OFFSET = 0
 const DEFAULT_LIMIT = 100
 
@@ -134,6 +137,12 @@ function assertRecord(value: unknown, label: string): asserts value is Record<st
 
 function assertPositiveId(value: number, label: string): void {
   if (!Number.isInteger(value) || value <= 0) throw new RangeError(`${label} must be a positive integer.`)
+}
+
+function assertImsi(value: string): void {
+  if (typeof value !== "string" || !/^[0-9]{5,15}$/.test(value)) {
+    throw new RangeError("IMSI must contain between 5 and 15 digits.")
+  }
 }
 
 function normalizeNullableString(value: unknown, field: string, max = 255): string | null {
@@ -370,6 +379,29 @@ function parseEsimList(value: unknown): EsimRead[] {
   return value.map(parseEsim)
 }
 
+function parseNetworkStatusRecord(value: unknown, imsi: string): NetworkStatusRecord {
+  assertRecord(value, "network status record")
+  if (
+    typeof value.id !== "number" || !Number.isInteger(value.id) || value.id <= 0 ||
+    typeof value.sim_id !== "number" || !Number.isInteger(value.sim_id) || value.sim_id <= 0 ||
+    value.imsi !== imsi ||
+    typeof value.status !== "string" ||
+    typeof value.start !== "string" || Number.isNaN(Date.parse(value.start)) ||
+    (value.end !== null && (typeof value.end !== "string" || Number.isNaN(Date.parse(value.end)))) ||
+    typeof value.profile_type !== "string" ||
+    typeof value.status_modification !== "string"
+  ) throw new TypeError("The Core API returned an invalid network status record.")
+
+  return value as NetworkStatusRecord
+}
+
+function parseNetworkStatusHistory(value: unknown, imsi: string): NetworkStatusRecord[] {
+  if (!Array.isArray(value)) {
+    throw new TypeError("The Core API returned an invalid network status history.")
+  }
+  return value.map((record) => parseNetworkStatusRecord(record, imsi))
+}
+
 function parseEsimRefreshResult(value: unknown): EsimRefreshResult {
   assertRecord(value, "eSIM refresh response")
   const nullableStringFields = [
@@ -403,11 +435,17 @@ export async function refreshEsimsForAccount(accountId: number): Promise<EsimRef
 }
 
 export async function refreshEsimByImsi(imsi: string): Promise<EsimRefreshResult> {
-  if (typeof imsi !== "string" || !/^[0-9]{5,15}$/.test(imsi)) {
-    throw new RangeError("IMSI must contain between 5 and 15 digits.")
-  }
+  assertImsi(imsi)
   return parseEsimRefreshResult(
     await request(`${ESIM_PATH}/${encodeURIComponent(imsi)}/refresh`, { method: "POST" }),
+  )
+}
+
+export async function fetchNetworkStatusHistory(imsi: string): Promise<NetworkStatusRecord[]> {
+  assertImsi(imsi)
+  return parseNetworkStatusHistory(
+    await request(`${NETWORK_STATUS_PATH}/${encodeURIComponent(imsi)}`),
+    imsi,
   )
 }
 
