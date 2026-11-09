@@ -19,8 +19,8 @@ function header(title: string) {
   };
 }
 
-function formatStartDate(value: string): string {
-  return value.replace("T", " ");
+function formatDate(value: string | null): string {
+  return value ? value.replace("T", " ") : "—";
 }
 
 export const roamingPlanDetailColumns = [
@@ -93,8 +93,14 @@ export const roamingPlanDetailColumns = [
   }),
   columnHelper.accessor("start_date", {
     header: header("Start date"),
-    cell: ({ getValue }) => formatStartDate(getValue()),
+    cell: ({ getValue }) => formatDate(getValue()),
     enableSorting: false,
     meta: { className: "tabular-nums", displayName: "Start date" },
+  }),
+  columnHelper.accessor("end_date", {
+    header: header("End date"),
+    cell: ({ getValue }) => formatDate(getValue()),
+    enableSorting: false,
+    meta: { className: "tabular-nums", displayName: "End date" },
   }),
 ] as ColumnDef<RoamingPlanDetailRead>[];

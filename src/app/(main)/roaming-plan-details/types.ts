@@ -16,6 +16,7 @@ export type RoamingPlanDetailRead = {
   active: boolean;
   data_rate: string | null;
   start_date: string;
+  end_date: string | null;
 };
 
 export type RoamingPlanDetailListParams = {

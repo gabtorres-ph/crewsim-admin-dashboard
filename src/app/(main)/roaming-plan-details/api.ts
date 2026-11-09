@@ -114,7 +114,8 @@ function parseRoamingPlanDetail(value: unknown): RoamingPlanDetailRead {
     (value.data_rate !== null &&
       (typeof value.data_rate !== "string" ||
         !DECIMAL_PATTERN.test(value.data_rate))) ||
-    typeof value.start_date !== "string"
+    typeof value.start_date !== "string" ||
+    (value.end_date !== null && typeof value.end_date !== "string")
   ) {
     throw new TypeError(
       "The Core API returned an invalid roaming plan detail record.",
@@ -134,6 +135,7 @@ function parseRoamingPlanDetail(value: unknown): RoamingPlanDetailRead {
     active: value.active,
     data_rate: value.data_rate,
     start_date: value.start_date,
+    end_date: value.end_date,
   };
 }
 
