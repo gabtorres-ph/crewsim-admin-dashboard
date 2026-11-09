@@ -26,6 +26,7 @@ import {
   SortingState,
   TableOptions,
   flexRender,
+  functionalUpdate,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
@@ -33,10 +34,17 @@ import {
   useReactTable,
 } from "@tanstack/react-table"
 
+export interface DataTableServerPagination {
+  page: number
+  total: number
+  onPageChange: (page: number) => void
+}
+
 interface DataTableProps<TData> {
   columns: ColumnDef<TData>[]
   data: TData[]
   pageSize?: number
+  serverPagination?: DataTableServerPagination
   getRowId?: TableOptions<TData>["getRowId"]
   emptyMessage?: string
   toolbar?: DataTableToolbarConfig
@@ -49,6 +57,7 @@ export function DataTable<TData>({
   columns,
   data,
   pageSize = 20,
+  serverPagination,
   getRowId,
   emptyMessage = "No results.",
   toolbar,
@@ -65,6 +74,9 @@ export function DataTable<TData>({
   })
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [sorting, setSorting] = useState<SortingState>([])
+  const paginationState = serverPagination
+    ? { pageIndex: serverPagination.page - 1, pageSize }
+    : pagination
 
   function goToFirstPage() {
     setPagination((current) =>
@@ -78,10 +90,12 @@ export function DataTable<TData>({
     getRowId,
     state: {
       rowSelection,
-      pagination,
+      pagination: paginationState,
       columnFilters,
       sorting,
     },
+    manualPagination: Boolean(serverPagination),
+    rowCount: serverPagination?.total,
     // Keep the current page when data refreshes after an edit or delete;
     // filter and sort changes return to the first page explicitly instead.
     autoResetPageIndex: false,
@@ -89,7 +103,14 @@ export function DataTable<TData>({
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onRowSelectionChange: setRowSelection,
-    onPaginationChange: setPagination,
+    onPaginationChange: (updater) => {
+      if (!serverPagination) {
+        setPagination(updater)
+        return
+      }
+      const { pageIndex } = functionalUpdate(updater, paginationState)
+      serverPagination.onPageChange(pageIndex + 1)
+    },
     onColumnFiltersChange: (updater) => {
       setColumnFilters(updater)
       goToFirstPage()

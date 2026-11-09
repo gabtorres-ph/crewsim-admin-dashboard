@@ -19,6 +19,13 @@ export type RoamingPlanDetailRead = {
 };
 
 export type RoamingPlanDetailListParams = {
-  offset?: number;
+  page?: number;
   limit?: number;
+};
+
+export type RoamingPlanDetailListResponse = {
+  items: RoamingPlanDetailRead[];
+  total: number;
+  page: number;
+  limit: number;
 };

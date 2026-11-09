@@ -4,18 +4,26 @@ import { Input } from "@/components/Input";
 import { Label } from "@/components/Label";
 import { DataTable } from "@/components/ui/data-table/DataTable";
 import type { DataTableToolbarConfig } from "@/components/ui/data-table/DataTableFilterbar";
+import { cx } from "@/lib/utils";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { refreshRoamingPlanDetailsAction } from "./actions";
 import { roamingPlanDetailColumns } from "./columns";
 import type { RoamingPlanDetailRead } from "./types";
 
 export function RoamingPlanDetailsTable({
   details,
+  page,
+  total,
+  pageSize,
 }: {
   details: RoamingPlanDetailRead[];
+  page: number;
+  total: number;
+  pageSize: number;
 }) {
   const router = useRouter();
+  const [isChangingPage, startPageChange] = useTransition();
   const [tariffId, setTariffId] = useState("");
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string>();
@@ -60,11 +68,13 @@ export function RoamingPlanDetailsTable({
     }
   }
 
+  function handlePageChange(nextPage: number) {
+    startPageChange(() => {
+      router.push(`?page=${nextPage}`, { scroll: false });
+    });
+  }
+
   const toolbar = {
-    search: {
-      columnId: "operator_name",
-      placeholder: "Search operators...",
-    },
     showViewOptions: true,
     primaryAction: {
       label: "Refresh",
@@ -77,7 +87,7 @@ export function RoamingPlanDetailsTable({
     <>
       <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
         <p className="text-sm text-gray-500 dark:text-gray-400">
-          {details.length} roaming plan detail{details.length === 1 ? "" : "s"}
+          {total} roaming plan detail{total === 1 ? "" : "s"}
         </p>
         <div className="w-full sm:w-48">
           <Label htmlFor="roaming-plan-details-tariff-id">
@@ -110,14 +120,20 @@ export function RoamingPlanDetailsTable({
           {summary}
         </p>
       )}
-      <DataTable
-        columns={roamingPlanDetailColumns}
-        data={details}
-        emptyMessage="No roaming plan details found."
-        getRowId={(detail) => String(detail.roaming_plan_rule_id)}
-        pageSize={20}
-        toolbar={toolbar}
-      />
+      <div
+        aria-busy={isChangingPage}
+        className={cx(isChangingPage && "opacity-60")}
+      >
+        <DataTable
+          columns={roamingPlanDetailColumns}
+          data={details}
+          emptyMessage="No roaming plan details found."
+          getRowId={(detail) => String(detail.roaming_plan_rule_id)}
+          pageSize={pageSize}
+          serverPagination={{ page, total, onPageChange: handlePageChange }}
+          toolbar={toolbar}
+        />
+      </div>
     </>
   );
 }

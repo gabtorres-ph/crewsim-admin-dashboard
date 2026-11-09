@@ -3,6 +3,7 @@ import "server-only";
 import type {
   RoamingNetworkCode,
   RoamingPlanDetailListParams,
+  RoamingPlanDetailListResponse,
   RoamingPlanDetailRead,
 } from "./types";
 
@@ -136,14 +137,40 @@ function parseRoamingPlanDetail(value: unknown): RoamingPlanDetailRead {
   };
 }
 
+function parseRoamingPlanDetailList(
+  value: unknown,
+): RoamingPlanDetailListResponse {
+  if (
+    !isRecord(value) ||
+    !Array.isArray(value.items) ||
+    typeof value.total !== "number" ||
+    !Number.isInteger(value.total) ||
+    typeof value.page !== "number" ||
+    !Number.isInteger(value.page) ||
+    typeof value.limit !== "number" ||
+    !Number.isInteger(value.limit)
+  ) {
+    throw new TypeError(
+      "The Core API returned an invalid roaming plan detail list.",
+    );
+  }
+
+  return {
+    items: value.items.map(parseRoamingPlanDetail),
+    total: value.total,
+    page: value.page,
+    limit: value.limit,
+  };
+}
+
 export async function fetchRoamingPlanDetails(
   params: RoamingPlanDetailListParams = {},
-): Promise<RoamingPlanDetailRead[]> {
-  const offset = params.offset ?? 0;
+): Promise<RoamingPlanDetailListResponse> {
+  const page = params.page ?? 1;
   const limit = params.limit ?? 100;
-  if (!Number.isInteger(offset) || offset < 0) {
+  if (!Number.isInteger(page) || page < 1) {
     throw new RangeError(
-      "Roaming plan detail list offset must be a non-negative integer.",
+      "Roaming plan detail list page must be a positive integer.",
     );
   }
   if (!Number.isInteger(limit) || limit < 1 || limit > 100) {
@@ -153,16 +180,12 @@ export async function fetchRoamingPlanDetails(
   }
 
   const query = new URLSearchParams({
-    offset: String(offset),
+    page: String(page),
     limit: String(limit),
   });
-  const body = await request(`${ROAMING_PLAN_DETAILS_PATH}?${query}`);
-  if (!Array.isArray(body)) {
-    throw new TypeError(
-      "The Core API returned an invalid roaming plan detail list.",
-    );
-  }
-  return body.map(parseRoamingPlanDetail);
+  return parseRoamingPlanDetailList(
+    await request(`${ROAMING_PLAN_DETAILS_PATH}?${query}`),
+  );
 }
 
 export async function refreshRoamingPlanDetails(
