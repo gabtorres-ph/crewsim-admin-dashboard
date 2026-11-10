@@ -11,33 +11,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/Dialog";
-import { Textarea } from "@/components/Textarea";
+import { DataTable } from "@/components/ui/data-table/DataTable";
 import { getNetworkStatusHistoryAction } from "./actions";
+import { networkStatusColumns } from "./networkStatusColumns";
 import type { EsimRead, NetworkStatusRecord } from "./types";
 
 type HistoryState =
   | { status: "loading" }
   | { status: "loaded"; records: NetworkStatusRecord[] }
   | { status: "error"; message: string };
-
-function formatHistory(records: NetworkStatusRecord[]): string {
-  if (records.length === 0) return "No network status history found.";
-
-  return records
-    .map((record, index) =>
-      [
-        `${index + 1}. ${record.status}`,
-        `Start: ${record.start}`,
-        `End: ${record.end ?? "Ongoing"}`,
-        `Profile type: ${record.profile_type}`,
-        `Status modification: ${record.status_modification}`,
-        `Record ID: ${record.id}`,
-        `SIM ID: ${record.sim_id}`,
-        `IMSI: ${record.imsi}`,
-      ].join("\n"),
-    )
-    .join("\n\n");
-}
 
 type EsimNetworkStatusDialogProps = {
   esim: EsimRead | undefined;
@@ -75,16 +57,9 @@ export function EsimNetworkStatusDialog({
     };
   }, [loadHistory, reloadKey]);
 
-  const textareaValue =
-    history.status === "loading"
-      ? "Loading network status history…"
-      : history.status === "error"
-        ? `Could not load network status history.\n\n${history.message}`
-        : formatHistory(history.records);
-
   return (
     <Dialog open={esim !== undefined} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="max-h-[90vh] sm:max-w-6xl">
         {esim && (
           <>
             <DialogHeader>
@@ -93,13 +68,35 @@ export function EsimNetworkStatusDialog({
                 Stored history for IMSI {esim.imsi}, newest first.
               </DialogDescription>
             </DialogHeader>
-            <Textarea
-              className="mt-6 min-h-80 resize-none font-mono"
-              aria-label={`Network status history for IMSI ${esim.imsi}`}
+            <div
+              className="mt-6 min-w-0"
               aria-busy={history.status === "loading"}
-              readOnly
-              value={textareaValue}
-            />
+            >
+              {history.status === "loading" && (
+                <p className="py-12 text-center text-sm text-gray-500">
+                  Loading network status history…
+                </p>
+              )}
+
+              {history.status === "error" && (
+                <p
+                  role="alert"
+                  className="rounded-md bg-red-50 p-4 text-sm text-red-700 dark:bg-red-950 dark:text-red-300"
+                >
+                  Could not load network status history. {history.message}
+                </p>
+              )}
+
+              {history.status === "loaded" && (
+                <DataTable
+                  columns={networkStatusColumns}
+                  data={history.records}
+                  getRowId={(record) => String(record.id)}
+                  emptyMessage="No network status history found."
+                  pageSize={10}
+                />
+              )}
+            </div>
             <DialogFooter className="mt-6">
               {history.status === "error" && (
                 <Button
